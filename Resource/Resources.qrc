@@ -1,0 +1,8 @@
+<RCC>
+  <qresource prefix="t">
+    <file>IasHelp.png</file>
+  </qresource>
+  <qresource prefix="newPrefix">
+    <file>convex_hull.png</file>
+  </qresource>
+</RCC>

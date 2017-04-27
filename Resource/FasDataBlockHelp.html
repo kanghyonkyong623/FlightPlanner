@@ -1,0 +1,277 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!-- saved from url=(0084)file:///E:/CholNam/download04-10/EUROCONTROL%20SBAS%20FAS%20Data%20Block%20Tool.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        
+        <title>
+            EUROCONTROL SBAS FAS Data Block Tool
+        </title>
+        
+        
+        <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8">
+		
+        
+    
+        
+        <link href="./FasDataBlockHelp_files/fasbase.css" rel="stylesheet" type="text/css">
+        
+    </head>
+    <body>
+        
+        <div class="header" style="">
+            <a href="http://www.eurocontrol.int/">
+                <img src="./FasDataBlockHelp_files/eclogo75.gif" alt="EUROCONTROL Logo, click for EUROCONTROL Homepage.">
+            </a>
+            
+            <h1>
+            EUROCONTROL SBAS FAS Data Block Tool
+        </h1>
+            
+            <div class="links">
+                <a href="http://fasdb.eurocontrol.int/fasdb/app/about.htm">About</a>
+                <a href="http://fasdb.eurocontrol.int/fasdb/app/disclaimer.htm">Disclaimer</a>
+                <a href="http://fasdb.eurocontrol.int/fasdb/app/help.htm">Help</a>
+            </div>
+            
+        </div>
+        
+        <div class="headerbis" style="">
+            <div class="welcome" style="font-weight: bolder;font-size: larger;margin-top: 12px;display: inline"><i>Functions :</i></div><div class="links" style="margin-top: 12px;display: inline-block"><a href="http://fasdb.eurocontrol.int/fasdb/app/fasForm.htm">Encode</a>
+                <a href="http://fasdb.eurocontrol.int/fasdb/app/fasDecodeForm.htm">Decode</a>
+                <a href="http://fasdb.eurocontrol.int/fasdb/app/fasFileUploadForm.htm">Decode File</a>     
+            </div>
+        </div>
+        
+        
+        
+        <div class="page" style="">
+            
+            
+        
+
+        <div class="results">
+
+            <p><b>Source Reference Documentation</b></p>
+            <ul>
+                <li>Appendix D to RTCA DO-229D</li>
+                <li>Appendix B to ICAO Annex 10</li>
+				<li>ICAO doc 8168 (PANS OPS) Volume 2, Part III, Section 2, Chapter 6</li>
+            </ul>
+
+            <p><b>Encode</b></p>
+            <p>
+                Allows encoding of user-input data into a FAS Data Block. Supports SBAS encoding only. For valid field types see table below.
+            </p>
+
+<!--            <p>
+                Required Additional Data fields are not included in the CRC calculation, but are required for publication purposes (to be coded in ARINC 424 records).
+            </p>-->
+
+            
+            <i>Notes on decimal formatting:</i> 
+            <ul>
+                <li>Period (.) is used as the decimal separator</li>
+                <li>Thousands separator is not supported</li>
+            </ul>
+
+            <table class="block">
+                <thead>
+                    <tr>
+                        <th colspan="4">Valid Field Types</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="subtitle">
+                        <td class="subtitle">Field</td>
+                        <td class="subtitle">Range/Format/Resolution</td>
+                        <td class="subtitle">Note</td>
+                    </tr>
+                    <tr>
+                        <td>Operation Type</td>
+                        <td>
+						{[0]Straight In, [1-15]Reserved} <br>
+						Default value is set to [0] <br>
+						According to PANS OPS, [0] includes offset procedures
+                        </td>
+                        <td>Mandatory</td>
+                    </tr>
+                    <tr>
+                        <td>SBAS Provider</td>
+                        <td>
+						{[0]WAAS, [1]EGNOS, [2]MSAS, [3]GAGAN, [4]SDCM, [5-13]Spare, [14]GBAS Only, [15]Any SBAS Provider} <br>
+                        </td>
+                        <td>Mandatory</td>
+                    </tr>
+                    <tr>
+                        <td>Airport Identifier</td>
+                        <td>[A-Z\d]{4} The ICAO airport code or the national airport identifier if this does not exist. Any 3-character national identifier shall be complemented with a SPACE character in the right-most position (e.g. "3SL_" where "_" equals a space character)  						
+						</td>
+                        <td>Mandatory</td>
+                    </tr>
+                    <tr>
+                        <td>Runway</td>
+                        <td>Number: 01 - 36 <br>
+						Modifier: {[0] None, [1] R, [2] C, [3] L}<br> 
+						In case of Helicopter or circling procedure, the runway number shall be encoded as the procedure final approach course rounded to the closest 10° and truncated to two characters (e.g. “36” for a procedure heading toward 004°)
+                        </td>
+                        <td>Mandatory</td>
+                    </tr>
+                    <tr>
+                        <td>Approach Performance Designator</td>
+                        <td>
+						{[0]APV, [1]Category I, [2]Reserved for Category II, [3]Reserved for Category III, [4-7]Spare}<br>
+						Default APD value is set to 'APV'.<br> 
+						This field is not used by SBAS equipment (Annex 10) 
+                        </td>
+                        <td>Mandatory</td>
+                    </tr>
+                    <tr>
+                        <td>Route Indicator</td>
+                        <td>[A-HJ-NP-Z]{0,1}<br> 
+						The route indicator coding shall match the duplicate procedure indicator used in the chart title. The first procedure to a runway end shall be coded as “Z”, except when there is only a single procedure to the runway end. In this case, the field is coded as a blank. Additional alpha characters are incrementally assigned.<br> 
+						If multiple procedures to the same runway end differ only in the missed approach segments, the only difference in the coding of the FAS data blocks is the coding of the route indicator field so that it matches the duplicate procedure indicators used in the procedure titles.
+						</td>
+                        <td>Mandatory</td>
+                    </tr>
+                    <tr>
+                        <td>Reference Path Data Selector</td>
+                        <td>0 - 48<br>
+						This field is reserved for use by GBAS and is not used by SBAS<br>
+						Default RPDS value is set to '0'.</td>
+                        <td>Mandatory</td>
+                    </tr>
+                    <tr>
+                        <td>Reference Path Identifier</td>
+                        <td>[A-Z\d]{3}[A-BD-KM-QS-Z\d]{1}<br> 
+						RPI is a 4-character identifier. The 1st character references the SBAS system providing service (e.g. “W” WAAS, “E” EGNOS, “M” MSAS, “G” GAGAN, “S” SDCM). This is followed by the runway number (2 characters). The last character, beginning with the letter “A” and excluding the letters “C”, “L”, and “R”, uses succeeding letters for each procedures to a particular runway.
+						</td>
+                        <td>Mandatory</td>
+                    </tr>
+                    <tr>
+                        <td>LTP/FTP Latitude</td>
+                        <td>DDMMSS.ssss[N|S]</td>
+                        <td>Mandatory</td>
+                    </tr>
+                    <tr>
+                        <td>LTP/FTP Longitude</td>
+                        <td>DDDMMSS.ssss[W|E]</td>
+                        <td>Mandatory</td>
+                    </tr>
+                    <tr>
+                        <td>LTP/FTP Ellipsoidal Height (metres)</td>
+                        <td>-512.0 - 6041.5, resolution: 0.1</td>
+                        <td>Mandatory</td>
+                    </tr>
+                    <tr>
+                        <td>FPAP Latitude</td>
+                        <td>DDMMSS.ssss[N|S]</td>
+                        <td>Mandatory</td>
+                    </tr>
+                    <tr>
+                        <td>FPAP Longitude</td>
+                        <td>DDDMMSS.ssss[W|E]</td>
+                        <td>Mandatory</td>
+                    </tr>
+                    <tr>
+                        <td>Threshold Crossing Height</td>
+                        <td>Value: <br>
+                            For units ft: 0.0 - 3276.7, resolution: 0.1 <br>
+                            For units m: 0.00 - 1638.35, resolution: 0.05 <br>
+                            Units: {[0]ft, [1]m} 
+                        </td>
+                        <td>Mandatory</td>
+                    </tr>
+                    <tr>
+                        <td>Glidepath Angle (degrees)</td>
+                        <td>0.0 - 90.0, resolution: 0.01</td>
+                        <td>Mandatory</td>
+                    </tr>
+                    <tr>
+                        <td>Course Width (metres)</td>
+                        <td>80 - 143.75, resolution: 0.25</td>
+                        <td>Mandatory</td>
+                    </tr>
+                    <tr>
+                        <td>Length Offset (metres)</td>
+                        <td>0 – 2032, resolution: 8</td>
+                        <td>Mandatory</td>
+                    </tr>
+                    <tr>
+                        <td>HAL (metres)</td>
+                        <td>0.0 - 50.8, resolution: 0.2<br>
+						Standard HAL values are 40 m (APV 1 and LPV 200 SBAS service levels) 
+						</td>
+                        <td>Mandatory</td>
+                    </tr>
+                    <tr>
+                        <td>VAL (metres)</td>
+                        <td>0.0 0.0	- 50.8, resolution: 0.2<br>
+						Typical VAL values are 50 and 35 m (APV 1 and LPV 200 service levels respectively). The use of other values is not excluded. LP procedures would use a value of 0 m indicating that the vertical deviations should not be used.
+						</td>
+                        <td>Mandatory</td>
+                    </tr>
+                    <tr>
+                        <td>CRC Value</td>
+                        <td>HEX</td>
+                        <td>Optional, but will be checked against calculated block CRC Value if provided.</td>
+                    </tr>
+                    <tr>
+                        <td>ICAO Code</td>
+                        <td>2 Letters Uppercase</td>
+                        <td>Required Additional Data (not CRC wrapped)</td>
+                    </tr>
+                    <tr>
+                        <td>LTP/FTP Orthometric Height</td>
+                        <td>-512.0 - 6041.5, resolution: 0.1</td>
+                        <td>Required Additional Data (not CRC wrapped). <br> <br> FPAP and LTP/FTP orthometric heights should be the same.</td>
+                    </tr>
+                    <tr>
+                        <td>FPAP Orthometric Height</td>
+                        <td>-512.0 - 6041.5, resolution: 0.1</td>
+                        <td>Required Additional Data (not CRC wrapped). <br> <br> FPAP and LTP/FTP orthometric heights should be the same.</td>
+                    </tr>
+
+                </tbody>
+            </table>
+
+            <p><b>Decode</b></p>
+            <p>
+                Allows decoding of an existing FAS Data Block back into its component fields. Supports SBAS decoding only.
+            </p>
+
+            <p><b>Decode File</b></p>
+            <p>
+                Allows decoding of an existing FAS Data Block, in binary file format, back into its component fields. Supports SBAS decoding only.
+            </p>
+
+            <p><b>Results</b></p>
+            <p>
+                FAS Data Block encoding and decoding results are displayed along with a CRC value check. Supports the editing of component fields and the export to a text report or binary file. For valid field types see table above.  
+            </p>
+            <p> 
+                Providing ICAO code, LTP/FTP orthometric height and FPAP orthometric height is not required for CRC calculation; however these additional data need to be provided to datahouses for procedure coding in ARINC 424 records.
+            </p>
+            <p>
+                The publication of the full hexadecimal Data Block in addition to the CRC value in the AIP is not required. 
+            </p>
+
+
+            <p><b>Further Help</b></p>
+            <p>
+                If you have any queries on FAS DB please contact <a href="mailto:rnav.approach@eurocontrol.int">
+                    RNAV Approach</a>.
+            </p>
+
+            <br>
+
+
+        </div>
+    
+            
+            <div class="version">
+                <p>EUROCONTROL FAS DB tool&nbsp;Version:&nbsp;3.0.1</p>
+            </div>
+            
+        </div>
+        
+    
+</body></html>
