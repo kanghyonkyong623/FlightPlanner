@@ -1,11 +1,22 @@
 # -*- coding: UTF-8 -*-
 
 import os
-import sys, define
+import sys
 
-mapinfo = None
+from subprocess import call
+
+from PyQt4.QtCore import *
+from PyQt4.QtGui import *
+
+from qgis.core import QgsApplication
+
+from Type.String import String
+from AircraftOperation import AirCraftOperation
+import define
+
 appdatadir = None
 path = None
+
 if getattr(sys, 'frozen', False):
     path = os.path.dirname(sys.executable)
     path = path.replace("\\", "/")
@@ -19,124 +30,96 @@ elif __file__:
     sys.__stdout__ = open(appdatadir + '/my_stdout.log', 'w')
     sys.__stderr__ = open(appdatadir + '/my_stderr.log', 'w')
 
+
+# MyWnd depends on define.path
 define.appPath = path
-from subprocess import call
-call("runas " + define.appPath + "/Resource/dlls/gacutil.exe /i \"SKGL.dll\"")
 
+# try import clr module before importing MyWnd
+# because MyWnd depends on whether clr module is imported
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-from Type.String import String
-from AircraftOperation import AirCraftOperation
-from qgis.core import QgsApplication
-print "Before MyWnd"
-from map.mainWindow import MyWnd
-print "Before DlgLicensing"
-from Licensing.DlgLicensing import DlgLicensing
-
-
-
-
-print "Before clr"
 try:
     import clr
-except IOError as e:
-    print "I/O error({0}): {1}".format(e.errno, e.strerror)
-except SystemError as e1:
-    print e1.message
-except:
-    print "Unexpected error:", sys.exc_info()[0]
+except ImportError:
+    print "Failed to import module: clr"
+    sys.exit(1)
 
-print "Before SKGL"
+from map.mainWindow import MyWnd
+
+# with Global Assembly Cache, try to load SKGL.dll
+call("runas " + define.appPath + "/Resource/dlls/gacutil.exe /i \"SKGL.dll\"")
+
 try:
-    mydll = clr.AddReference('SKGL')
+    clr.AddReference('SKGL')
     from SKGL import Validate, Generate
 except IOError as e:
     print "I/O error({0}): {1}".format(e.errno, e.strerror)
 except SystemError as e1:
     print e1.message
+except ImportError:
+    print "Failed to import module: SKGL"
+    sys.exit(1)
 except:
     print "Unexpected error:", sys.exc_info()[0]
-
-print "Import End"
-
-l = QStyleFactory.keys()
-print l.count()
-for ll in l:
-    print ll
-    i = 1
-pass
+    sys.exit(1)
 
 
 def main(argv):
 
-    import _winreg as wr
-    licenseKey = None
-    aReg = wr.ConnectRegistry(None, wr.HKEY_LOCAL_MACHINE)
-    aKey = None
+    import _winreg as windowsregistry
+    licensekey = None
+    localmachinekeyhandle = windowsregistry.ConnectRegistry(None, windowsregistry.HKEY_LOCAL_MACHINE)
+    keyhandle = None
+
     try:
-        targ = r'SOFTWARE\Microsoft\Windows\FlightPlannerLicense'
-        print "*** Reading from", targ, "***"
-        aKey = wr.OpenKey(aReg, targ)
+        keyargument = r'SOFTWARE\Microsoft\Windows\FlightPlannerLicense'
+        print "*** Reading from", keyargument, "***"
+        keyhandle = windowsregistry.OpenKey(localmachinekeyhandle, keyargument)
         try:
-            n, v, t = wr.EnumValue(aKey, 0)
+            n, v, t = windowsregistry.EnumValue(keyhandle, 0)
             if n == "License":
-                licenseKey = v
-                print licenseKey
+                licensekey = v
+                print licensekey
         except:
             print "no license"
         finally:
             try:
-                wr.CloseKey(aKey)
+                windowsregistry.CloseKey(keyhandle)
             except:
                 pass
     except:
         print "no License trag"
     finally:
         try:
-            wr.CloseKey(aReg)
+            windowsregistry.CloseKey(localmachinekeyhandle)
         except:
             pass
+
+        # create Qt application
         app = QApplication(argv)
+
+        # Initialize qgis libraries
         QgsApplication.setPrefixPath(".", True)
-        a = QgsApplication.initQgis()
+        QgsApplication.initQgis()
 
-        # f = file("D:/ccc.txt", "w")
-        # ss = ["sfdffdsf", "233424324", "sdfsdfs"]
-        # f.write("start")
-        # f.writelines(ss)
-        # f.close()
+        licenceflag = False
 
-        print "File print End"
-        licenceFlag = False
-        if licenseKey != None:
+        if licensekey is not None:
 
             print "Compare Start"
-            objValidate = Validate();
+            objvalidate = Validate()
             print "aerodrome$pw3s$Pa$$W0rd"
-            objValidate.secretPhase = "aerodrome$pw3s$Pa$$W0rd";
-            # GlobalSettings objSetting = GlobalSettings.Load(Constants.globaleSettingsPath);
-            objValidate.Key = String.QString2Str(QString(licenseKey)).replace("-", "");
-            print objValidate.Key
-            # objValidate.Key = "IVAII-UTDIE-HGIEG-WMVOG"
+            objvalidate.secretPhase = "aerodrome$pw3s$Pa$$W0rd"
+            objvalidate.Key = String.QString2Str(QString(licensekey)).replace("-", "")
+            print objvalidate.Key
+
             try:
-                if (objValidate.IsValid and objValidate.IsOnRightMachine and objValidate.SetTime >= objValidate.DaysLeft):# and objValidate.IsExpired == False ):
-                    licenceFlag = True
+                if objvalidate.IsValid and objvalidate.IsOnRightMachine and objvalidate.SetTime >= objvalidate.DaysLeft:  # and objValidate.IsExpired == False ):
+                    licenceflag = True
             except:
                 pass
-        print licenceFlag
-        # if not licenceFlag:
-        #     dlgLicensing = DlgLicensing()
-        #     licenceFlag = dlgLicensing.exec_()
-        # if licenceFlag:
-        #     print "Start  MyWnd"
+
         define._appWidth = QApplication.desktop().screenGeometry().width()
         define._appHeight = QApplication.desktop().screenGeometry().height()
-
-
-
-
-
 
         window = MyWnd()
         window.setWindowState(Qt.WindowMaximized)
@@ -144,17 +127,12 @@ def main(argv):
         retval = app.exec_()
 
         AirCraftOperation.g_AppSetting.WriteSettings()
-        if retval:
-            pass
+
         QgsApplication.exitQgis()
         sys.exit(retval)
 
 
-
-
 if __name__ == "__main__":
-    # Si el modulo es importado __name__= VisorGeografico  ,
-    #    si es ejecutado: __name__ = __main__
-    main(sys.argv) # Crear la aplicacion Qt
+    main(sys.argv)
 
 
