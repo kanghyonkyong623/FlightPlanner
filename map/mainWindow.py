@@ -179,10 +179,12 @@ class MyWnd(QMainWindow):
         
         define._messagBar = QgsMessageBar()
         define._messagBar.setSizePolicy( QSizePolicy.Minimum, QSizePolicy.Fixed )
-        define._canvas = QgsMapCanvas(self)
-        define._canvas.setCanvasColor(Qt.white)
-        # define._canvas.setCanvasColor(QColor(34, 41, 51))
-        define._canvas.layersChanged.connect(self.setSnapping)
+
+        self.canvas = QgsMapCanvas(self)
+
+        define._canvas = self.canvas
+        self.canvas.setCanvasColor(Qt.white)
+        self.canvas.layersChanged.connect(self.setSnapping)
         meterCrs = QgsCoordinateReferenceSystem(32633, QgsCoordinateReferenceSystem.EpsgCrsId)
 
 
@@ -192,7 +194,7 @@ class MyWnd(QMainWindow):
 
         define._qgsDistanceArea = QgsDistanceArea()
         
-        define._canvas.setExtent(QgsRectangle(-180, -90, 180, 90))
+        self.canvas.setExtent(QgsRectangle(-180, -90, 180, 90))
 
         #define._canvas.setExtent(layer.extent())
         print "Init menu"
@@ -203,7 +205,7 @@ class MyWnd(QMainWindow):
         self.initStatusBar()
         statusBar.show()
         
-        define._canvas.scaleChanged.connect(self.showScale)
+        self.canvas.scaleChanged.connect(self.showScale)
         define._obstacleLayers = []
         define._surfaceLayers = []
 
@@ -723,7 +725,7 @@ class MyWnd(QMainWindow):
         self.connect(self.mActionRemoveLayer, SIGNAL("triggered()"), self.removeLayer)
 
         self.setMouseTracking(True)
-        define._canvas.xyCoordinates.connect(self.mouseMoveHandler)
+        self.canvas.xyCoordinates.connect(self.mouseMoveHandler)
         define._mLayerTreeView.currentLayerChanged.connect(self.layersChanged)
         self.saveFlag = True
         self.dlgRnpAR = None
@@ -973,7 +975,7 @@ class MyWnd(QMainWindow):
                     layer.commitChanges()
                     layer.startEditing()
     def cancelForAllLayersFunc(self):
-        layerList = define._canvas.layers()
+        layerList = self.canvas.layers()
         if len(layerList) <= 0:
             return
         if QMessageBox.information(self, "Current edits", "Cancel current changes for all layer(s)?", QMessageBox.Ok | QMessageBox.Cancel) == QMessageBox.Cancel:
@@ -986,7 +988,7 @@ class MyWnd(QMainWindow):
             self.toggleEditingFunc()
 
     def rollBackForAllLayersFunc(self):
-        layerList = define._canvas.layers()
+        layerList = self.canvas.layers()
         if len(layerList) <= 0:
             return
         if QMessageBox.information(self, "Current edits", "Rollback current changes for all layer(s)?", QMessageBox.Ok | QMessageBox.Cancel) == QMessageBox.Cancel:
@@ -997,7 +999,7 @@ class MyWnd(QMainWindow):
                     layer.rollBack()
                     layer.startEditing()
     def saveForAllLayersFunc(self):
-        layerList = define._canvas.layers()
+        layerList = self.canvas.layers()
         if len(layerList) <= 0:
             return
         if QMessageBox.information(self, "Current edits", "Save current changes for all layer(s)?", QMessageBox.Ok | QMessageBox.Cancel) == QMessageBox.Cancel:
@@ -1009,7 +1011,7 @@ class MyWnd(QMainWindow):
                     layer.startEditing()
     def currentEditsToolButtonActionTriggered(self):
 
-        layerList = define._canvas.layers()
+        layerList = self.canvas.layers()
         if len(layerList) <= 0:
             return
         modifiedFlag = False
@@ -1033,7 +1035,7 @@ class MyWnd(QMainWindow):
                 QgisHelper.ClearRubberBandInCanvas(define._canvas, self.nodeTool.pointBubberBandList)
                 self.nodeTool.pointBubberBandList = []
         if self.mpActionAddCircularString.isChecked():
-            self.currentDigitizingLayer = define._canvas.currentLayer()
+            self.currentDigitizingLayer =self.canvas.currentLayer()
 
             if not self.currentDigitizingLayer.isEditable():
                 childActions = self.toolbarDigitizingToolsActionActions
@@ -1048,16 +1050,16 @@ class MyWnd(QMainWindow):
                     if action.objectName() != "mpEditStart":
                         action.setChecked(False)
             self.circularTool = QgsMapToolAddCircularString(self.currentDigitizingLayer, self.addCircularType)
-            define._canvas.setMapTool(self.circularTool)
+            self.canvas.setMapTool(self.circularTool)
         else:
-            define._canvas.setMapTool(QgsMapToolPan(define._canvas))
+            self.canvas.setMapTool(QgsMapToolPan(define._canvas))
     def addCircularStringPoint(self):
         if self.nodeTool != None:
             if len(self.nodeTool.pointBubberBandList) > 0:
                 QgisHelper.ClearRubberBandInCanvas(define._canvas, self.nodeTool.pointBubberBandList)
                 self.nodeTool.pointBubberBandList = []
         # if self.mpActionAddCircularString.isChecked():
-        self.currentDigitizingLayer = define._canvas.currentLayer()
+        self.currentDigitizingLayer = self.canvas.currentLayer()
 
         if not self.currentDigitizingLayer.isEditable():
             childActions = self.toolbarDigitizingToolsActionActions
@@ -1074,9 +1076,9 @@ class MyWnd(QMainWindow):
         # selectedFeature = selectedFeatures[0]
         self.circularTool = QgsMapToolAddCircularString(self.currentDigitizingLayer, "Point")
         # self.connect(moveTool, SIGNAL("resultCreate"), self.featureAdd)
-        define._canvas.setMapTool(self.circularTool)
+        self.canvas.setMapTool(self.circularTool)
         # else:
-        #     define._canvas.setMapTool(QgsMapToolPan(define._canvas))
+        #    self.canvas.setMapTool(QgsMapToolPan(define._canvas))
     def addCircularStringRadius(self):
         # self.mpActionAddCircularString.setIcon(QIcon(self.currentDir + "/Resource/images/themes/default/mActionCircularStringRadius.png"))
         # self.addCircularType = "Radius"
@@ -1087,7 +1089,7 @@ class MyWnd(QMainWindow):
                 QgisHelper.ClearRubberBandInCanvas(define._canvas, self.nodeTool.pointBubberBandList)
                 self.nodeTool.pointBubberBandList = []
         # if self.mpActionAddCircularString.isChecked():
-        self.currentDigitizingLayer = define._canvas.currentLayer()
+        self.currentDigitizingLayer = self.canvas.currentLayer()
 
         if not self.currentDigitizingLayer.isEditable():
             childActions = self.toolbarDigitizingToolsActionActions
@@ -1104,9 +1106,9 @@ class MyWnd(QMainWindow):
         # selectedFeature = selectedFeatures[0]
         self.circularTool = QgsMapToolAddCircularString(self.currentDigitizingLayer, "Radius")
         # self.connect(moveTool, SIGNAL("resultCreate"), self.featureAdd)
-        define._canvas.setMapTool(self.circularTool)
+        self.canvas.setMapTool(self.circularTool)
         # else:
-        #     define._canvas.setMapTool(QgsMapToolPan(define._canvas))
+        #    self.canvas.setMapTool(QgsMapToolPan(define._canvas))
 
     def editSaveFunc(self):
         if self.nodeTool != None:
@@ -1115,7 +1117,7 @@ class MyWnd(QMainWindow):
                 self.nodeTool.pointBubberBandList = []
         self.mpActionEditSave.setEnabled(True)
 
-        layer = define._canvas.currentLayer()
+        layer = self.canvas.currentLayer()
         if not layer.isEditable():
             return
         layer.commitChanges()
@@ -1133,14 +1135,14 @@ class MyWnd(QMainWindow):
                         action.setChecked(False)
 
             toolSelectByRect0 = SelectByRect(define._canvas)
-            define._canvas.setMapTool(toolSelectByRect0)
+            self.canvas.setMapTool(toolSelectByRect0)
             self.connect(toolSelectByRect0, SIGNAL("getSelectedFeatures"), self.deleteSelecetedFeatures)
         else:
-            define._canvas.setMapTool(QgsMapToolPan(define._canvas))
+            self.canvas.setMapTool(QgsMapToolPan(define._canvas))
     def deleteSelecetedFeatures(self, selectedFeatures):
         if selectedFeatures == None or len(selectedFeatures) == 0:
             return
-        layer = define._canvas.currentLayer()
+        layer =self.canvas.currentLayer()
         if not layer.isEditable():
             return
         # for feat in selectedFeatures:
@@ -1150,7 +1152,7 @@ class MyWnd(QMainWindow):
             if len(self.nodeTool.pointBubberBandList) > 0:
                 QgisHelper.ClearRubberBandInCanvas(define._canvas, self.nodeTool.pointBubberBandList)
                 self.nodeTool.pointBubberBandList = []
-        self.currentDigitizingLayer = define._canvas.currentLayer()
+        self.currentDigitizingLayer = self.canvas.currentLayer()
         childActions = self.toolbarDigitizingToolsActionActions
         if len(childActions) != 0:
             for action in childActions:
@@ -1158,14 +1160,14 @@ class MyWnd(QMainWindow):
                     action.setChecked(False)
         addTool = QgsMapToolAddFeature(self.currentDigitizingLayer)
         # self.connect(addTool, SIGNAL("resultCreate"), self.featureAdd)
-        define._canvas.setMapTool(addTool)
+        self.canvas.setMapTool(addTool)
 
     def moveFeaturesFunc(self):
         if self.nodeTool != None:
             if len(self.nodeTool.pointBubberBandList) > 0:
                 QgisHelper.ClearRubberBandInCanvas(define._canvas, self.nodeTool.pointBubberBandList)
                 self.nodeTool.pointBubberBandList = []
-        self.currentDigitizingLayer = define._canvas.currentLayer()
+        self.currentDigitizingLayer = self.canvas.currentLayer()
 
         if not self.currentDigitizingLayer.isEditable():
             childActions = self.toolbarDigitizingToolsActionActions
@@ -1182,7 +1184,7 @@ class MyWnd(QMainWindow):
         # selectedFeature = selectedFeatures[0]
         moveTool = QgsMapToolMoveFeature(self.currentDigitizingLayer)
         # self.connect(moveTool, SIGNAL("resultCreate"), self.featureAdd)
-        define._canvas.setMapTool(moveTool)
+        self.canvas.setMapTool(moveTool)
     def nodeToolFunc(self):
         self.mpActionAddFeature.setChecked(False)
         self.mpActionMoveFeatures.setChecked(False)
@@ -1193,7 +1195,7 @@ class MyWnd(QMainWindow):
             for action in childActions:
                 if action.objectName() != "mpEditStart" and action.objectName() != "mpNodeTool":
                     action.setChecked(False)
-        self.currentDigitizingLayer = define._canvas.currentLayer()
+        self.currentDigitizingLayer = self.canvas.currentLayer()
         if not self.currentDigitizingLayer.isEditable():
             childActions = self.toolbarDigitizingToolsActionActions
             if len(childActions) != 0:
@@ -1204,7 +1206,7 @@ class MyWnd(QMainWindow):
         # selectedFeature = selectedFeatures[0]
         self.nodeTool = QgsMapToolNodeTool(define._canvas.currentLayer())
         # self.connect(moveTool, SIGNAL("resultCreate"), self.featureAdd)
-        define._canvas.setMapTool(self.nodeTool)
+        self.canvas.setMapTool(self.nodeTool)
     def editCutFunc(self):
         if self.nodeTool != None:
             if len(self.nodeTool.pointBubberBandList) > 0:
@@ -1219,14 +1221,14 @@ class MyWnd(QMainWindow):
                     if action.objectName() != "mpEditStart" and action.objectName() != "mpEditCut":
                         action.setChecked(False)
             toolSelectByRect0 = SelectByRect(define._canvas)
-            define._canvas.setMapTool(toolSelectByRect0)
+            self.canvas.setMapTool(toolSelectByRect0)
             self.connect(toolSelectByRect0, SIGNAL("getSelectedFeatures"), self.cutSelecetedFeatures)
         else:
-            define._canvas.setMapTool(QgsMapToolPan(define._canvas))
+            self.canvas.setMapTool(QgsMapToolPan(define._canvas))
     def cutSelecetedFeatures(self, selectedFeatures):
         if selectedFeatures == None or len(selectedFeatures) == 0:
             return
-        layer = define._canvas.currentLayer()
+        layer = self.canvas.currentLayer()
         if not layer.isEditable():
             return
 
@@ -1249,14 +1251,14 @@ class MyWnd(QMainWindow):
                     if action.objectName() != "mpEditStart" and action.objectName() != "mpEditCopy":
                         action.setChecked(False)
             toolSelectByRect0 = SelectByRect(define._canvas)
-            define._canvas.setMapTool(toolSelectByRect0)
+            self.canvas.setMapTool(toolSelectByRect0)
             self.connect(toolSelectByRect0, SIGNAL("getSelectedFeatures"), self.copySelecetedFeatures)
         else:
-            define._canvas.setMapTool(QgsMapToolPan(define._canvas))
+            self.canvas.setMapTool(QgsMapToolPan(define._canvas))
     def copySelecetedFeatures(self, selectedFeatures):
         if selectedFeatures == None or len(selectedFeatures) == 0:
             return
-        layer = define._canvas.currentLayer()
+        layer = self.canvas.currentLayer()
         if not layer.isEditable():
             return
 
@@ -1272,7 +1274,7 @@ class MyWnd(QMainWindow):
                 QgisHelper.ClearRubberBandInCanvas(define._canvas, self.nodeTool.pointBubberBandList)
                 self.nodeTool.pointBubberBandList = []
         self.mpActionEditPaste.setEnabled(True)
-        layer = define._canvas.currentLayer()
+        layer = self.canvas.currentLayer()
         if not layer.isEditable():
             childActions = self.toolbarDigitizingToolsActionActions
             if len(childActions) != 0:
@@ -1291,7 +1293,7 @@ class MyWnd(QMainWindow):
             pr.addFeatures([newFeature])
             # layer.addFeature(newFeature)
             pass
-        define._canvas.refresh()
+        self.canvas.refresh()
 
     def toggleEditingFunc(self):
         if self.nodeTool != None:
@@ -1299,7 +1301,7 @@ class MyWnd(QMainWindow):
                 QgisHelper.ClearRubberBandInCanvas(define._canvas, self.nodeTool.pointBubberBandList)
                 self.nodeTool.pointBubberBandList = []
         if self.mpActionToggleEditing.isChecked():
-            self.currentDigitizingLayer = define._canvas.currentLayer()
+            self.currentDigitizingLayer = self.canvas.currentLayer()
             if self.currentDigitizingLayer != None and self.currentDigitizingLayer.type() == QgsMapLayer.VectorLayer:
                 if self.currentDigitizingLayer.geometryType() == QGis.Line:
                     self.mpActionAddFeature.setIcon(QIcon(self.currentDir + "/Resource/images/themes/default/mActionCaptureLine.png"))
@@ -1326,21 +1328,21 @@ class MyWnd(QMainWindow):
                         action.setEnabled(False)
                 self.btnCircularString.setEnabled(False)
                 self.btnCurrentEdits.setEnabled(False)
-            define._canvas.refresh()
+            self.canvas.refresh()
         else:
-            self.currentDigitizingLayer = define._canvas.currentLayer()
+            self.currentDigitizingLayer = self.canvas.currentLayer()
             if self.currentDigitizingLayer != None and isinstance(self.currentDigitizingLayer, QgsVectorLayer):
                 if self.currentDigitizingLayer.isModified():
                     result = QMessageBox.information(self, "Stop editing" ,"Do you want to save the changes to layer %s"%self.currentDigitizingLayer.name(),QMessageBox.Yes|QMessageBox.No|QMessageBox.Cancel )
                     if result == QMessageBox.Yes:
-                        define._canvas.setMapTool(QgsMapToolPan(define._canvas))
+                        self.canvas.setMapTool(QgsMapToolPan(define._canvas))
                         self.currentDigitizingLayer.commitChanges()
                         self.currentDigitizingLayer.triggerRepaint()
                     elif result == QMessageBox.No:
-                        define._canvas.setMapTool(QgsMapToolPan(define._canvas))
-                        define._canvas.freeze( True )
+                        self.canvas.setMapTool(QgsMapToolPan(define._canvas))
+                        self.canvas.freeze( True )
                         self.currentDigitizingLayer.rollBack()
-                        define._canvas.freeze( False )
+                        self.canvas.freeze( False )
                         self.currentDigitizingLayer.triggerRepaint()
                     else:
                         self.mpActionToggleEditing.setChecked(True)
@@ -2128,19 +2130,19 @@ class MyWnd(QMainWindow):
 
             layerList.append(rasterLayer)
         QgisHelper.appendToCanvas(define._canvas, layerList, SurfaceTypes.DEM)
-        define._canvas.zoomToFullExtent()
+        self.canvas.zoomToFullExtent()
     def setSelectByRectTool(self):
-        define._canvas.setMapTool(self.toolSelectByRect)
+        self.canvas.setMapTool(self.toolSelectByRect)
     def setSelectByPolygonTool(self):
-        define._canvas.setMapTool(self.toolSelectByPolygon)
+        self.canvas.setMapTool(self.toolSelectByPolygon)
     def setSelectByFreehandTool(self):
-        define._canvas.setMapTool(self.toolSelectByFreehand)
+        self.canvas.setMapTool(self.toolSelectByFreehand)
     def setSelectByRadiusTool(self):
-        define._canvas.setMapTool(self.toolSelectByRadius)
+        self.canvas.setMapTool(self.toolSelectByRadius)
     def addLine(self):
         QgisHelper.ClearRubberBandInCanvas(define._canvas)
         lineCreateTool = LineCreateTool(define._canvas)
-        define._canvas.setMapTool(lineCreateTool)
+        self.canvas.setMapTool(lineCreateTool)
         QObject.connect(lineCreateTool, SIGNAL("resultLineCreate"), self.resultLineCreate)
         pass
     def resultLineCreate(self, geom):
@@ -2179,7 +2181,7 @@ class MyWnd(QMainWindow):
             palSetting.setDataDefinedProperty(QgsPalLayerSettings.Size, True, True, '8', "")
             palSetting.writeToLayer(constructionLayer)
             define._userLayers = constructionLayer
-            define._canvas.refresh()
+            self.canvas.refresh()
 
             # QgisHelper.appendToCanvas(define._canvas,[constructionLayer], "Users layer")
 
@@ -2189,7 +2191,7 @@ class MyWnd(QMainWindow):
     def mouseMoveHandler(self, point):
         statusBar = self.statusBar()
         if define._mapCrs == None:
-            if define._canvas.mapUnits() == QGis.DecimalDegrees:
+            if self.canvas.mapUnits() == QGis.DecimalDegrees:
                 unitString = "DecimalDegrees"
             else:
                 unitString = "Meters"
@@ -2207,33 +2209,33 @@ class MyWnd(QMainWindow):
     #     dlg = BaroVNavDlg(self)
     #     self.connect(self, SIGNAL("mapUnitChanged()"), dlg, SLOT("changeMapUnit(dlg)") )
     #     dlg.show()
-    #     define._canvas.setMapTool(self.toolPan)
+    #    self.canvas.setMapTool(self.toolPan)
     def addObstacleLayer(self):
         
         
-        dlg = AddObstcleLayerDlg(self, define._canvas)
+        dlg = AddObstcleLayerDlg(self,self.canvas)
         dlg.exec_()
         
         
         n = 0
     
     def measureTool(self):
-        dlg = AddMeasureToolDlg(self, define._canvas)
+        dlg = AddMeasureToolDlg(self,self.canvas)
         dlg.show()
         
     def measureAngleTool(self):
-        dlg = AddMeasureAngleToolDlg(self, define._canvas)
+        dlg = AddMeasureAngleToolDlg(self,self.canvas)
         dlg.show()
         
     def fullExtent(self):
-        define._canvas.zoomToFullExtent()
+       self.canvas.zoomToFullExtent()
 
     def zoomIn(self):
-        define._canvas.setMapTool(self.toolZoomIn)
+       self.canvas.setMapTool(self.toolZoomIn)
     def zoomOut(self):
-        define._canvas.setMapTool(self.toolZoomOut)
+       self.canvas.setMapTool(self.toolZoomOut)
     def pan(self):
-        define._canvas.setMapTool(self.toolPan)
+       self.canvas.setMapTool(self.toolPan)
         
     def AddVectorLayer(self):
         filenames = QFileDialog.getOpenFileNames(self, "Open Vector Files",QCoreApplication.applicationDirPath (),"Shapefiles(*.shp *.SHP)")
@@ -2250,7 +2252,7 @@ class MyWnd(QMainWindow):
                 layer.setCrs(QgsCoordinateReferenceSystem(4326, QgsCoordinateReferenceSystem.EpsgCrsId))
             layerList.append(layer)
         QgisHelper.appendToCanvas(define._canvas, layerList)
-        define._canvas.zoomToFullExtent()
+        self.canvas.zoomToFullExtent()
         
         
         
@@ -2268,20 +2270,20 @@ class MyWnd(QMainWindow):
 #             define._qgsDistanceArea.setEllipsoid(ellipsoid)
             latCrs = meterCrs
 #             
-#         if define._canvas.mapSettings().hasCrsTransformEnabled():
+#         ifself.canvas.mapSettings().hasCrsTransformEnabled():
 #             define._qgsDistanceArea.setEllipsoidalMode(True)
 #         else:
 #             define._qgsDistanceArea.setEllipsoidalMode(False)
             
         define._units = unit
-        myRenderer = define._canvas.mapRenderer()
-        define._canvas.freeze()
+        myRenderer = self.canvas.mapRenderer()
+        self.canvas.freeze()
         myRenderer.setProjectionsEnabled(True)
         myRenderer.setDestinationCrs(latCrs )
         myRenderer.setMapUnits( unit )
-        define._canvas.freeze( False )
-        define._canvas.refresh() 
-        define._canvas.zoomToFullExtent()
+        self.canvas.freeze( False )
+        self.canvas.refresh()
+        self.canvas.zoomToFullExtent()
         QgisHelper.convertMeasureUnits(unit)
 #         define._mapCrs = latCrs
         self.emit(SIGNAL("mapUnitChanged()"))
@@ -2308,8 +2310,8 @@ class MyWnd(QMainWindow):
 
         define._units = unit
         define._mapCrs = crs
-        myRenderer = define._canvas.mapRenderer()
-        define._canvas.freeze()
+        myRenderer =self.canvas.mapRenderer()
+        self.canvas.freeze()
         myRenderer.setProjectionsEnabled(True)
         myRenderer.setDestinationCrs(crs )
         myRenderer.setMapUnits( unit )
@@ -2654,7 +2656,7 @@ class MyWnd(QMainWindow):
         if self.actionSnapping.isChecked():
             define._snapping = True
             qgsProject = QgsProject.instance()
-            for layer in define._canvas.layers():
+            for layer in self.canvas.layers():
                 if not isinstance(layer, QgsVectorLayer):
                     continue
                 qgsProject.setSnapSettingsForLayer(layer.id(), True, QgsSnapper.SnapToVertexAndSegment\
@@ -2665,7 +2667,7 @@ class MyWnd(QMainWindow):
 
         
     def createOverview(self):
-        canvasOverview = QgsMapOverviewCanvas( None, define._canvas)
+        canvasOverview = QgsMapOverviewCanvas( None, self.canvas)
         canvasOverview.setWhatsThis("Map overview canvas. This canvas can be used to display a locator map that shows the current extent of the map canvas. The current extent is shown as a red rectangle. Any layer on the map can be added to the overview canvas.")
 #         overviewPanBmp = QBitmap.fromData( QSize( 10, 10 ), 'pan_bits' )
 #         overviewPanBmpMask = QBitmap.fromData( QSize( 10, 10 ), 'pan_mask_bits')
@@ -2681,18 +2683,18 @@ class MyWnd(QMainWindow):
         self.addDockWidget( Qt.LeftDockWidgetArea, mOverviewDock )
         #           // add to the Panel submenu
         self.viewMenu.addAction( mOverviewDock.toggleViewAction() )
-        define._canvas.enableOverviewMode( canvasOverview )
+        self.canvas.enableOverviewMode( canvasOverview )
         #           // moved here to set anti aliasing to both map canvas and overview
         mySettings = QSettings()
         #           // Anti Aliasing enabled by default as of QGIS 1.7
-        define._canvas.enableAntiAliasing( mySettings.value( "/qgis/enable_anti_aliasing", True ).toBool() )
+        self.canvas.enableAntiAliasing( mySettings.value( "/qgis/enable_anti_aliasing", True ).toBool() )
         action = mySettings.value( "/qgis/wheel_action", 2 ).toInt()
         zoomFactor = mySettings.value( "/qgis/zoom_factor", 1.5 ).toDouble()
-        define._canvas.setWheelAction(QgsMapCanvas.WheelZoomToMouseCursor, zoomFactor[0] )
-        define._canvas.setCachingEnabled( mySettings.value( "/qgis/enable_render_caching", True ).toBool() )
-        define._canvas.setParallelRenderingEnabled( mySettings.value( "/qgis/parallel_rendering", False ).toBool() )
+        self.canvas.setWheelAction(QgsMapCanvas.WheelZoomToMouseCursor, zoomFactor[0] )
+        self.canvas.setCachingEnabled( mySettings.value( "/qgis/enable_render_caching", True ).toBool() )
+        self.canvas.setParallelRenderingEnabled( mySettings.value( "/qgis/parallel_rendering", False ).toBool() )
         k = mySettings.value( "/qgis/map_update_interval",250 ).toInt()
-        define._canvas.setMapUpdateInterval(k[0])
+        self.canvas.setMapUpdateInterval(k[0])
         mOverviewDock.hide()
     def initLayerTreeView(self):
         mLegend = QDockWidget("Layers", self)
@@ -2711,7 +2713,7 @@ class MyWnd(QMainWindow):
         model.setAutoCollapseSymbologyNodes( 10 )
         
         self._mLayerTreeView.setModel( model )
-#         menu = QgsAppLayerTreeViewMenuProvider( self._mLayerTreeView, define._canvas )
+#         menu = QgsAppLayerTreeViewMenuProvider( self._mLayerTreeView,self.canvas )
         self._mLayerTreeView.setMenuProvider( QgsAppLayerTreeViewMenuProvider( self._mLayerTreeView) )
 #         self._mLayerTreeView.setContextMenuPolicy(Qt.ActionsContextMenu)
 #         actionRemoveLayer = self._mLayerTreeView.defaultActions().actionRemoveGroupOrLayer()
@@ -2741,7 +2743,7 @@ class MyWnd(QMainWindow):
 #         mLegend.setWidget( self._mLayerTreeView )
         self.addDockWidget( Qt.LeftDockWidgetArea, mLegend )
 
-        mLayerTreeCanvasBridge = QgsLayerTreeMapCanvasBridge( QgsProject.instance().layerTreeRoot(), define._canvas, self )
+        mLayerTreeCanvasBridge = QgsLayerTreeMapCanvasBridge( QgsProject.instance().layerTreeRoot(), self.canvas, self )
 #         connect( QgsProject.instance(), SIGNAL( writeProject( QDomDocument& ) ), mLayerTreeCanvasBridge, SLOT( writeProject( QDomDocument& ) ) )
 #         connect( QgsProject.instance(), SIGNAL( readProject( QDomDocument ) ), mLayerTreeCanvasBridge, SLOT( readProject( QDomDocument ) ) )
 
@@ -2767,7 +2769,7 @@ class MyWnd(QMainWindow):
         model.setLayerTreeNodeFont( QgsLayerTreeNode.NodeGroup, fontGroup )
 
     def activeLayerChanged(self, layer):        
-        define._canvas.setCurrentLayer( layer )
+        self.canvas.setCurrentLayer( layer )
     def updateNewLayerInsertionPoint(self):
         parentGroup = self._mLayerTreeView.layerTreeModel().rootGroup()
         index = 0
@@ -2812,7 +2814,7 @@ class MyWnd(QMainWindow):
             parentGroup = ( node.parent() )
             if ( parentGroup != None ):
                 parentGroup.removeChildNode( node )      
-        define._canvas.refresh()
+        self.canvas.refresh()
         
         for layer in define._surfaceLayers:
             try:
@@ -2828,7 +2830,7 @@ class MyWnd(QMainWindow):
         QgsProject.instance().dirty( True )
 
     def layersChanged(self):
-        layer = define._canvas.currentLayer()
+        layer = self.canvas.currentLayer()
         if isinstance(layer, QgsPluginLayer):
             return
         if layer != None:
@@ -3088,7 +3090,7 @@ class MyWnd(QMainWindow):
 
         # fileInfo = QFileInfo(self.saveFileName)
         # path = fileInfo.path()
-        # for layer in define._canvas.layers():
+        # for layer inself.canvas.layers():
         #
         #     destShpName = path + "/" + layer.name() + ".shp"
         #     er = QgsVectorFileWriter.writeAsVectorFormat(layer, destShpName, "utf-8", layer.crs())
@@ -3123,7 +3125,7 @@ class MyWnd(QMainWindow):
 # #           }
 # #         
 #             answer = QMessageBox.StandardButton( QMessageBox.Discard )
-#             define._canvas.freeze( True )
+#            self.canvas.freeze( True )
 #          
 # #           //QgsDebugMsg(QString("Layer count is %1").arg(mMapCanvas.layerCount()))
 # #           //QgsDebugMsg(QString("Project is %1dirty").arg( QgsProject.instance().isDirty() ? "" : "not "))
@@ -3144,7 +3146,7 @@ class MyWnd(QMainWindow):
 #             if ( QMessageBox.Save == answer ):
 #                 if not self.saveProj() :
 #                     answer = QMessageBox.Cancel                    
-#             define._canvas.freeze( False )         
+#            self.canvas.freeze( False )
 #             return answer != QMessageBox.Cancel
     def toolButtonActionTriggered(self, action): 
         settings = QSettings()
@@ -3206,16 +3208,16 @@ class MyWnd(QMainWindow):
                     QApplication.restoreOverrideCursor()
                 elif result == QMessageBox.Discard:
                     QApplication.setOverrideCursor( Qt.WaitCursor )
-                    define._canvas.freeze( True )
+                    self.canvas.freeze( True )
                     if ( layer.rollBack() ):
                         res = False
-                    define._canvas.freeze( False )
+                    self.canvas.freeze( False )
                     layer.triggerRepaint()
                     QApplication.restoreOverrideCursor()
             else:
-                define._canvas.freeze( True )
+                self.canvas.freeze( True )
                 layer.rollBack()
-                define._canvas.freeze( False )
+                self.canvas.freeze( False )
                 res = True
                 layer.triggerRepaint()
         return res
@@ -3239,8 +3241,8 @@ class MyWnd(QMainWindow):
             return
         if ( layer == self._mLayerTreeView.currentLayer() and leaveEditable ):
             mSaveRollbackInProgress = True
-        define._canvas.freeze( True )
-        define._canvas.freeze( False )
+        self.canvas.freeze( True )
+        self.canvas.freeze( False )
         if ( leaveEditable ):
             layer.startEditing()
         if ( triggerRepaint ):
@@ -3249,10 +3251,10 @@ class MyWnd(QMainWindow):
     def saveEdits1(self):
         for layer in self._mLayerTreeView.selectedLayers() :
             self.saveEdits( layer, True, False )
-        define._canvas.refresh()
+        self.canvas.refresh()
         
     def userScale(self):
-        define._canvas.zoomScale( 1.0 / float(self.mScaleEdit.scale() ))
+        self.canvas.zoomScale( 1.0 / float(self.mScaleEdit.scale() ))
     def showScale( self, theScale ):
         self.mScaleEdit.setScale( 1.0 / float(theScale ))
         if ( self.mScaleEdit.width() > self.mScaleEdit.minimumWidth() ):
@@ -3260,11 +3262,11 @@ class MyWnd(QMainWindow):
             
     def txtAnnotationTool(self):
         txtAnnoTool = QgsMapToolTextAnnotation(define._canvas)
-        define._canvas.setMapTool(txtAnnoTool)
+        self.canvas.setMapTool(txtAnnoTool)
     def deselectAll(self):
-        renderFlagState = define._canvas.renderFlag()
+        renderFlagState =self.canvas.renderFlag()
         if ( renderFlagState ):
-            define._canvas.setRenderFlag( False )
+            self.canvas.setRenderFlag( False )
         layers = QgsMapLayerRegistry.instance().mapLayers()
         for it in layers:
             vl = layers[it]
@@ -3275,13 +3277,13 @@ class MyWnd(QMainWindow):
             
 #             // Turn on rendering (if it was on previously)
         if ( renderFlagState ):
-            define._canvas.setRenderFlag( True )
+            self.canvas.setRenderFlag( True )
     def mapCanvas(self):
-        return define._canvas
+        return self.canvas
     def setActiveLayer(self, layer):
-        define._canvas.setCurrentLayer(layer)
+        self.canvas.setCurrentLayer(layer)
     def expressionselect(self):
-        vlayer = define._canvas.currentLayer() 
+        vlayer = self.canvas.currentLayer()
         if vlayer == None:
             QMessageBox.warning(None, "Information", "Please select layer!")
             return

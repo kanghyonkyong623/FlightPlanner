@@ -41,7 +41,7 @@ from qad_commands import *
 from qad_entity import *
 from qad_dim import QadDimStyles
 from qad_layer import getLayerById, QadLayerStatusEnum, QadLayerStatusListClass
-import qad_undoredo, define
+import qad_undoredo
 from qad_array_cmd import QadARRAYCommandClassSeriesTypeEnum
 
 
@@ -396,7 +396,7 @@ class Qad(QObject):
          # provo a caricare la lingua
          self.__initLocalization(language)
                         
-      self.canvas = define._canvas
+      self.canvas = self.iface.mapCanvas()
       self.tool = QadMapTool(self)
       
       # Lista dei comandi
