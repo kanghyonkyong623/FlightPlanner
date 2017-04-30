@@ -82,14 +82,7 @@ class AcadHelper:
             else:
                 constructionLineLayer = QgsVectorLayer("Point?crs=%s"%define._latLonCrs.authid (), layerName, path)
 
-
-        er = QgsVectorFileWriter.writeAsVectorFormat(constructionLineLayer, shpPath + "/" + layerName
-                                                     + ".shp", "utf-8", constructionLineLayer.crs())
-        constructionLineLayer = QgsVectorLayer(shpPath + "/" + layerName + ".shp", layerName, "ogr")
-
-
         if constructionLineLayer != None:
-            constructionLineLayer.startEditing()
             fieldAltitude = "Altitude"
             fieldName = "Caption"
             fieldNameBulge = "Bulge"
@@ -102,9 +95,8 @@ class AcadHelper:
             fieldSurface = "Surface"
 
             fAltitude = QgsField(fieldAltitude, QVariant.String)
-            # print fAltitude.length()
-            # fAltitude.setLength(100000)
-            constructionLineLayer.dataProvider().addAttributes( [fAltitude,
+
+            ret = constructionLineLayer.dataProvider().addAttributes( [fAltitude,
                                                                  QgsField(fieldName, QVariant.String),
                                                                  QgsField(fieldNameBulge, QVariant.String),
                                                                  QgsField(fieldNameGeometryType, QVariant.String),
@@ -115,7 +107,21 @@ class AcadHelper:
                                                                  QgsField(fieldCenterPoint, QVariant.String),
                                                                  QgsField(fieldSurface, QVariant.String)
                                                                  ])
-            constructionLineLayer.commitChanges()
+
+            if ret == False:
+                return None
+
+            constructionLineLayer.updateFields()
+
+        error = QgsVectorFileWriter.writeAsVectorFormat(constructionLineLayer, shpPath + "/" + layerName
+                                                     + ".shp", "utf-8", constructionLineLayer.crs())
+
+
+        if error != QgsVectorFileWriter.NoError:
+            return None;
+
+        constructionLineLayer = QgsVectorLayer(shpPath + "/" + layerName + ".shp", layerName, "ogr")
+
         return constructionLineLayer
 
     @staticmethod
