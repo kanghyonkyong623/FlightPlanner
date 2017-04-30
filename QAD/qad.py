@@ -165,12 +165,14 @@ class Qad(QObject):
    # comando dimstyle - ultimo tab utilizzato
    dimStyleLastUsedTabIndex = -1 # -1 = non inizializzato
 
+   cmdsHistory = [] # lista della storia degli ultimi comandi usati
+   ptsHistory = [] # lista della storia degli ultimi punti usati
 
    #============================================================================
    # version
    #============================================================================
    def version(self):
-      return "2.8.13"
+      return "2.14.1"
    
    
    def setLastPointAndSegmentAng(self, point, segmentAng = None):
@@ -185,6 +187,7 @@ class Qad(QObject):
    def setLastPoint(self, point):
       # memorizzo l'ultimo punto selezionato         
       self.lastPoint = point
+      self.updatePtsHistory(point)
 
    def setLastSegmentAng(self, segmentAng):
       # memorizzo il coeff angolare ultimo segmento
@@ -376,19 +379,18 @@ class Qad(QObject):
    #============================================================================
    # __init__
    #============================================================================
-   def __init__(self, iface, parentMenu):
+   def __init__(self, iface):
       
       QObject.__init__(self)      
       
       # Save reference to the QGIS interface
       self.iface = iface
-      self.parentMenu = parentMenu
       
       # initialize plugin directory
       self.plugin_dir = os.path.dirname(__file__)
       
       # initialize locale
-      userLocaleList = QSettings().value("locale/userLocale").toString().split("_")
+      userLocaleList = QSettings().value("locale/userLocale").split("_")
       language = userLocaleList[0]
       region = userLocaleList[1] if len(userLocaleList) > 1 else ""
       # provo a caricare la lingua e la regione selezionate
@@ -406,7 +408,8 @@ class Qad(QObject):
       
       # inizializzzione sul caricamento del progetto
       self.initOnProjectLoaded()
-      
+
+
    def initOnProjectLoaded(self):
       # carico le variabili d'ambiente
       QadVariables.load()
@@ -418,8 +421,11 @@ class Qad(QObject):
       self.loadDimStyles()
       # Gestore di Undo/Redo
       self.undoStack = qad_undoredo.QadUndoStack()
+      
+      self.UpdatedVariablesEvent()
 
-   # def initGui(self):
+
+   def initGui(self):
       # creo tutte le azioni e le collego ai comandi
       self.initActions()
 
@@ -452,15 +458,14 @@ class Qad(QObject):
       self.menu.addMenu(self.dimMenu)
       
       # aggiunge il menu al menu vector di QGIS
-      self.parentMenu.addMenu(self.menu)
+      self.iface.vectorMenu().addMenu(self.menu)
       
-#       menu_bar = self.iface.menuBar()
+#       menu_bar = self.iface.mainWindow().menuBar()
 #       actions = menu_bar.actions()
 #       lastAction = actions[ len( actions ) - 1 ]
 #       menu_bar.insertMenu(lastAction, self.menu )
       
       # aggiunge le toolbar
-      self.iface.addToolBarBreak()
       self.toolBar = self.iface.addToolBar("QAD")
       self.toolBar.setObjectName("QAD")
       self.toolBar.addAction(self.mainAction)
@@ -503,7 +508,13 @@ class Qad(QObject):
       self.toolBar.addAction(self.mirror_action)
       self.toolBar.addAction(self.stretch_action)
       self.toolBar.addAction(self.lengthen_action)
-      self.toolBar.addAction(self.break_action)
+      self.toolBar.addAction(self.divide_action)
+      self.toolBar.addAction(self.measure_action)
+      
+      # break
+      self.breakToolButton = self.createBreakToolButton()
+      self.toolBar.addWidget(self.breakToolButton)
+      
       self.toolBar.addAction(self.pedit_action)
       self.toolBar.addAction(self.mapmpedit_action)
       self.toolBar.addAction(self.fillet_action)
@@ -531,6 +542,7 @@ class Qad(QObject):
       QObject.connect(QgsMapLayerRegistry.instance(), SIGNAL("layerWasAdded(QgsMapLayer *)"), self.layerAdded)
       QObject.connect(QgsMapLayerRegistry.instance(), SIGNAL("layerWillBeRemoved(QString)"), self.removeLayer)
       QObject.connect(self.iface, SIGNAL("projectRead()"), self.onProjectLoaded)
+      QObject.connect(self.iface, SIGNAL("newProjectCreated()"), self.onProjectLoaded)
 
       self.showTextWindow(QadVariables.get(QadMsg.translate("Environment variables", "SHOWTEXTWINDOW"), True))
       self.setStandardMapTool()
@@ -581,323 +593,340 @@ class Qad(QObject):
       # Creo le azioni e le collego ai comandi
       
       self.mainAction = QAction(QIcon(":/plugins/qad/icons/qad.png"), \
-                                QadMsg.translate("QAD", "QAD"), self.iface)
+                                QadMsg.translate("QAD", "QAD"), self.iface.mainWindow())
       self.mainAction.setCheckable(True)
       QObject.connect(self.mainAction, SIGNAL("triggered()"), self.run)
       
       # SETCURRLAYERBYGRAPH
       cmd = self.QadCommands.getCommandObj(QadMsg.translate("Command_list", "SETCURRLAYERBYGRAPH"))
-      self.setCurrLayerByGraph_action = QAction(cmd.getIcon(), cmd.getName(), self.iface)
+      self.setCurrLayerByGraph_action = QAction(cmd.getIcon(), cmd.getName(), self.iface.mainWindow())
       self.setCurrLayerByGraph_action.setToolTip(cmd.getToolTipText())
       cmd.connectQAction(self.setCurrLayerByGraph_action)
       # SETCURRUPDATEABLELAYERBYGRAPH
       cmd = self.QadCommands.getCommandObj(QadMsg.translate("Command_list", "SETCURRUPDATEABLELAYERBYGRAPH"))
-      self.setCurrUpdateableLayerByGraph_action = QAction(cmd.getIcon(), cmd.getName(), self.iface)
+      self.setCurrUpdateableLayerByGraph_action = QAction(cmd.getIcon(), cmd.getName(), self.iface.mainWindow())
       self.setCurrUpdateableLayerByGraph_action.setToolTip(cmd.getToolTipText())
       cmd.connectQAction(self.setCurrUpdateableLayerByGraph_action)
             
       # ARC BY 3 POINTS (MACRO)
       self.arcBy3Points_action = QAction(QIcon(":/plugins/qad/icons/arcBy3Points.png"), \
                                          QadMsg.translate("Command_ARC", "Arc passing through 3 points"), \
-                                         self.iface)
+                                         self.iface.mainWindow())
       QObject.connect(self.arcBy3Points_action, SIGNAL("triggered()"), self.runARCBY3POINTSCommand)
       # ARC BY START CENTER END POINTS (MACRO)
       self.arcByStartCenterEndPoints_action = QAction(QIcon(":/plugins/qad/icons/arcByStartCenterEndPoints.png"), \
                                                       QadMsg.translate("Command_ARC", "Arc defined by start, central and final points"), \
-                                                      self.iface)
+                                                      self.iface.mainWindow())
       QObject.connect(self.arcByStartCenterEndPoints_action, SIGNAL("triggered()"), self.runARC_BY_START_CENTER_END_Command)
       # ARC BY START CENTER ANGLE (MACRO)
       self.arcByStartCenterAngle_action = QAction(QIcon(":/plugins/qad/icons/arcByStartCenterAngle.png"), \
                                                   QadMsg.translate("Command_ARC", "Arc defined by start, central points and angle"), \
-                                                  self.iface)
+                                                  self.iface.mainWindow())
       QObject.connect(self.arcByStartCenterAngle_action, SIGNAL("triggered()"), self.runARC_BY_START_CENTER_ANGLE_Command)
       # ARC BY START CENTER LENGTH (MACRO)
       self.arcByStartCenterLength_action = QAction(QIcon(":/plugins/qad/icons/arcByStartCenterLength.png"), \
                                                    QadMsg.translate("Command_ARC", "Arc defined by start, central points and cord length"), \
-                                                   self.iface)
+                                                   self.iface.mainWindow())
       QObject.connect(self.arcByStartCenterLength_action, SIGNAL("triggered()"), self.runARC_BY_START_CENTER_LENGTH_Command)
       # ARC BY START END ANGLE (MACRO)
       self.arcByStartEndAngle_action = QAction(QIcon(":/plugins/qad/icons/arcByStartEndAngle.png"), \
                                                QadMsg.translate("Command_ARC", "Arc defined by start, final points and angle"), \
-                                               self.iface)
+                                               self.iface.mainWindow())
       QObject.connect(self.arcByStartEndAngle_action, SIGNAL("triggered()"), self.runARC_BY_START_END_ANGLE_Command)
       # ARC BY START END TAN (MACRO)
       self.arcByStartEndTan_action = QAction(QIcon(":/plugins/qad/icons/arcByStartEndTan.png"), \
                                                QadMsg.translate("Command_ARC", "Arc defined by start, final points and tangent"), \
-                                               self.iface)
+                                               self.iface.mainWindow())
       QObject.connect(self.arcByStartEndTan_action, SIGNAL("triggered()"), self.runARC_BY_START_END_TAN_Command)
       # ARC BY START END RADIUS (MACRO)
       self.arcByStartEndRadius_action = QAction(QIcon(":/plugins/qad/icons/arcByStartEndRadius.png"), \
                                                QadMsg.translate("Command_ARC", "Arc defined by start, final points and radius"), \
-                                               self.iface)
+                                               self.iface.mainWindow())
       QObject.connect(self.arcByStartEndRadius_action, SIGNAL("triggered()"), self.runARC_BY_START_END_RADIUS_Command)
       # ARC BY CENTER START END (MACRO)
       self.arcByCenterStartEnd_action = QAction(QIcon(":/plugins/qad/icons/arcByCenterStartEnd.png"), \
                                                 QadMsg.translate("Command_ARC", "Arc defined by central, start and final points"), \
-                                                self.iface)
+                                                self.iface.mainWindow())
       QObject.connect(self.arcByCenterStartEnd_action, SIGNAL("triggered()"), self.runARC_BY_CENTER_START_END_Command)
       # ARC BY CENTER START ANGLE (MACRO)
       self.arcByCenterStartAngle_action = QAction(QIcon(":/plugins/qad/icons/arcByCenterStartAngle.png"), \
                                                   QadMsg.translate("Command_ARC", "Arc defined by central, start points and angle"), \
-                                                  self.iface)
+                                                  self.iface.mainWindow())
       QObject.connect(self.arcByCenterStartAngle_action, SIGNAL("triggered()"), self.runARC_BY_CENTER_START_ANGLE_Command)
       # ARC BY CENTER START LENGTH (MACRO)
       self.arcByCenterStartLength_action = QAction(QIcon(":/plugins/qad/icons/arcByCenterStartLength.png"), \
                                                    QadMsg.translate("Command_ARC", "Arc defined by central, start points and cord length"), \
-                                                   self.iface)
+                                                   self.iface.mainWindow())
       QObject.connect(self.arcByCenterStartLength_action, SIGNAL("triggered()"), self.runARC_BY_CENTER_START_LENGTH_Command)
 
       # ARRAYRECT
       cmd = self.QadCommands.getCommandObj(QadMsg.translate("Command_list", "ARRAYRECT"))
-      self.arrayRect_action = QAction(cmd.getIcon(), cmd.getName(), self.iface)
+      self.arrayRect_action = QAction(cmd.getIcon(), cmd.getName(), self.iface.mainWindow())
       self.arrayRect_action.setToolTip(cmd.getToolTipText())
       cmd.connectQAction(self.arrayRect_action)
       # ARRAYPATH
       cmd = self.QadCommands.getCommandObj(QadMsg.translate("Command_list", "ARRAYPATH"))
-      self.arrayPath_action = QAction(cmd.getIcon(), cmd.getName(), self.iface)
+      self.arrayPath_action = QAction(cmd.getIcon(), cmd.getName(), self.iface.mainWindow())
       self.arrayPath_action.setToolTip(cmd.getToolTipText())
       cmd.connectQAction(self.arrayPath_action)
       # ARRAYPOLAR (MACRO)
       cmd = self.QadCommands.getCommandObj(QadMsg.translate("Command_list", "ARRAYPOLAR"))
-      self.arrayPolar_action = QAction(cmd.getIcon(), cmd.getName(), self.iface)
+      self.arrayPolar_action = QAction(cmd.getIcon(), cmd.getName(), self.iface.mainWindow())
       self.arrayPolar_action.setToolTip(cmd.getToolTipText())
       cmd.connectQAction(self.arrayPolar_action)
 
       # BREAK
       cmd = self.QadCommands.getCommandObj(QadMsg.translate("Command_list", "BREAK"))
-      self.break_action = QAction(cmd.getIcon(), cmd.getName(), self.iface)
+      self.break_action = QAction(cmd.getIcon(), cmd.getName(), self.iface.mainWindow())
       self.break_action.setToolTip(cmd.getToolTipText())
       cmd.connectQAction(self.break_action)
+      # BREAK BY 1 POINT (MACRO)
+      self.breakBy1Point_action = QAction(QIcon(":/plugins/qad/icons/breakBy1Point.png"), \
+                                          QadMsg.translate("Command_BREAK", "Breaks an object at one point"), \
+                                          self.iface.mainWindow())
+      QObject.connect(self.breakBy1Point_action, SIGNAL("triggered()"), self.runBREAK_BY_1_POINT_Command)
 
       # CIRCLE BY CENTER RADIUS (MACRO)
       self.circleByCenterRadius_action = QAction(QIcon(":/plugins/qad/icons/circleByCenterRadius.png"), \
                                                  QadMsg.translate("Command_CIRCLE", "Circle defined by central point and radius"), \
-                                                 self.iface)
+                                                 self.iface.mainWindow())
       QObject.connect(self.circleByCenterRadius_action, SIGNAL("triggered()"), self.runCIRCLE_BY_CENTER_RADIUS_Command)
       # CIRCLE BY CENTER DIAMETER (MACRO)
       self.circleByCenterDiameter_action = QAction(QIcon(":/plugins/qad/icons/circleByCenterDiameter.png"), \
                                                    QadMsg.translate("Command_CIRCLE", "Circle defined by central point and diameter"), \
-                                                   self.iface)
+                                                   self.iface.mainWindow())
       QObject.connect(self.circleByCenterDiameter_action, SIGNAL("triggered()"), self.runCIRCLE_BY_CENTER_DIAMETER_Command)
       # CIRCLE BY 2 POINTS (MACRO)
       self.circleBy2Points_action = QAction(QIcon(":/plugins/qad/icons/circleBy2Points.png"), \
                                             QadMsg.translate("Command_CIRCLE", "Circle defined by 2 points"), \
-                                            self.iface)
+                                            self.iface.mainWindow())
       QObject.connect(self.circleBy2Points_action, SIGNAL("triggered()"), self.runCIRCLE_BY_2POINTS_Command)
       # CIRCLE BY 3 POINTS (MACRO)
       self.circleBy3Points_action = QAction(QIcon(":/plugins/qad/icons/circleBy3Points.png"), \
                                                   QadMsg.translate("Command_CIRCLE", "Circle defined by 3 points"), \
-                                                  self.iface)
+                                                  self.iface.mainWindow())
       QObject.connect(self.circleBy3Points_action, SIGNAL("triggered()"), self.runCIRCLE_BY_3POINTS_Command)
       # CIRCLE BY TANGEN TANGENT RADIUS (MACRO)
       self.circleBy2TansRadius_action = QAction(QIcon(":/plugins/qad/icons/circleBy2TansRadius.png"), \
                                                 QadMsg.translate("Command_CIRCLE", "Circle defined by 2 tangent points and radius"), \
-                                                self.iface)
+                                                self.iface.mainWindow())
       QObject.connect(self.circleBy2TansRadius_action, SIGNAL("triggered()"), self.runCIRCLE_BY_2TANS_RADIUS_Command)
       # CIRCLE BY TANGEN TANGENT TANGENT (MACRO)
       self.circleBy3Tans_action = QAction(QIcon(":/plugins/qad/icons/circleBy3Tans.png"), \
                                                 QadMsg.translate("Command_CIRCLE", "Circle defined by 3 tangent points"), \
-                                                self.iface)
+                                                self.iface.mainWindow())
       QObject.connect(self.circleBy3Tans_action, SIGNAL("triggered()"), self.runCIRCLE_BY_3TANS_Command)
       
       # COPY
       cmd = self.QadCommands.getCommandObj(QadMsg.translate("Command_list", "COPY"))
-      self.copy_action = QAction(cmd.getIcon(), cmd.getName(), self.iface)
+      self.copy_action = QAction(cmd.getIcon(), cmd.getName(), self.iface.mainWindow())
       self.copy_action.setToolTip(cmd.getToolTipText())
       cmd.connectQAction(self.copy_action)
       
       # DIMALIGNED
       cmd = self.QadCommands.getCommandObj(QadMsg.translate("Command_list", "DIMALIGNED"))
-      self.dimAligned_action = QAction(cmd.getIcon(), cmd.getName(), self.iface)
+      self.dimAligned_action = QAction(cmd.getIcon(), cmd.getName(), self.iface.mainWindow())
       self.dimAligned_action.setToolTip(cmd.getToolTipText())
       cmd.connectQAction(self.dimAligned_action)
       # DIMLINEAR
       cmd = self.QadCommands.getCommandObj(QadMsg.translate("Command_list", "DIMLINEAR"))
-      self.dimLinear_action = QAction(cmd.getIcon(), cmd.getName(), self.iface)
+      self.dimLinear_action = QAction(cmd.getIcon(), cmd.getName(), self.iface.mainWindow())
       self.dimLinear_action.setToolTip(cmd.getToolTipText())
       cmd.connectQAction(self.dimLinear_action)
       # DIMARC
       cmd = self.QadCommands.getCommandObj(QadMsg.translate("Command_list", "DIMARC"))
-      self.dimArc_action = QAction(cmd.getIcon(), cmd.getName(), self.iface)
+      self.dimArc_action = QAction(cmd.getIcon(), cmd.getName(), self.iface.mainWindow())
       self.dimArc_action.setToolTip(cmd.getToolTipText())
       cmd.connectQAction(self.dimArc_action)
       # DIMSTYLE
       cmd = self.QadCommands.getCommandObj(QadMsg.translate("Command_list", "DIMSTYLE"))
-      self.dimStyle_action = QAction(cmd.getIcon(), cmd.getName(), self.iface)
+      self.dimStyle_action = QAction(cmd.getIcon(), cmd.getName(), self.iface.mainWindow())
       self.dimStyle_action.setToolTip(cmd.getToolTipText())
       cmd.connectQAction(self.dimStyle_action)
       
       # DSETTINGS
       cmd = self.QadCommands.getCommandObj(QadMsg.translate("Command_list", "DSETTINGS"))
-      self.dsettings_action = QAction(cmd.getIcon(), cmd.getName(), self.iface)
+      self.dsettings_action = QAction(cmd.getIcon(), cmd.getName(), self.iface.mainWindow())
       self.dsettings_action.setToolTip(cmd.getToolTipText())
       cmd.connectQAction(self.dsettings_action)
       
       # DISJOIN
       cmd = self.QadCommands.getCommandObj(QadMsg.translate("Command_list", "DISJOIN"))
-      self.disjoin_action = QAction(cmd.getIcon(), cmd.getName(), self.iface)
+      self.disjoin_action = QAction(cmd.getIcon(), cmd.getName(), self.iface.mainWindow())
       self.disjoin_action.setToolTip(cmd.getToolTipText())
       cmd.connectQAction(self.disjoin_action)
       
+      # DIVIDE
+      cmd = self.QadCommands.getCommandObj(QadMsg.translate("Command_list", "DIVIDE"))
+      self.divide_action = QAction(cmd.getIcon(), cmd.getName(), self.iface.mainWindow())
+      self.divide_action.setToolTip(cmd.getToolTipText())
+      cmd.connectQAction(self.divide_action)
+      
       # ERASE
       cmd = self.QadCommands.getCommandObj(QadMsg.translate("Command_list", "ERASE"))
-      self.erase_action = QAction(cmd.getIcon(), cmd.getName(), self.iface)
+      self.erase_action = QAction(cmd.getIcon(), cmd.getName(), self.iface.mainWindow())
       self.erase_action.setToolTip(cmd.getToolTipText())
       cmd.connectQAction(self.erase_action)
       
       # EXTEND
       cmd = self.QadCommands.getCommandObj(QadMsg.translate("Command_list", "EXTEND"))
-      self.extend_action = QAction(cmd.getIcon(), cmd.getName(), self.iface)
+      self.extend_action = QAction(cmd.getIcon(), cmd.getName(), self.iface.mainWindow())
       self.extend_action.setToolTip(cmd.getToolTipText())
       cmd.connectQAction(self.extend_action)
       
       # FILLET
       cmd = self.QadCommands.getCommandObj(QadMsg.translate("Command_list", "FILLET"))
-      self.fillet_action = QAction(cmd.getIcon(), cmd.getName(), self.iface)
+      self.fillet_action = QAction(cmd.getIcon(), cmd.getName(), self.iface.mainWindow())
       self.fillet_action.setToolTip(cmd.getToolTipText())
       cmd.connectQAction(self.fillet_action)
 
       # HELP
       cmd = self.QadCommands.getCommandObj(QadMsg.translate("Command_list", "HELP"))
-      self.help_action = QAction(cmd.getIcon(), cmd.getName(), self.iface)
+      self.help_action = QAction(cmd.getIcon(), cmd.getName(), self.iface.mainWindow())
       self.help_action.setToolTip(cmd.getToolTipText())
       cmd.connectQAction(self.help_action)
       
       # INSERT
       cmd = self.QadCommands.getCommandObj(QadMsg.translate("Command_list", "INSERT"))
-      self.insert_action = QAction(cmd.getIcon(), cmd.getName(), self.iface)
+      self.insert_action = QAction(cmd.getIcon(), cmd.getName(), self.iface.mainWindow())
       self.insert_action.setToolTip(cmd.getToolTipText())
       cmd.connectQAction(self.insert_action)
       
       # JOIN
       cmd = self.QadCommands.getCommandObj(QadMsg.translate("Command_list", "JOIN"))
-      self.join_action = QAction(cmd.getIcon(), cmd.getName(), self.iface)
+      self.join_action = QAction(cmd.getIcon(), cmd.getName(), self.iface.mainWindow())
       self.join_action.setToolTip(cmd.getToolTipText())
       cmd.connectQAction(self.join_action)
       
       # LENGTHEN
       cmd = self.QadCommands.getCommandObj(QadMsg.translate("Command_list", "LENGTHEN"))
-      self.lengthen_action = QAction(cmd.getIcon(), cmd.getName(), self.iface)
+      self.lengthen_action = QAction(cmd.getIcon(), cmd.getName(), self.iface.mainWindow())
       self.lengthen_action.setToolTip(cmd.getToolTipText())
       cmd.connectQAction(self.lengthen_action)
       
       # LINE
       cmd = self.QadCommands.getCommandObj(QadMsg.translate("Command_list", "LINE"))
-      self.line_action = QAction(cmd.getIcon(), cmd.getName(), self.iface)
+      self.line_action = QAction(cmd.getIcon(), cmd.getName(), self.iface.mainWindow())
       self.line_action.setToolTip(cmd.getToolTipText())
       cmd.connectQAction(self.line_action)
       
       # MAPMPEDIT
       cmd = self.QadCommands.getCommandObj(QadMsg.translate("Command_list", "MAPMPEDIT"))
-      self.mapmpedit_action = QAction(cmd.getIcon(), cmd.getName(), self.iface)
+      self.mapmpedit_action = QAction(cmd.getIcon(), cmd.getName(), self.iface.mainWindow())
       self.mapmpedit_action.setToolTip(cmd.getToolTipText())
       cmd.connectQAction(self.mapmpedit_action)
       
       # MBUFFER
       cmd = self.QadCommands.getCommandObj(QadMsg.translate("Command_list", "MBUFFER"))
-      self.mbuffer_action = QAction(cmd.getIcon(), cmd.getName(), self.iface)
+      self.mbuffer_action = QAction(cmd.getIcon(), cmd.getName(), self.iface.mainWindow())
       self.mbuffer_action.setToolTip(cmd.getToolTipText())
       cmd.connectQAction(self.mbuffer_action)
       
+      # MEASURE
+      cmd = self.QadCommands.getCommandObj(QadMsg.translate("Command_list", "MEASURE"))
+      self.measure_action = QAction(cmd.getIcon(), cmd.getName(), self.iface.mainWindow())
+      self.measure_action.setToolTip(cmd.getToolTipText())
+      cmd.connectQAction(self.measure_action)
+      
       # MIRROR
       cmd = self.QadCommands.getCommandObj(QadMsg.translate("Command_list", "MIRROR"))
-      self.mirror_action = QAction(cmd.getIcon(), cmd.getName(), self.iface)
+      self.mirror_action = QAction(cmd.getIcon(), cmd.getName(), self.iface.mainWindow())
       self.mirror_action.setToolTip(cmd.getToolTipText())
       cmd.connectQAction(self.mirror_action)
       
       # MOVE
       cmd = self.QadCommands.getCommandObj(QadMsg.translate("Command_list", "MOVE"))
-      self.move_action = QAction(cmd.getIcon(), cmd.getName(), self.iface)
+      self.move_action = QAction(cmd.getIcon(), cmd.getName(), self.iface.mainWindow())
       self.move_action.setToolTip(cmd.getToolTipText())
       cmd.connectQAction(self.move_action)
       
       # MPOLYGON
       cmd = self.QadCommands.getCommandObj(QadMsg.translate("Command_list", "MPOLYGON"))
-      self.mpolygon_action = QAction(cmd.getIcon(), cmd.getName(), self.iface)
+      self.mpolygon_action = QAction(cmd.getIcon(), cmd.getName(), self.iface.mainWindow())
       self.mpolygon_action.setToolTip(cmd.getToolTipText())
       cmd.connectQAction(self.mpolygon_action)
       
       # OFFSET
       cmd = self.QadCommands.getCommandObj(QadMsg.translate("Command_list", "OFFSET"))
-      self.offset_action = QAction(cmd.getIcon(), cmd.getName(), self.iface)
+      self.offset_action = QAction(cmd.getIcon(), cmd.getName(), self.iface.mainWindow())
       self.offset_action.setToolTip(cmd.getToolTipText())
       cmd.connectQAction(self.offset_action)
       
       # OPTIONS
       cmd = self.QadCommands.getCommandObj(QadMsg.translate("Command_list", "OPTIONS"))
-      self.options_action = QAction(cmd.getIcon(), cmd.getName(), self.iface)
+      self.options_action = QAction(cmd.getIcon(), cmd.getName(), self.iface.mainWindow())
       self.options_action.setToolTip(cmd.getToolTipText())
       cmd.connectQAction(self.options_action)
       
       # PEDIT
       cmd = self.QadCommands.getCommandObj(QadMsg.translate("Command_list", "PEDIT"))
-      self.pedit_action = QAction(cmd.getIcon(), cmd.getName(), self.iface)
+      self.pedit_action = QAction(cmd.getIcon(), cmd.getName(), self.iface.mainWindow())
       self.pedit_action.setToolTip(cmd.getToolTipText())
       cmd.connectQAction(self.pedit_action)
       
       # PLINE
       cmd = self.QadCommands.getCommandObj(QadMsg.translate("Command_list", "PLINE"))
-      self.pline_action = QAction(cmd.getIcon(), cmd.getName(), self.iface)
+      self.pline_action = QAction(cmd.getIcon(), cmd.getName(), self.iface.mainWindow())
       self.pline_action.setToolTip(cmd.getToolTipText())
       cmd.connectQAction(self.pline_action)
       
       # POLYGON
       cmd = self.QadCommands.getCommandObj(QadMsg.translate("Command_list", "POLYGON"))
-      self.polygon_action = QAction(cmd.getIcon(), cmd.getName(), self.iface)
+      self.polygon_action = QAction(cmd.getIcon(), cmd.getName(), self.iface.mainWindow())
       self.polygon_action.setToolTip(cmd.getToolTipText())
       cmd.connectQAction(self.polygon_action)
       
       # RECTANGLE
       cmd = self.QadCommands.getCommandObj(QadMsg.translate("Command_list", "RECTANGLE"))
-      self.rectangle_action = QAction(cmd.getIcon(), cmd.getName(), self.iface)
+      self.rectangle_action = QAction(cmd.getIcon(), cmd.getName(), self.iface.mainWindow())
       self.rectangle_action.setToolTip(cmd.getToolTipText())
       cmd.connectQAction(self.rectangle_action)
       
       # REDO
       cmd = self.QadCommands.getCommandObj(QadMsg.translate("Command_list", "REDO"))
-      self.redo_action = QAction(cmd.getIcon(), cmd.getName(), self.iface)
+      self.redo_action = QAction(cmd.getIcon(), cmd.getName(), self.iface.mainWindow())
       self.redo_action.setToolTip(cmd.getToolTipText())
       cmd.connectQAction(self.redo_action)
       
       # ROTATE
       cmd = self.QadCommands.getCommandObj(QadMsg.translate("Command_list", "ROTATE"))
-      self.rotate_action = QAction(cmd.getIcon(), cmd.getName(), self.iface)
+      self.rotate_action = QAction(cmd.getIcon(), cmd.getName(), self.iface.mainWindow())
       self.rotate_action.setToolTip(cmd.getToolTipText())
       cmd.connectQAction(self.rotate_action)
       
       # SCALE
       cmd = self.QadCommands.getCommandObj(QadMsg.translate("Command_list", "SCALE"))
-      self.scale_action = QAction(cmd.getIcon(), cmd.getName(), self.iface)
+      self.scale_action = QAction(cmd.getIcon(), cmd.getName(), self.iface.mainWindow())
       self.scale_action.setToolTip(cmd.getToolTipText())
       cmd.connectQAction(self.scale_action)
       
       # STRETCH
       cmd = self.QadCommands.getCommandObj(QadMsg.translate("Command_list", "STRETCH"))
-      self.stretch_action = QAction(cmd.getIcon(), cmd.getName(), self.iface)
+      self.stretch_action = QAction(cmd.getIcon(), cmd.getName(), self.iface.mainWindow())
       self.stretch_action.setToolTip(cmd.getToolTipText())
       cmd.connectQAction(self.stretch_action)
       
       # TEXT
       cmd = self.QadCommands.getCommandObj(QadMsg.translate("Command_list", "TEXT"))
-      self.text_action = QAction(cmd.getIcon(), cmd.getName(), self.iface)
+      self.text_action = QAction(cmd.getIcon(), cmd.getName(), self.iface.mainWindow())
       self.text_action.setToolTip(cmd.getToolTipText())
       cmd.connectQAction(self.text_action)
       
       # TRIM
       cmd = self.QadCommands.getCommandObj(QadMsg.translate("Command_list", "TRIM"))
-      self.trim_action = QAction(cmd.getIcon(), cmd.getName(), self.iface)
+      self.trim_action = QAction(cmd.getIcon(), cmd.getName(), self.iface.mainWindow())
       self.trim_action.setToolTip(cmd.getToolTipText())
       cmd.connectQAction(self.trim_action)
       
       # UNDO
       cmd = self.QadCommands.getCommandObj(QadMsg.translate("Command_list", "UNDO"))
-      self.undo_action = QAction(cmd.getIcon(), cmd.getName(), self.iface)
+      self.undo_action = QAction(cmd.getIcon(), cmd.getName(), self.iface.mainWindow())
       self.undo_action.setToolTip(cmd.getToolTipText())
       cmd.connectQAction(self.undo_action)
       # UNDO OF ONLY ONE OPERATION (MACRO)
       self.u_action = QAction(QIcon(":/plugins/qad/icons/u.png"), \
                                     QadMsg.translate("Command_UNDO", "Undo last operation"), \
-                                    self.iface)
+                                    self.iface.mainWindow())
       QObject.connect(self.u_action, SIGNAL("triggered()"), self.runU_Command)
 
 
@@ -908,7 +937,10 @@ class Qad(QObject):
 
    def UpdatedVariablesEvent(self):
       # aggiorna in base alle nuove impostazioni delle variabili
-      self.tool.UpdatedVariablesEvent()
+      if self.tool:
+          self.tool.UpdatedVariablesEvent()
+      if self.TextWindow:
+         self.TextWindow.refreshColors()
       
       
    #============================================================================
@@ -933,6 +965,15 @@ class Qad(QObject):
       arcMenu.addAction(self.arcByCenterStartAngle_action)      
       arcMenu.addAction(self.arcByCenterStartLength_action)      
       return arcMenu
+
+   def createBreakMenu(self):
+      # menu Break
+      breakMenu = QMenu(QadMsg.translate("Command_list", "BREAK"))
+      cmd = self.QadCommands.getCommandObj(QadMsg.translate("Command_list", "BREAK"))
+      breakMenu.setIcon(cmd.getIcon())
+      breakMenu.addAction(self.break_action)
+      breakMenu.addAction(self.breakBy1Point_action)
+      return breakMenu
 
    def createCircleMenu(self):
       # menu Circle
@@ -1001,7 +1042,13 @@ class Qad(QObject):
       editMenu.addAction(self.mirror_action)
       editMenu.addAction(self.stretch_action)
       editMenu.addAction(self.lengthen_action)
-      editMenu.addAction(self.break_action)
+      editMenu.addAction(self.divide_action)
+      editMenu.addAction(self.measure_action)
+      
+      # menu break      
+      self.breakMenu = self.createBreakMenu()
+      editMenu.addMenu(self.breakMenu)
+      
       editMenu.addAction(self.pedit_action)
       editMenu.addAction(self.mapmpedit_action)
       editMenu.addAction(self.fillet_action)
@@ -1044,6 +1091,29 @@ class Qad(QObject):
       return arcToolButton
    def arcToolButtonTriggered(self, action):
       self.arcToolButton.setDefaultAction(action)
+
+
+   def createArrayToolButton(self):
+      arrayToolButton = QToolButton(self.toolBar)
+      arrayToolButton.setPopupMode(QToolButton.MenuButtonPopup)
+      arrayToolButton.setMenu(self.arrayMenu)
+      arrayToolButton.setDefaultAction(self.arrayMenu.actions()[0]) # prima voce di menu
+      arrayToolButton.triggered.connect(self.arrayToolButtonTriggered)
+      return arrayToolButton
+   def arrayToolButtonTriggered(self, action):
+      self.arrayToolButton.setDefaultAction(action)
+
+
+   def createBreakToolButton(self):
+      breakToolButton = QToolButton(self.toolBar)
+      breakToolButton.setPopupMode(QToolButton.MenuButtonPopup)
+      breakToolButton.setMenu(self.breakMenu)
+      breakToolButton.setDefaultAction(self.breakMenu.actions()[0]) # prima voce di menu
+      breakToolButton.triggered.connect(self.breakToolButtonTriggered)
+      return breakToolButton
+   def breakToolButtonTriggered(self, action):
+      self.breakToolButton.setDefaultAction(action)
+
    
    def createCircleToolButton(self):
       circleToolButton = QToolButton(self.toolBar)
@@ -1055,15 +1125,6 @@ class Qad(QObject):
    def circleToolButtonTriggered(self, action):
       self.circleToolButton.setDefaultAction(action)
 
-   def createArrayToolButton(self):
-      arrayToolButton = QToolButton(self.toolBar)
-      arrayToolButton.setPopupMode(QToolButton.MenuButtonPopup)
-      arrayToolButton.setMenu(self.arrayMenu)
-      arrayToolButton.setDefaultAction(self.arrayMenu.actions()[0]) # prima voce di menu
-      arrayToolButton.triggered.connect(self.arrayToolButtonTriggered)
-      return arrayToolButton
-   def arrayToolButtonTriggered(self, action):
-      self.arrayToolButton.setDefaultAction(action)
 
    def createDimToolBar(self):
       # aggiunge la toolbar per la quotatura
@@ -1114,6 +1175,7 @@ class Qad(QObject):
 
 
    def removeLayer(self, layerId):
+      self.abortCommand() # perchè il comando corrente potrebbe puntare al layer
       layer = qad_layer.getLayerById(layerId)
       if (layer.type() != QgsMapLayer.VectorLayer):
          return
@@ -1406,6 +1468,12 @@ class Qad(QObject):
    def refreshCommandMapToolSnapType(self):
       self.QadCommands.refreshCommandMapToolSnapType()
    
+   def refreshCommandMapToolAutoSnap(self):
+      self.QadCommands.refreshCommandMapToolAutoSnap()
+   
+   def getCurrenPointFromCommandMapTool(self):
+      return self.QadCommands.getCurrenPointFromCommandMapTool()
+
    def getCurrenPointFromCommandMapTool(self):
       return self.QadCommands.getCurrenPointFromCommandMapTool()
    
@@ -1454,7 +1522,7 @@ class Qad(QObject):
       QadVariables.set(QadMsg.translate("Environment variables", "AUTOSNAP"), value)
       QadVariables.save()
       self.showMsg(msg, True)        
-      self.QadCommands.refreshCommandMapToolAutoSnap()
+      self.refreshCommandMapToolAutoSnap()
 
 
    def toggleObjectSnapTracking(self):
@@ -1469,17 +1537,11 @@ class Qad(QObject):
       QadVariables.set(QadMsg.translate("Environment variables", "AUTOSNAP"), value)
       QadVariables.save()
       self.showMsg(msg, True)        
-      self.QadCommands.refreshCommandMapToolAutoSnap()
+      self.refreshCommandMapToolAutoSnap()
 
    
    def getCurrMsgFromTxtWindow(self):
       return self.TextWindow.getCurrMsg()
-
-   def getHistoryfromTxtWindow(self):
-      return self.TextWindow.getHistory() # list
-
-   def updateHistoryfromTxtWindow(self, command):
-      return self.TextWindow.updateHistory(command)
 
    def showEvaluateMsg(self, msg = None):
       self.TextWindow.showEvaluateMsg(msg)
@@ -1610,6 +1672,15 @@ class Qad(QObject):
    def runARRAYPOLARCommand(self): 
       self.runCommandAbortingTheCurrent(QadMsg.translate("Command_list", "ARRAYPOLAR"))
 
+   def runBREAK_BY_1_POINT_Command(self): # MACRO
+      # nome comando + argomenti
+      args = [QadMsg.translate("Command_list", "BREAK"), \
+              None, \
+              QadMsg.translate("Command_BREAK", "First point"), \
+              None, \
+              "@"]
+      self.runMacroAbortingTheCurrent(args)
+
    def runCIRCLECommand(self):
       self.runCommandAbortingTheCurrent(QadMsg.translate("Command_list", "CIRCLE"))
    def runCIRCLE_BY_CENTER_RADIUS_Command(self): # MACRO
@@ -1620,7 +1691,7 @@ class Qad(QObject):
       self.runMacroAbortingTheCurrent(args)
    def runCIRCLE_BY_CENTER_DIAMETER_Command(self): # MACRO
       # nome comando + argomenti
-      args = [QadMsg.translate("Command_list", "CERCHIO"), \
+      args = [QadMsg.translate("Command_list", "CIRCLE"), \
               None, \
               QadMsg.translate("Command_CIRCLE", "Diameter"), \
               None]
@@ -1752,6 +1823,12 @@ class Qad(QObject):
    def runDIMSTYLECommand(self):
       self.runCommandAbortingTheCurrent(QadMsg.translate("Command_list", "DIMSTYLE"))
 
+   def runDIVIDECommand(self):
+      self.runCommandAbortingTheCurrent(QadMsg.translate("Command_list", "DIVIDE"))
+
+   def runMEASURECommand(self):
+      self.runCommandAbortingTheCurrent(QadMsg.translate("Command_list", "MEASURE"))
+
    def runHELPCommand(self):
       self.runCommandAbortingTheCurrent(QadMsg.translate("Command_list", "HELP"))
 
@@ -1760,3 +1837,52 @@ class Qad(QObject):
 
    def runOPTIONSCommand(self):
       self.runCommandAbortingTheCurrent(QadMsg.translate("Command_list", "OPTIONS"))
+
+
+
+
+   def updateCmdsHistory(self, command):
+      # aggiorna la lista della storia degli ultimi comandi usati 
+      # Se command é una lista di comandi
+      if isinstance(command, list):
+         for line in command:
+            self.updateCmdsHistory(line)
+      elif not command == "":
+         # cerco se il comando è già presente in lista
+         # se era in lista lo rimuovo
+         try:
+            ndx = self.cmdsHistory.index(command)
+            del self.cmdsHistory[ndx]
+         except ValueError:
+            pass
+
+         # aggiungo il comando in fondo alla lista
+         self.cmdsHistory.append(command)
+
+         cmdInputHistoryMax = QadVariables.get(QadMsg.translate("Environment variables", "CMDINPUTHISTORYMAX"))
+         if len(self.cmdsHistory) > cmdInputHistoryMax:
+            del self.cmdsHistory[0]
+
+
+   def updatePtsHistory(self, pt):
+      # aggiorna la lista della storia degli ultimi punti usati
+      # Se pt é una lista di punti
+      if isinstance(pt, list):
+         for line in pt:
+            self.updatePtsHistory(line)
+      elif pt is not None:
+         # cerco se il punto è già presente in lista
+         # se era in lista lo rimuovo
+         try:
+            ndx = self.ptsHistory.index(pt)
+            del self.ptsHistory[ndx]
+         except ValueError:
+            pass
+
+         # aggiungo il punto in fondo alla lista
+         self.ptsHistory.append(pt)
+         
+         cmdInputHistoryMax = QadVariables.get(QadMsg.translate("Environment variables", "CMDINPUTHISTORYMAX"))
+         if len(self.ptsHistory) > cmdInputHistoryMax:
+            del self.ptsHistory[0]
+         

@@ -46,7 +46,7 @@ import qad_utils
 class QadDIMSTYLEDialog(QDialog, QObject, qad_dimstyle_ui.Ui_DimStyle_Dialog):
    def __init__(self, plugIn):
       self.plugIn = plugIn
-      self.iface = self.plugIn.iface
+      self.iface = self.plugIn.iface.mainWindow()
 
       QDialog.__init__(self)
       # non passo il parent perchè altrimenti il font e la sua dimensione verrebbero ereditati dalla dialog scombinando tutto 
@@ -125,7 +125,7 @@ class QadDIMSTYLEDialog(QDialog, QObject, qad_dimstyle_ui.Ui_DimStyle_Dialog):
       # leggo l'elemento selezionato
       index = current.indexes()[0]
       item = self.dimStyleList.model().itemFromIndex(index)
-      self.selectedDimStyle = QadDimStyles.dimStyleList[index.row()]# item.data()
+      self.selectedDimStyle = item.data()
       self.selectedStyle.setText(self.selectedDimStyle.name)
       self.descriptionSelectedStyle.setText(self.selectedDimStyle.description)
       

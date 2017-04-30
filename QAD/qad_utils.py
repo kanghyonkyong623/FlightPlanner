@@ -45,8 +45,6 @@ from qad_circle import *
 from qad_arc import *
 from qad_entity import *
 
-from Type.String import String
-
 
 # Modulo che gestisce varie funzionalità di Qad
 
@@ -284,6 +282,16 @@ def str2QgsPoint(s, lastPoint = None, currenPoint = None, oneNumberAllowed = Tru
          coords = getPolarPointByPtAngle(lastPoint, angle, dist)     
          return QgsPoint(coords[0], coords[1])
 
+
+#===============================================================================
+# QgsPointToString
+#===============================================================================
+def QgsPointToString(pt):
+   """
+   Ritorna la conversione di un punto QgsPoint in stringa
+   """   
+   return pt.toString()
+
 #===============================================================================
 # strLatLon2QgsPoint
 #===============================================================================
@@ -422,11 +430,11 @@ def findFile(fileName):
       path += ";"        
    path += QgsApplication.qgisSettingsDirPath() + "python/plugins/qad/"
    # lista di directory separate da ";"
-   dirList = String.QString2Str(path).strip().split(";")
+   dirList = path.strip().split(";")
    for _dir in dirList:
       _dir = QDir.cleanPath(_dir)
       if _dir != "":
-         if String.QString2Str(_dir).endswith("/") == False:
+         if _dir.endswith("/") == False:
             _dir = _dir + "/"
          _dir = _dir + fileName
          
@@ -527,7 +535,7 @@ def filterFeaturesByType(features, filterByGeomType):
       f = features[i]
       g = f.geometry()
       geomType = g.type()
-      if geomType != filterByGeomType:            
+      if geomType != filterByGeomType:
          if geomType == QGis.Point:      
             resultPoint.append(QgsGeometry(g))
          elif geomType == QGis.Line:      
@@ -972,11 +980,14 @@ def deselectAll(layers):
    """
    la funzione deseleziona tutte le entità selezionate nei layer
    """
-   selFeatureIds = []
    for layer in layers: # ciclo sui layer
       if (layer.type() == QgsMapLayer.VectorLayer):
-         if layer.selectedFeaturesIds() > 0:
-            layer.setSelectedFeatures(selFeatureIds)
+         layer.removeSelection()
+   #selFeatureIds = []
+   #for layer in layers: # ciclo sui layer
+   #   if (layer.type() == QgsMapLayer.VectorLayer):
+   #      if layer.selectedFeaturesIds() > 0:
+   #         layer.setSelectedFeatures(selFeatureIds)
 
 
 #===============================================================================

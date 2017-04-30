@@ -55,7 +55,7 @@ class QadOPTIONSTabIndexEnum():
 class QadOPTIONSDialog(QDialog, QObject, qad_options_ui.Ui_Options_Dialog):
    def __init__(self, plugIn, optionsTabIndex = None):
       self.plugIn = plugIn
-      self.iface = self.plugIn.iface#.mainWindow()
+      self.iface = self.plugIn.iface.mainWindow()
       
       QDialog.__init__(self)
       # non passo il parent perchè altrimenti il font e la sua dimensione verrebbero ereditati dalla dialog scombinando tutto 

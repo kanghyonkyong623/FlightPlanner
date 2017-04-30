@@ -44,7 +44,7 @@ import qad_utils
 class QadDIMSTYLE_NEW_Dialog(QDialog, QObject, qad_dimstyle_new_ui.Ui_DimStyle_New_Dialog):
    def __init__(self, plugIn, parent, fromDimStyleName = None):
       self.plugIn = plugIn
-      self.iface = self.plugIn.iface
+      self.iface = self.plugIn.iface.mainWindow()
 
       QDialog.__init__(self, parent)
       
@@ -69,7 +69,7 @@ class QadDIMSTYLE_NEW_Dialog(QDialog, QObject, qad_dimstyle_new_ui.Ui_DimStyle_N
       
    def DimStyleNameFromChanged(self, index):
       # leggo l'elemento selezionato
-      dimStyle = QadDimStyles.dimStyleList[index]#self.DimStyleNameFrom.itemData(index)
+      dimStyle = self.DimStyleNameFrom.itemData(index)
       if dimStyle is not None:
          self.newDimStyle.set(dimStyle)
          if self.newDimStyleNameChanged == False:

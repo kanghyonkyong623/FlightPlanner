@@ -28,8 +28,7 @@ from PyQt4.QtGui import * # for QDesktopServices
 import os.path
 
 import urllib
-import platform, sys
-from Type.String import String
+import platform
 
 
 # traduction class.
@@ -63,7 +62,7 @@ class QadMsgClass():
       # "Dimension" per le quotature
       # "Environment variables" per i nomi delle variabili di ambiente
       # "Help" per i titoli dei capitoli del manuale che servono da section nel file html di help
-      return String.QString2Str(QCoreApplication.translate(context, sourceText, disambiguation, encoding, n))
+      return QCoreApplication.translate(context, sourceText, disambiguation, encoding, n)
 
 
 #===============================================================================
@@ -87,7 +86,7 @@ def qadShowPluginHelp(section = "", filename = "index", packageName = None):
       return
 
    # initialize locale
-   userLocaleList = QSettings().value("locale/userLocale").toString().split("_")
+   userLocaleList = QSettings().value("locale/userLocale").split("_")
    language = userLocaleList[0]
    region = userLocaleList[1] if len(userLocaleList) > 1 else ""
 
@@ -101,7 +100,7 @@ def qadShowPluginHelp(section = "", filename = "index", packageName = None):
          if not os.path.exists(helpPath):
             return
       
-   helpfile = helpPath + "/" + filename + ".html"#os.path.join(helpPath, filename + ".html")
+   helpfile = os.path.join(helpPath, filename + ".html")
    if os.path.exists(helpfile):
       url = "file:///"+helpfile
 
@@ -111,31 +110,21 @@ def qadShowPluginHelp(section = "", filename = "index", packageName = None):
       # la funzione QDesktopServices.openUrl in windows non apre la sezione
       if platform.system() == "Windows":
          import subprocess
-
-         import webbrowser
-         new = 2 # open in a new tab, if possible
-
-         # open a public URL, in this case, the webbrowser docs
-         url = "http://docs.python.org/library/webbrowser.html"
-         webbrowser.open(helpfile,new=new)
-
-         # from subprocess import call
-         # call(helpfile)
-         # from _winreg import HKEY_CURRENT_USER, OpenKey, QueryValue
-         # # In Py3, this module is called winreg without the underscore
-         #
-         # with OpenKey(HKEY_CURRENT_USER, r"Software\Classes\http\shell\open\command") as key:
-         #    cmd = QueryValue(key, None)
-         #
-         # if cmd.find("\"%1\"") >= 0:
-         #    subprocess.Popen(cmd.replace("%1", url))
-         # else:
-         #    if cmd.find("%1") >= 0:
-         #       subprocess.Popen(cmd.replace("%1", "\"" + url + "\""))
-         #    else:
-         #       subprocess.Popen(cmd + " \"" + url + "\"")
+         from _winreg import HKEY_CURRENT_USER, OpenKey, QueryValue
+         # In Py3, this module is called winreg without the underscore
+         
+         with OpenKey(HKEY_CURRENT_USER, r"Software\Classes\http\shell\open\command") as key:
+            cmd = QueryValue(key, None)
+   
+         if cmd.find("\"%1\"") >= 0:
+            subprocess.Popen(cmd.replace("%1", url))
+         else:    
+            if cmd.find("%1") >= 0:
+               subprocess.Popen(cmd.replace("%1", "\"" + url + "\""))       
+            else:
+               subprocess.Popen(cmd + " \"" + url + "\"")
       else:
-         QDesktopServices.openUrl(QUrl(url))
+         QDesktopServices.openUrl(QUrl(url))           
    
    
 #===============================================================================

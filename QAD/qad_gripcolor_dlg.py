@@ -45,7 +45,7 @@ import qad_utils
 class QadGripColorDialog(QDialog, QObject, qad_gripcolor_ui.Ui_GripColor_Dialog):
    def __init__(self, plugIn, parent, gripColor, gripHot, gripHover, gripContour):
       self.plugIn = plugIn
-      self.iface = self.plugIn.iface#.mainWindow()
+      self.iface = self.plugIn.iface.mainWindow()
 
       QDialog.__init__(self, parent)
 

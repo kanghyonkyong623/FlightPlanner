@@ -31,7 +31,7 @@ from qgis.core import QgsApplication
 from qgis.utils import *
 from qgis.gui import *
 
-import qad_dimstyle_details_ui, define
+import qad_dimstyle_details_ui
 
 from qad_variables import *
 from qad_dim import *
@@ -58,7 +58,7 @@ class QadDIMSTYLE_DETAILS_Dialog(QDialog, QObject, qad_dimstyle_details_ui.Ui_Di
    def __init__(self, plugIn, parent, dimStyle):
       self.plugIn = plugIn
       self.dimStyle = QadDimStyle(dimStyle) # copio lo stile di quotatura
-      self.iface = self.plugIn.iface#.mainWindow()
+      self.iface = self.plugIn.iface.mainWindow()
 
       QDialog.__init__(self, parent)
 
@@ -130,7 +130,7 @@ class QadDIMSTYLE_DETAILS_Dialog(QDialog, QObject, qad_dimstyle_details_ui.Ui_Di
    def init_db_tab(self):
       self.onInit = True 
       # layer linee
-      for index, layer in enumerate(define._canvas.layers()):
+      for index, layer in enumerate(self.plugIn.iface.legendInterface().layers()):      
          if (layer.type() == QgsMapLayer.VectorLayer) and layer.geometryType() == QGis.Line:
             self.linearLayerName.addItem(layer.name(), index)      
       # seleziono un elemento della lista
@@ -140,7 +140,7 @@ class QadDIMSTYLE_DETAILS_Dialog(QDialog, QObject, qad_dimstyle_details_ui.Ui_Di
          self.linearLayerNameChanged(index)
       
       # layer simboli
-      for index, layer in enumerate(define._canvas.layers()):
+      for index, layer in enumerate(self.plugIn.iface.legendInterface().layers()):      
          if qad_layer.isSymbolLayer(layer):
             self.symbolLayerName.addItem(layer.name(), index)
       # seleziono un elemento della lista
@@ -150,7 +150,7 @@ class QadDIMSTYLE_DETAILS_Dialog(QDialog, QObject, qad_dimstyle_details_ui.Ui_Di
          self.symbolLayerNameChanged(index)
       
       # layer testi
-      for index, layer in enumerate(define._canvas.layers()):
+      for index, layer in enumerate(self.plugIn.iface.legendInterface().layers()):      
          if qad_layer.isTextLayer(layer):
             self.textualLayerName.addItem(layer.name(), index)
       # seleziono un elemento della lista
@@ -213,7 +213,7 @@ class QadDIMSTYLE_DETAILS_Dialog(QDialog, QObject, qad_dimstyle_details_ui.Ui_Di
          return
       # leggo l'elemento selezionato
       legendIndex = self.linearLayerName.itemData(index)
-      layer = define._canvas.layers()[legendIndex.toInt()[0]]
+      layer = iface.legendInterface().layers()[legendIndex]
       if layer is not None:
          self.lineTypeFieldName.clear() # remove all items and add an empty row (optional parameter)
          self.lineTypeFieldName.addItem("")
@@ -242,7 +242,7 @@ class QadDIMSTYLE_DETAILS_Dialog(QDialog, QObject, qad_dimstyle_details_ui.Ui_Di
          return
       # leggo l'elemento selezionato
       legendIndex = self.symbolLayerName.itemData(index)
-      layer = define._canvas.layers()[legendIndex.toInt()[0]]
+      layer = iface.legendInterface().layers()[legendIndex]
       if layer is not None:
          self.symbolFieldName.clear() # remove all items and add an empty row (optional parameter)
          self.symbolFieldName.addItem("")
@@ -288,7 +288,7 @@ class QadDIMSTYLE_DETAILS_Dialog(QDialog, QObject, qad_dimstyle_details_ui.Ui_Di
          return
       # leggo l'elemento selezionato
       legendIndex = self.textualLayerName.itemData(index)
-      layer = define._canvas.layers()[legendIndex.toInt()[0]]
+      layer = iface.legendInterface().layers()[legendIndex]
       if layer is not None:
          self.idFieldName.clear() # remove all items and add an empty row (optional parameter)
          self.idFieldName.addItem("")
@@ -904,7 +904,7 @@ class QadPreviewDim(QgsMapCanvas):
       # add the layer to the map canvas layer set
       self.canvasLayers = []
       id2cl_dict = {}
-      for l in define._canvas.layers():
+      for l in self.iface.legendInterface().layers():
          lid = self._layerId(l)
          if self.layerId2canvasLayer.has_key( lid ):   # previously added
             cl = self.layerId2canvasLayer[ lid ]

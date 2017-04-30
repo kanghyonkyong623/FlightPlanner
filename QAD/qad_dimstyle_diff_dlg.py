@@ -42,7 +42,7 @@ import qad_utils
 class QadDIMSTYLE_DIFF_Dialog(QDialog, QObject, qad_dimstyle_diff_ui.Ui_DimStyle_Diff_Dialog):
    def __init__(self, plugIn, parent, dimStyleName1 = None, dimStyleName2 = None):
       self.plugIn = plugIn
-      self.iface = self.plugIn.iface
+      self.iface = self.plugIn.iface.mainWindow()
       
       QDialog.__init__(self, parent)
       

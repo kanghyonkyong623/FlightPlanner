@@ -47,16 +47,16 @@ from qad_lengthen_cmd import QadGRIPLENGTHENCommandClass
 from qad_pedit_cmd import QadGRIPINSERTREMOVEVERTEXCommandClass, QadGRIPARCLINECONVERTCommandClass
 
 from qad_msg import QadMsg
-import define
+
 
 # Main Map Tool class.
 class QadMapTool(QgsMapTool):
       
    def __init__(self, plugIn):        
-      QgsMapTool.__init__(self, define._canvas)
+      QgsMapTool.__init__(self, plugIn.iface.mapCanvas())
       self.plugIn = plugIn
       self.iface = self.plugIn.iface
-      self.canvas = define._canvas
+      self.canvas = self.plugIn.iface.mapCanvas()      
       self.cursor = QCursor(Qt.BlankCursor)
       self.__csrRubberBand = QadCursorRubberBand(self.canvas, QadCursorTypeEnum.BOX | QadCursorTypeEnum.CROSS)
       self.entitySet = QadEntitySet()
@@ -237,6 +237,7 @@ class QadMapTool(QgsMapTool):
 
 
    def wheelEvent(self, event):
+      QgsMapTool.wheelEvent(self, event)
       self.__csrRubberBand.moveEvent(self.toMapCoordinates(event.pos()))
 
 
@@ -272,7 +273,7 @@ class QadMapTool(QgsMapTool):
    #============================================================================
    def displayPopupMenuOnQuiescentState(self, pos):
       popupMenu = QMenu(self.canvas)
-      history = self.plugIn.getHistoryfromTxtWindow()
+      history = self.plugIn.cmdsHistory
       isLastCmdToInsert = True
       isRecentMenuToInsert = True
       
@@ -617,10 +618,18 @@ class QadVirtualGripCommandsClass(QadCommandClass):
 
       
    def getPointMapTool(self, drawMode = QadGetPointDrawModeEnum.NONE):
-      if self.currentCommand is not None:      
+      if self.currentCommand is not None:
          return self.currentCommand.getPointMapTool(drawMode)
       else:
          return None
+
+
+   def getCurrentContextualMenu(self):
+      if self.currentCommand is not None:
+         return self.currentCommand.getCurrentContextualMenu()
+      else:
+         return None
+
 
    def getCommand(self):
       if self.commandNum == QadVirtualGripCommandsEnum.STRECTH:

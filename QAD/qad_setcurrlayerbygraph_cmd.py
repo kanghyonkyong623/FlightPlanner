@@ -70,12 +70,21 @@ class QadSETCURRLAYERBYGRAPHCommandClass(QadCommandClass):
       QadCommandClass.__del__(self)
       if self.entSelClass is not None:
          del self.entSelClass            
-      
+
+
    def getPointMapTool(self, drawMode = QadGetPointDrawModeEnum.NONE):
       if self.step == 0 or self.step == 1: # quando si é in fase di selezione entità
          return self.entSelClass.getPointMapTool(drawMode)
       else:
          return QadCommandClass.getPointMapTool(self, drawMode)
+
+
+   def getCurrentContextualMenu(self):
+      if self.step == 0 or self.step == 1: # quando si é in fase di selezione entità
+         return self.entSelClass.getCurrentContextualMenu()
+      else:
+         return self.contextualMenu
+
    
    def waitForEntsel(self, msgMapTool, msg):
       if self.entSelClass is not None:
@@ -104,7 +113,7 @@ class QadSETCURRLAYERBYGRAPHCommandClass(QadCommandClass):
                   self.plugIn.canvas.currentLayer() != layer:                              
                   self.plugIn.canvas.setCurrentLayer(layer)
                   self.plugIn.iface.setActiveLayer(layer) # lancia evento di deactivate e activate dei plugin
-                  # self.plugIn.iface.legendInterface().refreshLayerSymbology(layer)
+                  self.plugIn.iface.legendInterface().refreshLayerSymbology(layer)
                   msg = QadMsg.translate("Command_SETCURRLAYERBYGRAPH", "\nThe current layer is {0}.")
                   self.showMsg(msg.format(layer.name()))
                del self.entSelClass
@@ -155,7 +164,15 @@ class QadSETCURRUPDATEABLELAYERBYGRAPHCommandClass(QadCommandClass):
          return self.SSGetClass.getPointMapTool(drawMode)
       else:
          return QadCommandClass.getPointMapTool(self, drawMode)
-        
+
+
+   def getCurrentContextualMenu(self):
+      if self.step == 0 or self.step == 1: # quando si é in fase di selezione entità
+         return None # return self.SSGetClass.getCurrentContextualMenu()
+      else:
+         return self.contextualMenu
+
+
    def run(self, msgMapTool = False, msg = None):     
       if self.step == 0: # inizio del comando   
          if self.firstTime == True:
