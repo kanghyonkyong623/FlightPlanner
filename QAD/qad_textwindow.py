@@ -37,6 +37,7 @@ from qad_msg import QadMsg
 import qad_utils
 from qad_snapper import *
 from qad_variables import QadVariables, QadINPUTSEARCHOPTIONSEnum
+from Type.String import String
 
 
 #===============================================================================
@@ -448,7 +449,7 @@ class QadEdit(QTextEdit):
 
    def highlightKeyWords(self):
       lastBlock = self.document().lastBlock()
-      txt = lastBlock.text()
+      txt = String.QString2Str(lastBlock.text())
       size = len(txt)
             
       # messaggio + "[" + opz1 + "/" + opz2 + "]"

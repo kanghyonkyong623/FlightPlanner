@@ -72,7 +72,7 @@ class QadCommandAliasesClass():
       
       if Path == "":
          # Se la path non é indicata uso il file "qad.pgp" in lingua locale
-         userLocaleList = QSettings().value("locale/userLocale").split("_")
+         userLocaleList = QSettings().value("locale/userLocale").toString().split("_")
          language = userLocaleList[0]
          region = userLocaleList[1] if len(userLocaleList) > 1 else ""
       

@@ -4037,7 +4037,7 @@ class QadDimStylesClass():
          path += QgsApplication.qgisSettingsDirPath() + "python/plugins/qad/"
         
          # lista di directory separate da ";"
-         dirList = path.strip().split(";")
+         dirList = path.trimmed().split(";")
          for _dir in dirList:
             self.load(_dir, True) # in append
       else:
@@ -4045,7 +4045,7 @@ class QadDimStylesClass():
          if _dir == "":
             return False
             
-         if _dir.endswith("/") == False:
+         if _dir.endsWith("/") == False:
             _dir = _dir + "/"
             
          if not os.path.exists(_dir):

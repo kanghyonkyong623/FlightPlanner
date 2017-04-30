@@ -29,6 +29,7 @@ import os.path
 
 import urllib
 import platform
+from Type.String import String
 
 
 # traduction class.
@@ -62,7 +63,7 @@ class QadMsgClass():
       # "Dimension" per le quotature
       # "Environment variables" per i nomi delle variabili di ambiente
       # "Help" per i titoli dei capitoli del manuale che servono da section nel file html di help
-      return QCoreApplication.translate(context, sourceText, disambiguation, encoding, n)
+      return String.QString2Str(QCoreApplication.translate(context, sourceText, disambiguation, encoding, n))
 
 
 #===============================================================================

@@ -239,13 +239,13 @@ def getQGISColorForRubberBand(geometryType = QGis.Line, alternativeBand = False)
    Se <alternativeBand> = True, il rubber band sarà impostato con più trasparenza
    """
    settings = QSettings()
-   color = QColor(int(settings.value( "/qgis/digitizing/line_color_red", 1)), \
-                  int(settings.value( "/qgis/digitizing/line_color_green", 1)), \
-                  int(settings.value( "/qgis/digitizing/line_color_blue", 1)))
-   alpha = float(int(settings.value( "/qgis/digitizing/line_color_alpha", 200)) / 255.0)
+   color = QColor(int(settings.value( "/qgis/digitizing/line_color_red", 1).toInt()[0]), \
+                  int(settings.value( "/qgis/digitizing/line_color_green", 1).toInt()[0]), \
+                  int(settings.value( "/qgis/digitizing/line_color_blue", 1).toInt()[0]))
+   alpha = float(int(settings.value( "/qgis/digitizing/line_color_alpha", 200).toInt()[0]) / 255.0)
   
    if alternativeBand:
-      alpha = alpha * float(settings.value( "/qgis/digitizing/line_color_alpha_scale", 0.75))
+      alpha = alpha * float(settings.value( "/qgis/digitizing/line_color_alpha_scale", 0.75).toFloat()[0])
  
    if geometryType == QGis.Polygon:
       color.setAlphaF(alpha)
@@ -299,7 +299,7 @@ def createRubberBand(mapCanvas, geometryType = QGis.Line, alternativeBand = Fals
    Se <alternativeBand> = True, il rubber band sarà impostato con più trasparenza e tipolinea punteggiato   
    """
    settings = QSettings()
-   width = int(settings.value( "/qgis/digitizing/line_width", 1))
+   width = int(settings.value( "/qgis/digitizing/line_width", 1).toInt()[0])
 
    rb = QgsRubberBand(mapCanvas, geometryType)
    
