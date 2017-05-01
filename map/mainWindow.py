@@ -311,10 +311,13 @@ class MyWnd(QMainWindow):
     def addPlugInsMenu(self):
 
         menuBar = self.menuBar()
-        pluginsMenu = menuBar.addMenu("&Plugins")
-        self.openLayer = OpenlayersPlugin(self, pluginsMenu)
-        self.gridZoneGenerator = GridZoneGenerator(self, pluginsMenu)
-        self.qad = Qad(self, pluginsMenu)
+        self.pluginsMenu = menuBar.addMenu("&Plugins")
+        self.openLayer = OpenlayersPlugin(self, self.pluginsMenu)
+        self.gridZoneGenerator = GridZoneGenerator(self, self.pluginsMenu)
+        self.qad = Qad(self)
+        self.qad.initGui()
+    def pluginMenu(self):
+        return self.pluginsMenu
     def addChartingMenu(self):
         menuBar = self.menuBar()
         chartingMenu = menuBar.addMenu("&Charting")
@@ -2249,7 +2252,7 @@ class MyWnd(QMainWindow):
             #layer =iface.addVectorLayer(file, m, "ogr")
             layer = QgsVectorLayer(file, m, "ogr") 
             if layer.crs() == None:
-                layer.setCrs(QgsCoordinateReferenceSystem(4326, QgsCoordinateReferenceSystem.EpsgCrsId))
+                layer.setCrs(QgsCoordinateReferenceSystem(32633, QgsCoordinateReferenceSystem.EpsgCrsId))
             layerList.append(layer)
         QgisHelper.appendToCanvas(define._canvas, layerList)
         self.canvas.zoomToFullExtent()

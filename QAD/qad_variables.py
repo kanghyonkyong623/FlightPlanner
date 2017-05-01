@@ -912,8 +912,8 @@ class QadVariablesClass():
 
 
    def getDefaultQadIniFilePath(self):
-      # ottiene il percorso incluso il nome del file dove salvare il file qad.ini di default
-      # uso il percorso di installazione di qad
+      # Gets the path including the file name where to save the qad.ini file by default
+      # I use qad installation path
       path = QDir.cleanPath(QgsApplication.qgisSettingsDirPath() + "python/plugins/qad")
       return path + "/" + "qad.ini"
 

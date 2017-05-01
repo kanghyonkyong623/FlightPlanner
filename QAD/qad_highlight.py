@@ -42,10 +42,10 @@ def getQGISColorForHighlight():
    Se <alternativeBand> = True, il rubber band sarà impostato con più trasparenza
    """
    settings = QSettings()
-   color = QColor(int(settings.value( "/qgis/digitizing/line_color_red", 1)), \
-                  int(settings.value( "/qgis/digitizing/line_color_green", 1)), \
-                  int(settings.value( "/qgis/digitizing/line_color_blue", 1)))
-   alpha = float(int(settings.value( "/qgis/digitizing/line_color_alpha", 200)) / 255.0)
+   color = QColor(int(settings.value( "/qgis/digitizing/line_color_red", 1).toInt()[0]), \
+                  int(settings.value( "/qgis/digitizing/line_color_green", 1).toInt()[0]), \
+                  int(settings.value( "/qgis/digitizing/line_color_blue", 1).toInt()[0]))
+   alpha = float(int(settings.value( "/qgis/digitizing/line_color_alpha", 200).toInt()[0]) / 255.0)
 
    color.setAlphaF(alpha)
    return color
@@ -60,7 +60,7 @@ def createHighlight(mapCanvas, geometry_feature, layer, borderColor = None, fill
    Se <alternativeBand> = True, il rubber band sarà impostato con più trasparenza e tipolinea punteggiato   
    """
    settings = QSettings()
-   width = int(settings.value( "/qgis/digitizing/line_width", 1))
+   width = int(settings.value( "/qgis/digitizing/line_width", 1).toInt())
 
    hl = QgsHighlight(mapCanvas, geometry_feature, layer)
    

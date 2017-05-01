@@ -94,8 +94,8 @@ def main(argv):
         except:
             pass
 
-        # create Qt application
-        app = QApplication(argv)
+        # create QGis application
+        app = QgsApplication(argv, True)
 
         # Initialize qgis libraries
         QgsApplication.setPrefixPath(".", True)

@@ -236,34 +236,34 @@ class QadROTATECommandClass(QadCommandClass):
          return True # fine comando
             
       #=========================================================================
-      # RICHIESTA SELEZIONE OGGETTI
-      if self.step == 0: # inizio del comando
+      # REQUEST SELECTED OBJECTS
+      if self.step == 0: # Start of the command
          if self.SSGetClass.run(msgMapTool, msg) == True:
-            # selezione terminata
+            # Selection terminated
             self.step = 1
-            self.getPointMapTool().refreshSnapType() # aggiorno lo snapType che può essere variato dal maptool di selezione entità                    
+            self.getPointMapTool().refreshSnapType() # Update the snapType that can be changed by the entity selection maptool
             return self.run(msgMapTool, msg)
       
       #=========================================================================
-      # RUOTA OGGETTI
+      # WHEEL OBJECTS
       elif self.step == 1:
          self.entitySet.set(self.SSGetClass.entitySet)
          
          if self.entitySet.count() == 0:
-            return True # fine comando
+            return True # End command
 
-         # imposto il map tool
+         # Set the map tool
          self.getPointMapTool().setMode(Qad_rotate_maptool_ModeEnum.NONE_KNOWN_ASK_FOR_BASE_PT)
 
-         # si appresta ad attendere un punto
+         # He is about to wait for a point
          self.waitForPoint(QadMsg.translate("Command_ROTATE", "Specify base point: "))
                   
          self.step = 2     
          return False
          
       #=========================================================================
-      # RISPOSTA ALLA RICHIESTA PUNTO BASE (da step = 1)
-      elif self.step == 2: # dopo aver atteso un punto o un numero reale si riavvia il comando
+      # ANSWER TO BASIC POINT REQUEST (from step = 1)
+      elif self.step == 2: # After waiting for a point or a real number, you restart the command
          if msgMapTool == True: # il punto arriva da una selezione grafica
             # la condizione seguente si verifica se durante la selezione di un punto
             # é stato attivato un altro plugin che ha disattivato Qad

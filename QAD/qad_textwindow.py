@@ -849,7 +849,7 @@ class QadEdit(QTextEdit):
             self.timerForCmdSuggestWindow.timeout.connect(shot1)
             self.timerForCmdSuggestWindow.start(inputSearchDelay)
 
-            if e.text().isalnum(): # autocompletamento se è stato premuto un tasto alfanumerico
+            if str(e.text()).isalnum(): # Self-completion if an alphanumeric key was pressed
                self.textUntilPrompt = self.getTextUntilPrompt()
                shot2 = lambda: self.showCmdAutoComplete(self.textUntilPrompt)
                del self.timerForCmdAutoComplete
