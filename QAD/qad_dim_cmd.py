@@ -372,7 +372,7 @@ class QadDIMLINEARCommandClass(QadCommandClass):
          else: # il punto arriva come parametro della funzione
             value = msg
 
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("Command_DIM", "Text") or value == "Text":
                prompt = QadMsg.translate("Command_DIM", "Enter dimension text <{0}>: ")
                dist = qad_utils.getDistance(self.dimPt1, self.dimPt2)
@@ -423,7 +423,7 @@ class QadDIMLINEARCommandClass(QadCommandClass):
       #=========================================================================
       # RISPOSTA ALLA RICHIESTA DEL TESTO (da step = 4)
       elif self.step == 5: # dopo aver atteso una stringa si riavvia il comando
-         if type(msg) == unicode:
+         if type(msg) == unicode or type(msg) == str:
             text = msg.strip()
             if len(text) > 0:
                self.measure = text
@@ -754,7 +754,7 @@ class QadDIMALIGNEDCommandClass(QadCommandClass):
          else: # il punto arriva come parametro della funzione
             value = msg
 
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("Command_DIM", "Text") or value == "Text":
                prompt = QadMsg.translate("Command_DIM", "Enter dimension text <{0}>: ")
                dist = qad_utils.getDistance(self.dimPt1, self.dimPt2)
@@ -783,7 +783,7 @@ class QadDIMALIGNEDCommandClass(QadCommandClass):
       #=========================================================================
       # RISPOSTA ALLA RICHIESTA DEL TESTO (da step = 4)
       elif self.step == 5: # dopo aver atteso una stringa si riavvia il comando
-         if type(msg) == unicode:
+         if type(msg) == unicode or type(msg) == str:
             text = msg.strip()
             if len(text) > 0:
                self.measure = text
@@ -1109,7 +1109,7 @@ class QadDIMARCCommandClass(QadCommandClass):
          else: # il punto arriva come parametro della funzione
             value = msg
 
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("Command_DIM", "Text") or value == "Text":
                prompt = QadMsg.translate("Command_DIM", "Enter dimension text <{0}>: ")
                dist = self.dimPartialArc.length()
@@ -1145,7 +1145,7 @@ class QadDIMARCCommandClass(QadCommandClass):
       #=========================================================================
       # RISPOSTA ALLA RICHIESTA DEL TESTO (da step = ASK_FOR_MAIN_OPTIONS)
       elif self.step == QadDIMARCCommandClassStepEnum.ASK_FOR_TEXT_VALUE: # dopo aver atteso una stringa si riavvia il comando
-         if type(msg) == unicode:
+         if type(msg) == unicode or type(msg) == str:
             text = msg.strip()
             if len(text) > 0:
                self.measure = text

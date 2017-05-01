@@ -151,7 +151,7 @@ class QadCIRCLECommandClass(QadCommandClass):
             else:
                return True # fine comando
 
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("Command_CIRCLE", "3Points") or value == "3Points":
                # imposto il map tool
                self.getPointMapTool().setMode(Qad_circle_maptool_ModeEnum.NONE_KNOWN_ASK_FOR_FIRST_PT)
@@ -216,7 +216,7 @@ class QadCIRCLECommandClass(QadCommandClass):
          else: # il punto arriva come parametro della funzione
             value = msg
 
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("Command_CIRCLE", "Diameter") or value == "Diameter":
                # imposto il map tool
                self.getPointMapTool().setMode(Qad_circle_maptool_ModeEnum.CENTER_PT_KNOWN_ASK_FOR_DIAM)

@@ -318,7 +318,7 @@ class QadSTRETCHCommandClass(QadCommandClass):
          else: # il punto arriva come parametro della funzione
             value = msg
 
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("Command_STRETCH", "Polygon") or value == "Polygon":
                # Seleziona tutti gli oggetti che sono interni al poligono
                self.MPOLYGONCommand = QadMPOLYGONCommandClass(self.plugIn)
@@ -447,7 +447,7 @@ class QadSTRETCHCommandClass(QadCommandClass):
          # imposto il map tool
          self.getPointMapTool().SSGeomList = self.SSGeomList
 
-         if value is None or type(value) == unicode:
+         if value is None or type(value) == unicode or type(value) == str:
             self.basePt.set(0, 0)
             self.getPointMapTool().basePt = self.basePt
             self.getPointMapTool().setMode(Qad_stretch_maptool_ModeEnum.BASE_PT_KNOWN_ASK_FOR_MOVE_PT)                                
@@ -810,7 +810,7 @@ class QadGRIPSTRETCHCommandClass(QadCommandClass):
          else: # il punto arriva come parametro della funzione
             value = msg
 
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("Command_GRIP", "Base point") or value == "Base point":
                # si appresta ad attendere il punto base
                self.waitForBasePt()

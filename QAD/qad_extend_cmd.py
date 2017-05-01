@@ -297,7 +297,7 @@ class QadEXTENDCommandClass(QadCommandClass):
          else: # il punto arriva come parametro della funzione
             value = msg
 
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("Command_EXTEND", "Fence") or value == "Fence":
                # Seleziona tutti gli oggetti che intersecano una polilinea
                self.PLINECommand = QadPLINECommandClass(self.plugIn)
@@ -451,7 +451,7 @@ class QadEXTENDCommandClass(QadCommandClass):
          else: # il valore arriva come parametro della funzione
             value = msg
 
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("Command_EXTEND", "No extend") or value == "No extend":
                self.edgeMode = 0
                QadVariables.set(QadMsg.translate("Environment variables", "EDGEMODE"), self.edgeMode)

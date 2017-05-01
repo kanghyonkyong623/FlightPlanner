@@ -1134,7 +1134,7 @@ class QadARRAYCommandClass(QadCommandClass):
          else: # la parola chiave arriva come parametro della funzione
             value = msg
 
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("Command_ARRAY", "Rectangular") or value == "Rectangular":
                self.arrayType = QadARRAYCommandClassSeriesTypeEnum.RECTANGLE
                self.plugIn.setLastArrayType_array(self.arrayType)
@@ -1165,7 +1165,7 @@ class QadARRAYCommandClass(QadCommandClass):
          if value is None:
             value = QadMsg.translate("Command_ARRAY", "eXit")
          
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             if self.arrayType == QadARRAYCommandClassSeriesTypeEnum.RECTANGLE:
                if value ==  QadMsg.translate("Command_ARRAY", "Base point") or value == "Base point":
                   self.waitForBasePt()
@@ -1274,7 +1274,7 @@ class QadARRAYCommandClass(QadCommandClass):
             # la parola chiave arriva come parametro della funzione
             value = msg
 
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("QAD", "Yes") or value == "Yes":
                self.delOrigSelSet = True
             else:
@@ -1382,7 +1382,7 @@ class QadARRAYCommandClass(QadCommandClass):
             self.distanceBetweenCols = value
             self.updatePointMapToolParams()
             self.waitForDistanceBetweenRows(False, QadARRAYCommandClassStepEnum.ASK_FOR_ROW_SPACE) # senza opzione di "totale"
-         elif type(value) == unicode:
+         elif type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("Command_ARRAY", "Unit cell") or value == "Unit cell":
                self.waitForRectangleFirstCellCorner()
             
@@ -1552,7 +1552,7 @@ class QadARRAYCommandClass(QadCommandClass):
          elif type(value) == float: # se é stato inserita la distanza
             self.distanceBetweenCols = value
             self.waitForMainOptions()
-         elif type(value) == unicode:
+         elif type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("Command_ARRAY", "Total") or value == "Total":
                self.waitForRectangleTotalDistanceCols()
          return False # fine comando
@@ -1642,7 +1642,7 @@ class QadARRAYCommandClass(QadCommandClass):
          elif type(value) == float: # se é stato inserita la distanza
             self.distanceBetweenRows = value
             self.waitForMainOptions()
-         elif type(value) == unicode:
+         elif type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("Command_ARRAY", "Total") or value == "Total":
                self.waitForTotalDistanceRows()
          return False # fine comando
@@ -1706,7 +1706,7 @@ class QadARRAYCommandClass(QadCommandClass):
                      self.pathItemsNumber = value
                      self.distanceFromStartPt = 0.0
                      self.waitForMainOptions()
-               elif type(value) == unicode:
+               elif type(value) == unicode or type(value) == str:
                   if value == QadMsg.translate("Command_ARRAY", "Fill entire path") or value == "Fill entire path":
                      self.setItemNumberByDistanceBetweenColsOnMeasure()
                      self.waitForMainOptions()
@@ -1760,7 +1760,7 @@ class QadARRAYCommandClass(QadCommandClass):
             # la parola chiave arriva come parametro della funzione
             value = msg
 
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("Command_ARRAY", "Divide") or value == "Divide":
                self.pathMethod = QadARRAYCommandClassPathMethodTypeEnum.DIVIDE
                self.setDistancesByPathItemNumberOnDivide()
@@ -1817,7 +1817,7 @@ class QadARRAYCommandClass(QadCommandClass):
             # la parola chiave arriva come parametro della funzione
             value = msg
 
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("QAD", "Yes") or value == "Yes":
                self.itemsRotation = True
             elif value == QadMsg.translate("QAD", "No") or value == "No":
@@ -1856,7 +1856,7 @@ class QadARRAYCommandClass(QadCommandClass):
          if type(value) == QgsPoint: # se é stato inserito il punto centrale della serie
             self.centerPt.set(value.x(), value.y())
             self.waitForMainOptions()
-         elif type(value) == unicode:
+         elif type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("Command_ARRAY", "Base point") or value == "Base point":
                self.updatePointMapToolParams()
                self.waitForBasePt(QadARRAYCommandClassStepEnum.ASK_FOR_BASE_PT_BEFORE_MAIN_OPTIONS)

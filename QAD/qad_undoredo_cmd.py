@@ -102,7 +102,7 @@ class QadUNDOCommandClass(QadCommandClass):
          else: # il punto arriva come parametro della funzione
             value = msg
 
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("Command_UNDO", "BEgin") or value == "BEgin":
                self.plugIn.insertBeginGroup()
             elif value == QadMsg.translate("Command_UNDO", "End") or value == "End":
@@ -156,7 +156,7 @@ class QadUNDOCommandClass(QadCommandClass):
          else: # il punto arriva come parametro della funzione
             value = msg
 
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("QAD", "Yes") or value == "Yes":
                self.showMsg(QadMsg.translate("Command_UNDO", "All has been undone."))
                self.plugIn.undoUntilBookmark()

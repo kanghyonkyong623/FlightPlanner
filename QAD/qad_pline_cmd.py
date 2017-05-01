@@ -526,7 +526,7 @@ class QadPLINECommandClass(QadCommandClass):
                qad_layer.addLineToLayer(self.plugIn, currLayer, self.vertices)
             return True # fine comando
          
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("Command_PLINE", "Angle") or value == "Angle":
                self.arcStartPt = self.vertices[-1]
                
@@ -698,7 +698,7 @@ class QadPLINECommandClass(QadCommandClass):
             value = msg
             ctrlPressed = False
 
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             # l'opzione CEnter viene tradotta in italiano in "Centro" nel contesto "START_PT_ANGLE_KNOWN_ASK_FOR_END_PT"
             if value == QadMsg.translate("Command_PLINE", "CEnter", "START_PT_ANGLE_KNOWN_ASK_FOR_END_PT") or value == "CEnter":
                # imposto il map tool
@@ -995,7 +995,7 @@ class QadPLINECommandClass(QadCommandClass):
             value = msg
             ctrlPressed = False
 
-         if type(value) == unicode:  
+         if type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("Command_PLINE", "Angle") or value == "Angle":
                # imposto il map tool
                self.getPointMapTool().setMode(Qad_arc_maptool_ModeEnum.START_CENTER_PT_KNOWN_ASK_FOR_ANGLE)
@@ -1349,7 +1349,7 @@ class QadPLINECommandClass(QadCommandClass):
             value = msg
             ctrlPressed = False
 
-         if type(value) == unicode:
+         if type(value) == unicode  or type(value) == str:
             if value == QadMsg.translate("Command_PLINE", "Angle") or value == "Angle":               
                # imposto il map tool
                self.getPointMapTool().setMode(Qad_arc_maptool_ModeEnum.START_PT_KNOWN_ASK_FOR_ANGLE)

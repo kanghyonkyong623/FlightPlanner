@@ -506,7 +506,7 @@ class QadLENGTHENCommandClass(QadCommandClass):
          else: # il punto arriva come parametro della funzione
             value = msg
 
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("Command_LENGTHEN", "DElta") or value == "DElta":
                self.waitForDelta()
                return False
@@ -571,7 +571,7 @@ class QadLENGTHENCommandClass(QadCommandClass):
          else: # il punto arriva come parametro della funzione
             value = msg
 
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("Command_LENGTHEN", "Angle") or value == "Angle":
                self.waitForDeltaAngle(msgMapTool, msg)
          elif type(value) == QgsPoint: # se é stato inserito un punto
@@ -628,7 +628,7 @@ class QadLENGTHENCommandClass(QadCommandClass):
          else: # il punto arriva come parametro della funzione
             value = msg
 
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("Command_LENGTHEN", "Undo") or value == "Undo":
                if self.nOperationsToUndo > 0: 
                   self.nOperationsToUndo = self.nOperationsToUndo - 1
@@ -721,7 +721,7 @@ class QadLENGTHENCommandClass(QadCommandClass):
          else: # il punto arriva come parametro della funzione
             value = msg
 
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("Command_LENGTHEN", "Angle") or value == "Angle":
                self.waitForTotalAngle(msgMapTool, msg)
          elif type(value) == QgsPoint: # se é stato inserito un punto
@@ -1013,7 +1013,7 @@ class QadGRIPLENGTHENCommandClass(QadCommandClass):
          else: # il punto arriva come parametro della funzione
             value = msg
 
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("Command_GRIP", "Copy") or value == "Copy":
                # Copia entità lasciando inalterate le originali
                self.copyEntities = True                     

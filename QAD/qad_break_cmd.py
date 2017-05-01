@@ -241,7 +241,7 @@ class QadBREAKCommandClass(QadCommandClass):
          else: # il punto arriva come parametro della funzione
             value = msg
 
-         if value is None or type(value) == unicode:
+         if value is None or type(value) == unicode  or type(value) == str:
             # si appresta ad attendere un punto
             self.waitForPoint(QadMsg.translate("Command_BREAK", "Specify first break point: "))            
             self.step = 3

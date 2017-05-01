@@ -308,7 +308,7 @@ class QadROTATECommandClass(QadCommandClass):
          else: # il punto arriva come parametro della funzione
             value = msg
 
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("Command_ROTATE", "Copy") or value == "Copy":
                self.copyFeatures = True
                self.showMsg(QadMsg.translate("Command_ROTATE", "\nRotation of a copy of the selected objects."))
@@ -411,7 +411,7 @@ class QadROTATECommandClass(QadCommandClass):
          else: # il punto arriva come parametro della funzione
             value = msg
 
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("Command_ROTATE", "Points") or value == "Points":
                # imposto il map tool
                self.getPointMapTool().setMode(Qad_rotate_maptool_ModeEnum.ASK_FOR_FIRST_NEW_ROTATION_PT)
@@ -716,7 +716,7 @@ class QadGRIPROTATECommandClass(QadCommandClass):
          else: # il punto arriva come parametro della funzione
             value = msg
 
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("Command_GRIPROTATE", "Base point") or value == "Base point":
                # si appresta ad attendere il punto base
                self.waitForBasePt()

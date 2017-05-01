@@ -311,7 +311,7 @@ class QadSCALECommandClass(QadCommandClass):
          else: # il punto arriva come parametro della funzione
             value = msg
 
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("Command_SCALE", "Copy") or value == "Copy":
                self.copyFeatures = True
                self.showMsg(QadMsg.translate("Command_SCALE", "\nScale of a copy of the selected objects."))
@@ -426,7 +426,7 @@ class QadSCALECommandClass(QadCommandClass):
          else: # il punto arriva come parametro della funzione
             value = msg
 
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("Command_SCALE", "Points") or value == "Points":
                # imposto il map tool
                self.getPointMapTool().setMode(Qad_scale_maptool_ModeEnum.ASK_FOR_FIRST_NEW_LEN_PT)
@@ -742,7 +742,7 @@ class QadGRIPSCALECommandClass(QadCommandClass):
          else: # il punto arriva come parametro della funzione
             value = msg
 
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("Command_GRIPSCALE", "Base point") or value == "Base point":
                # si appresta ad attendere il punto base
                self.waitForBasePt()

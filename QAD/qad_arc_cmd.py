@@ -185,7 +185,7 @@ class QadARCCommandClass(QadCommandClass):
          else: # il punto arriva come parametro della funzione
             value = msg
 
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("Command_ARC", "Center") or value == "Center":
                # imposto il map tool
                self.getPointMapTool().setMode(Qad_arc_maptool_ModeEnum.START_PT_KNOWN_ASK_FOR_CENTER_PT)
@@ -316,7 +316,7 @@ class QadARCCommandClass(QadCommandClass):
             value = msg
             ctrlPressed = False
 
-         if type(value) == unicode:  
+         if type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("Command_ARC", "Angle") or value == "Angle":
                # imposto il map tool
                self.getPointMapTool().setMode(Qad_arc_maptool_ModeEnum.START_CENTER_PT_KNOWN_ASK_FOR_ANGLE)
@@ -550,7 +550,7 @@ class QadARCCommandClass(QadCommandClass):
             value = msg
             ctrlPressed = False
 
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("Command_ARC", "Angle") or value == "Angle":
                # imposto il map tool
                self.getPointMapTool().setMode(Qad_arc_maptool_ModeEnum.START_END_PT_KNOWN_ASK_FOR_ANGLE)
@@ -1034,7 +1034,7 @@ class QadGRIPCHANGEARCRADIUSCommandClass(QadCommandClass):
          else: # il punto arriva come parametro della funzione
             value = msg
 
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("Command_GRIP", "Base point") or value == "Base point":
                # si appresta ad attendere il punto base
                self.waitForBasePt()

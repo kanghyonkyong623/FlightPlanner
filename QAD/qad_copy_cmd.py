@@ -345,7 +345,7 @@ class QadCOPYCommandClass(QadCommandClass):
          if value is None:
             value = QadMsg.translate("Command_COPY", "Displacement")
 
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("Command_COPY", "Displacement") or value == "Displacement":
                self.basePt.set(0, 0)
                self.getPointMapTool().basePt = self.basePt
@@ -424,7 +424,7 @@ class QadCOPYCommandClass(QadCommandClass):
                self.copyGeoms(value)
                return True # fine comando
          
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("Command_COPY", "Array") or value == "Array":
                self.waitForSeries()               
             elif value == QadMsg.translate("Command_COPY", "Exit") or value == "Exit":
@@ -487,7 +487,7 @@ class QadCOPYCommandClass(QadCommandClass):
          else: # la parola chiave arriva come parametro della funzione
             value = msg
 
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("Command_COPY", "Single") or value == "Single":
                self.copyMode = 1
                QadVariables.set(QadMsg.translate("Environment variables", "COPYMODE"), 1)
@@ -543,7 +543,7 @@ class QadCOPYCommandClass(QadCommandClass):
          else: # il punto arriva come parametro della funzione
             value = msg
 
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("Command_COPY", "Array") or value == "Array":
                self.adjust = False
                self.getPointMapTool().adjust = self.adjust

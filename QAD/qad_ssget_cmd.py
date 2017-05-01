@@ -487,7 +487,7 @@ class QadSSGetClass(QadCommandClass):
                self.plugIn.setLastEntitySet(self.entitySet)
             return True # fine
 
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             self.currSelectionMode = value
             
             if value == QadMsg.translate("Command_SSGET", "Window") or value == "Window" or \

@@ -434,7 +434,7 @@ class QadFILLETCommandClass(QadCommandClass):
          else: # il punto arriva come parametro della funzione
             value = msg
 
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("Command_FILLET", "Undo") or value == "Undo":
                if self.nOperationsToUndo > 0: 
                   self.nOperationsToUndo = self.nOperationsToUndo - 1
@@ -513,7 +513,7 @@ class QadFILLETCommandClass(QadCommandClass):
          else: # il punto arriva come parametro della funzione
             value = msg
 
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             # l'opzione Radius viene tradotta in italiano in "Raggio" nel contesto "WaitForPolyline"
             if value == QadMsg.translate("Command_FILLET", "Radius", "WaitForPolyline") or value == "Radius":
                if self.GetDistClass is not None:
@@ -596,7 +596,7 @@ class QadFILLETCommandClass(QadCommandClass):
          else: # il punto arriva come parametro della funzione
             value = msg
 
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("Command_FILLET", "Trim-extend") or value == "Trim-extend":
                self.filletMode = 1
             elif value == QadMsg.translate("Command_FILLET", "No trim-extend") or value == "No trim-extend":
@@ -637,7 +637,7 @@ class QadFILLETCommandClass(QadCommandClass):
          else: # il punto arriva come parametro della funzione
             value = msg
 
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             # l'opzione Radius viene tradotta in italiano in "RAggio" nel contesto "waitForSecondEntSel"
             if value == QadMsg.translate("Command_FILLET", "Radius", "waitForSecondEntSel") or value == "Radius":
                if self.GetDistClass is not None:

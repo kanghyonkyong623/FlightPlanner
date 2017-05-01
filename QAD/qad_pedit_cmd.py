@@ -1048,7 +1048,7 @@ class QadPEDITCommandClass(QadCommandClass):
          else: # il punto arriva come parametro della funzione
             value = msg
 
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("Command_PEDIT", "Multiple") or value == "Multiple":
                self.SSGetClass.checkPolygonLayer = True               
                self.SSGetClass.run(msgMapTool, msg)
@@ -1193,7 +1193,7 @@ class QadPEDITCommandClass(QadCommandClass):
          else: # il punto arriva come parametro della funzione
             value = msg
          
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("Command_PEDIT", "Join type") or value == "Join type":
                # si appresta ad attendere il tipo di unione
                self.waitForJoinType()
@@ -1269,7 +1269,7 @@ class QadPEDITCommandClass(QadCommandClass):
          else: # il punto arriva come parametro della funzione
             value = msg
 
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("Command_PEDIT", "Extend") or value == "Extend":
                self.joinMode = 1
                self.plugIn.setJoinMode(self.joinMode)
@@ -1317,7 +1317,7 @@ class QadPEDITCommandClass(QadCommandClass):
          else: # il punto o l'opzione arriva come parametro della funzione
             value = msg
          
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("Command_PEDIT", "Next") or value == "Next":
                self.default = value
                self.vertexAt = self.getNextVertex(self.vertexAt)                                 
@@ -1426,7 +1426,7 @@ class QadPEDITCommandClass(QadCommandClass):
          else: # il punto o l'opzione arriva come parametro della funzione
             value = msg
          
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("Command_PEDIT", "Next") or value == "Next":
                self.default1 = value
                self.secondVertexAt = self.getNextVertex(self.secondVertexAt)                                 
@@ -1746,7 +1746,7 @@ class QadGRIPINSERTREMOVEVERTEXCommandClass(QadCommandClass):
          else: # il punto arriva come parametro della funzione
             value = msg
 
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("Command_GRIP", "Base point") or value == "Base point":
                # si appresta ad attendere il punto base
                self.waitForBasePt()
@@ -2076,7 +2076,7 @@ class QadGRIPARCLINECONVERTCommandClass(QadCommandClass):
          else: # il punto arriva come parametro della funzione
             value = msg
 
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("Command_GRIP", "Copy") or value == "Copy":
                # Copia entità lasciando inalterate le originali
                self.copyEntities = True                     

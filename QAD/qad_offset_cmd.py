@@ -462,7 +462,7 @@ class QadOFFSETCommandClass(QadCommandClass):
          else: # il punto arriva come parametro della funzione
             value = msg
          
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("Command_OFFSET", "Through") or value == "Through":
                self.offSet = -1
                self.getPointMapTool().offSet = self.offSet
@@ -531,7 +531,7 @@ class QadOFFSETCommandClass(QadCommandClass):
          else: # il punto arriva come parametro della funzione
             value = msg
          
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("Command_OFFSET", "Exit") or value == "Exit":
                self.offsetGeoms(currLayer)
                return True
@@ -593,7 +593,7 @@ class QadOFFSETCommandClass(QadCommandClass):
             # si appresta ad attendere la selezione di un oggetto
             self.waitForObjectSel()
          else:
-            if type(value) == unicode:
+            if type(value) == unicode or type(value) == str:
                if value == QadMsg.translate("Command_OFFSET", "Exit") or value == "Exit":
                   self.offsetGeoms(currLayer)
                   return True # fine comando
@@ -648,7 +648,7 @@ class QadOFFSETCommandClass(QadCommandClass):
             # si appresta ad attendere la selezione di un oggetto
             self.waitForObjectSel()
          else:
-            if type(value) == unicode:
+            if type(value) == unicode or type(value) == str:
                if value == QadMsg.translate("Command_OFFSET", "Exit") or value == "Exit":
                   self.offsetGeoms(currLayer)
                   return True # fine comando
@@ -694,7 +694,7 @@ class QadOFFSETCommandClass(QadCommandClass):
          else: # il valore arriva come parametro della funzione
             value = msg
 
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("QAD", "Yes") or value == "Yes":
                self.eraseEntity = True
                self.waitForDistance()

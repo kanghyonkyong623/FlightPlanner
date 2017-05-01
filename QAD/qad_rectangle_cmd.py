@@ -212,7 +212,7 @@ class QadRECTANGLECommandClass(QadCommandClass):
          else: # il punto arriva come parametro della funzione
             value = msg
 
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("Command_RECTANGLE", "Chamfer") or value == "Chamfer":
                if self.GetDistClass is not None:
                   del self.GetDistClass
@@ -262,7 +262,7 @@ class QadRECTANGLECommandClass(QadCommandClass):
          else: # il punto arriva come parametro della funzione
             value = msg
 
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("Command_RECTANGLE", "Area") or value == "Area":
                msg = QadMsg.translate("Command_RECTANGLE", "Enter rectangle area in current units <{0}>: ")
                # si appresta ad attendere un numero reale         
@@ -520,7 +520,7 @@ class QadRECTANGLECommandClass(QadCommandClass):
          else: # il punto arriva come parametro della funzione
             value = msg
 
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("Command_RECTANGLE", "Points") or value == "Points":
                # si appresta ad attendere l'angolo di rotazione                      
                if self.GetAngleClass is not None:

@@ -260,7 +260,7 @@ class QadPOLYGONCommandClass(QadCommandClass):
          else: # il punto arriva come parametro della funzione
             value = msg
 
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("Command_POLYGON", "Edge") or value == "Edge":
                self.WaitForFirstEdgePt()
          elif type(value) == QgsPoint:
@@ -289,7 +289,7 @@ class QadPOLYGONCommandClass(QadCommandClass):
          else: # la parola chiave arriva come parametro della funzione
             value = msg        
          
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             self.constructionModeByCenter = value
             self.plugIn.setLastPolygonConstructionModeByCenter(self.constructionModeByCenter)
             self.getPointMapTool().constructionModeByCenter = self.constructionModeByCenter

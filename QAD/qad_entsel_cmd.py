@@ -162,7 +162,7 @@ class QadEntSelClass(QadCommandClass):
             self.canceledByUsr = True
             return True # fine comando
          
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("Command_ENTSEL", "Last") or value == "Last":
                # Seleziona l'ultima entità inserita
                lastEnt = self.plugIn.getLastEntity()
