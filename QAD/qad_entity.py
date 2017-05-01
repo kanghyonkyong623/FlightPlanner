@@ -842,7 +842,7 @@ class QadEntitySet():
          return None
       if type(layer) == QgsVectorLayer: # layer
          return self.findLayerEntitySet(layer.id())     
-      elif type(layer) == unicode: # id del layer
+      elif type(layer) == unicode or type(layer) == QString: # id del layer
          for layerEntitySet in self.layerEntitySetList:
             if layerEntitySet.layerId() == layer:
                return layerEntitySet

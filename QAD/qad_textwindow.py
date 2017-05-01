@@ -542,6 +542,7 @@ class QadEdit(QTextEdit):
       
 
    def showMsg(self, msg, displayPromptAfterMsg = False, append = True):
+      msg = String.QString2Str(msg)
       if len(msg) > 0:
          cursor = self.textCursor()
          sep = msg.rfind("\n")

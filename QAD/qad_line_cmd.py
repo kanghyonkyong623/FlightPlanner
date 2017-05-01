@@ -191,7 +191,7 @@ class QadLINECommandClass(QadCommandClass):
             value = msg
             snapTypeOnSel = QadSnapTypeEnum.NONE
 
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("Command_LINE", "Undo") or value == "Undo":               
                self.delLastVertex() # cancello ultimo vertice
                # imposto il map tool

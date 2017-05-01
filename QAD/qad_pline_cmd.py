@@ -353,7 +353,7 @@ class QadPLINECommandClass(QadCommandClass):
                return True # fine comando
             
          
-         if type(value) == unicode:
+         if type(value) == unicode or type(value) == str:
             if value == QadMsg.translate("Command_PLINE", "Arc") or value == "Arc":
                self.WaitForArcMenu()
                return False
