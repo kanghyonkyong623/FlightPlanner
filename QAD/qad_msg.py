@@ -87,7 +87,7 @@ def qadShowPluginHelp(section = "", filename = "index", packageName = None):
       return
 
    # initialize locale
-   userLocaleList = QSettings().value("locale/userLocale").split("_")
+   userLocaleList = QSettings().value("locale/userLocale").toString().split("_")
    language = userLocaleList[0]
    region = userLocaleList[1] if len(userLocaleList) > 1 else ""
 
@@ -101,7 +101,7 @@ def qadShowPluginHelp(section = "", filename = "index", packageName = None):
          if not os.path.exists(helpPath):
             return
       
-   helpfile = os.path.join(helpPath, filename + ".html")
+   helpfile = os.path.join(str(helpPath), str(filename + ".html"))
    if os.path.exists(helpfile):
       url = "file:///"+helpfile
 

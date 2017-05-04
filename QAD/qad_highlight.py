@@ -60,7 +60,7 @@ def createHighlight(mapCanvas, geometry_feature, layer, borderColor = None, fill
    Se <alternativeBand> = True, il rubber band sarà impostato con più trasparenza e tipolinea punteggiato   
    """
    settings = QSettings()
-   width = int(settings.value( "/qgis/digitizing/line_width", 1).toInt())
+   width = int(settings.value( "/qgis/digitizing/line_width", 1).toInt()[0])
 
    hl = QgsHighlight(mapCanvas, geometry_feature, layer)
    
