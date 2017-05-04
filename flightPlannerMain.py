@@ -13,6 +13,7 @@ from qgis.core import QgsApplication
 from Type.String import String
 from AircraftOperation import AirCraftOperation
 import define
+import flightPlanner_rc   # resource
 
 appdatadir = None
 path = None
@@ -39,8 +40,8 @@ define.appPath = path
 
 try:
     import clr
-except ImportError:
-    print "Failed to import module: clr"
+except ImportError as e:
+    print e.message
     sys.exit(1)
 
 from map.mainWindow import MyWnd

@@ -1,5 +1,0 @@
-<RCC>
-  <qresource prefix="newPrefix">
-    <file>chartingTemp.png</file>
-  </qresource>
-</RCC>
