@@ -33,7 +33,7 @@ from FlightPlanner.QgisHelper import QgisHelper
 import define
 print "FORM_CLASS"
 # print os.path.join(os.path.dirname(__file__), 'grid_zone_generator_dialog_base.ui')
-FORM_CLASS, _ = uic.loadUiType(define.appPath + "/grid_zone_generator_dialog_base.ui")
+FORM_CLASS, _ = uic.loadUiType(define.appPath + "/GridZoneGenerator/grid_zone_generator_dialog_base.ui")
 
 print "FORM_CLASS End"
 class GridZoneGeneratorDialog(QtGui.QDialog, FORM_CLASS):
