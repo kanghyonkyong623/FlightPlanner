@@ -53,7 +53,7 @@ class QadDSETTINGSTabIndexEnum():
 class QadDSETTINGSDialog(QDialog, QObject, qad_dsettings_ui.Ui_DSettings_Dialog):
    def __init__(self, plugIn, dsettingsTabIndex = None):
       self.plugIn = plugIn
-      self.iface = self.plugIn.iface.mainWindow()
+      self.iface = self.plugIn.iface
 
       QDialog.__init__(self)
       # non passo il parent perchè altrimenti il font e la sua dimensione verrebbero ereditati dalla dialog scombinando tutto 

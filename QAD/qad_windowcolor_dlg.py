@@ -72,7 +72,7 @@ class QadColorElementEnum():
 class QadWindowColorDialog(QDialog, QObject, qad_windowcolor_ui.Ui_WindowColor_Dialog):
    def __init__(self, plugIn, parent, contextEnum = QadColorContextEnum.NONE, elementEnum = QadColorElementEnum.NONE):
       self.plugIn = plugIn
-      self.iface = self.plugIn.iface.mainWindow()
+      self.iface = self.plugIn.iface
 
       QDialog.__init__(self, parent)
 

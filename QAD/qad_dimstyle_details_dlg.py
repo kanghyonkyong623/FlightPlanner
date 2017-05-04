@@ -58,7 +58,7 @@ class QadDIMSTYLE_DETAILS_Dialog(QDialog, QObject, qad_dimstyle_details_ui.Ui_Di
    def __init__(self, plugIn, parent, dimStyle):
       self.plugIn = plugIn
       self.dimStyle = QadDimStyle(dimStyle) # copio lo stile di quotatura
-      self.iface = self.plugIn.iface.mainWindow()
+      self.iface = self.plugIn.iface
 
       QDialog.__init__(self, parent)
 
