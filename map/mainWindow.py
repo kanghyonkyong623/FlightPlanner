@@ -98,6 +98,7 @@ from FlightPlanner.NpaAtDistanceTime.NpaAtDistanceTimeDlg import NpaAtDistanceTi
 
 from ProjectManager.LoginForm import LoginForm
 from ProjectManager.UserMngForm import UserMngForm
+from ProjectManager.RegProjectFolderForm import RegProjectFolderForm
 from ProjectManager.UserList import UserList
 from ProjectManager.ProjectInfo import ProjectList
 from AircraftOperation import AirCraftOperation
@@ -2437,25 +2438,30 @@ class MyWnd(QMainWindow):
             return
         procedureMngForm = ProcedureMngForm(self)
         procedureMngForm.exec_()
-    def openProjectFolder(self):
-        folder = QFileDialog.getExistingDirectory(self, "Select project directory", define.projectManageDir)
-        if (folder != None and folder != ""):
-            define.projectManageDir = folder
-            # strPath = folderBrowser.SelectedPath
-            if (AirCraftOperation.g_AppSetting.ProjectFolderPath == folder):
-                return
-            AirCraftOperation.g_AppSetting.ProjectFolderPath = folder
-            AirCraftOperation.g_userList.SetUserInfoPath(folder)
-            AirCraftOperation.g_projectList.SetProjectInfoPath(folder)
 
+    def selectProjectFolder(self):
+        folder = QFileDialog.getExistingDirectory(self, "Select project directory", define.projectManageDir)
+
+        if folder is not None and folder != "":
+            define.projectManageDir = folder
+
+            if AirCraftOperation.g_AppSetting.ProjectFolderPath == folder:
+                return
+
+            self.aircraftOperation.SelectProjectFolder(folder)
             self.setWindowTitle("FlightPlanner(" + folder.replace("\\", "/") + ")")
-            self.aircraftOperation.ResetProject()
+
+    def registerProjectFolder(self):
+        regProjectFolderForm = RegProjectFolderForm(self)
+        regProjectFolderForm.exec_()
+
     def registerAIPChartToolStripMenuItem_Click(self):
         if (AirCraftOperation.g_loginedUser == None):
             QMessageBox.warning(self, "Warning", "Please login as a valid user!")
             return
         aipChartMngForm = AIPChartMngForm(self)
         aipChartMngForm.exec_()
+
     def createProcedureToolStripMenuItem_Click(self):
         if (AirCraftOperation.g_loginedUser == None):
             QMessageBox.warning(self, "Warning", "Please login as a valid user!")
@@ -2525,8 +2531,6 @@ class MyWnd(QMainWindow):
         menuBar = self.menuBar()
         fileMenu = menuBar.addMenu("&File")
 
-
-
         fileMenuOpenAction = QgisHelper.createAction(self, "Open...", self.openProj, None, "opens", None, False)
         fileMenu.addAction(fileMenuOpenAction)
 
@@ -2542,11 +2546,20 @@ class MyWnd(QMainWindow):
         fileMenuExitAction = QgisHelper.createAction(self, "Exit", self.fileMenuExitActionEvent, None, "closes", None, False)
         fileMenu.addAction(fileMenuExitAction)
 
-        ##### Procedure Manager menu
+        # Procedure Manager menu
         procedureMenu = menuBar.addMenu("&Procedure Manager")
 
-        projectFolderMenuOpenAction = QgisHelper.createAction(self, "Project Folder", self.openProjectFolder, None, "select project folder", None, False)
-        procedureMenu.addAction(projectFolderMenuOpenAction)
+        # create "Project Folder" sub menu.
+        procedureMenuProjectFolderMenu = procedureMenu.addMenu("Project Folder")
+
+        projectFolderMenuOpenAction = QgisHelper.createAction(self, "Select Project Folder...", self.selectProjectFolder, None, "Select Project Folder", None, False)
+        procedureMenuProjectFolderMenu.addAction(projectFolderMenuOpenAction)
+
+        projectFolderMenuRecentAction = QgisHelper.createAction(self, "Recent Project Folder", self.selectProjectFolder, None, "Recent Project Folders", None, False)
+        procedureMenuProjectFolderMenu.addAction(projectFolderMenuRecentAction)
+
+        projectFolderMenuRegisterAction = QgisHelper.createAction(self, "Register Project Folder...", self.registerProjectFolder, None, "Register Project Folder", None, False)
+        procedureMenuProjectFolderMenu.addAction(projectFolderMenuRegisterAction)
 
         procedureMenuUserManagementMenu = procedureMenu.addMenu("User")
         procedureMenuUserLodinAction = QgisHelper.createAction(self, "Login", self.userLogin, None, "Login", None, False)

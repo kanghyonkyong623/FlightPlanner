@@ -1,7 +1,7 @@
 
 
 from PyQt4.QtGui import QDialog, QPushButton, QVBoxLayout, QFont, QFileDialog, QMessageBox, QIcon
-from PyQt4.QtCore import SIGNAL, QFileInfo, QDir, QCoreApplication, QFile
+from PyQt4.QtCore import SIGNAL, QFileInfo
 from qgis.core import QgsProject
 from FlightPlanner.Panels.ListBox import ListBox
 from FlightPlanner.Panels.TextBoxPanel import TextBoxPanel
@@ -9,25 +9,26 @@ from FlightPlanner.Panels.GroupBox import GroupBox
 from FlightPlanner.Panels.Frame import Frame
 
 from ProjectManager.ProjectInfo import enumProjectType
-from ProjectManager.ProjectInfo import ProjectInfo, ProjectList
+from ProjectManager.ProjectInfo import ProjectInfo
 from AircraftOperation import AirCraftOperation
 import define
 
-class AIPChartMngForm(QDialog):
-    def __init__(self, parent = None):
-        QDialog.__init__(self)
 
-        self.setObjectName(("ui_ProjectMngForm"))
+class AIPChartMngForm(QDialog):
+    def __init__(self, parent=None):
+        QDialog.__init__(self, parent)
+
+        self.setObjectName("ui_ProjectMngForm")
         self.resize(200, 200)
         font = QFont()
-        font.setFamily(("Arial"))
+        font.setFamily("Arial")
         font.setBold(False)
         font.setWeight(50)
         self.setFont(font)
         self.setWindowTitle("Register AIP Chat")
 
         self.vlForm = QVBoxLayout(self)
-        self.vlForm.setObjectName(("vl_ProjectMngForm"))
+        self.vlForm.setObjectName("vl_ProjectMngForm")
         self.vlForm.setSpacing(9)
         self.vlForm.setMargin(9)
 
@@ -95,7 +96,7 @@ class AIPChartMngForm(QDialog):
         self.buttonCloseAIPChart.clicked.connect(self.buttonCloseProject_Click)
         
         for pi in AirCraftOperation.g_projectList.ProjectsList:
-            if (pi.Pt == enumProjectType.ptAipChart):
+            if pi.Pt == enumProjectType.ptAipChart:
                 self.listBoxAIPChart.Add(pi.Name)
 
     def buttonBrowseProject_Click(self):
@@ -113,10 +114,10 @@ class AIPChartMngForm(QDialog):
         self.textPathAIPChart.Value = filePathDir
         
     def buttonAddProject_Click(self):
-        if (not self.CheckInputValues()):
+        if not self.CheckInputValues():
             return
 
-        if (AirCraftOperation.g_projectList.FindByName(self.textNameAIPChart.Text, enumProjectType.ptAipChart) != None):
+        if AirCraftOperation.g_projectList.FindByName(self.textNameAIPChart.Text, enumProjectType.ptAipChart) != None:
             QMessageBox.warning(self, "Warning", "The same project exist!")
         pi = ProjectInfo()
         pi.Pt = enumProjectType.ptAipChart
@@ -132,22 +133,22 @@ class AIPChartMngForm(QDialog):
 
     def buttonSaveProject_Click(self):
         res = QMessageBox.question(self, "Alert", "Save changes to project information?", QMessageBox.Yes | QMessageBox.No)
-        if (res == QMessageBox.Yes):
+        if res == QMessageBox.Yes:
             AirCraftOperation.g_projectList.WriteProjectInfoXml()
             self.buttonSaveAIPChart.setEnabled(False)
 
     def buttonCloseProject_Click(self):
         res = QMessageBox.question(self, "Alert", "Save changes to project information?", QMessageBox.Yes | QMessageBox.No)
-        if (res == QMessageBox.Yes):
+        if res == QMessageBox.Yes:
             AirCraftOperation.g_projectList.WriteProjectInfoXml()
             self.buttonSaveAIPChart.setEnabled(False)
         self.accept()
 
     def CheckInputValues(self):
-        if (self.textNameAIPChart.Text == None or self.textNameAIPChart.Text == ""):
+        if self.textNameAIPChart.Text == None or self.textNameAIPChart.Text == "":
             QMessageBox.warning(self, "Warning", "Please input project name!")
             return False
-        if (self.textPathAIPChart.Text == None or self.textPathAIPChart.Text == ""):
+        if self.textPathAIPChart.Text == None or self.textPathAIPChart.Text == "":
             QMessageBox.warning(self, "Warning", "Please input project path!")
             return False
 
@@ -157,9 +158,9 @@ class AIPChartMngForm(QDialog):
         return True
 
     def buttonModifyProject_Click(self):
-        if (self.listBoxAIPChart.SelectedIndex < 0):
+        if self.listBoxAIPChart.SelectedIndex < 0:
             QMessageBox.warning(self, "Warning", "Please select project in the projects list!")
-        if (not self.CheckInputValues()):
+        if not self.CheckInputValues():
             return
         index = AirCraftOperation.g_projectList.FindByName(self.listBoxAIPChart.Items[self.listBoxAIPChart.SelectedIndex], enumProjectType.ptAipChart)
         AirCraftOperation.g_projectList.ProjectsList[index].Pt = enumProjectType.ptAipChart
@@ -169,31 +170,29 @@ class AIPChartMngForm(QDialog):
         self.buttonSaveAIPChart.setEnabled(True)
         self.listBoxAIPChart.Clear()
         for pi in AirCraftOperation.g_projectList.ProjectsList:
-            if (pi.Pt == enumProjectType.ptAipChart):
+            if pi.Pt == enumProjectType.ptAipChart:
                 self.listBoxAIPChart.Add(pi.Name)
 
-
     def buttonDeleteProject_Click(self):
-        if (self.listBoxAIPChart.SelectedIndex < 0):
+        if self.listBoxAIPChart.SelectedIndex < 0:
             QMessageBox.warning(self, "Warning", "Please select project in the projects list!")
             return
-        if (QMessageBox.question(self, "Question", "Are you sure to delete " + self.listBoxAIPChart.Items[self.listBoxAIPChart.SelectedIndex] + "?",QMessageBox.Yes | QMessageBox.No) == QMessageBox.No):
+        if QMessageBox.question(self, "Question", "Are you sure to delete " + self.listBoxAIPChart.Items[self.listBoxAIPChart.SelectedIndex] + "?",QMessageBox.Yes | QMessageBox.No) == QMessageBox.No:
             return
         index = AirCraftOperation.g_projectList.FindByName(self.listBoxAIPChart.Items[self.listBoxAIPChart.SelectedIndex], enumProjectType.ptAipChart)
-        if index == None:
+        if index is None:
             return
         AirCraftOperation.g_projectList.ProjectsList.pop(index)
         self.buttonSaveAIPChart.setEnabled(True)
         self.listBoxAIPChart.Clear()
         for pi in AirCraftOperation.g_projectList.ProjectsList:
-            if (pi.Pt == enumProjectType.ptAipChart):
+            if pi.Pt == enumProjectType.ptAipChart:
                 self.listBoxAIPChart.Add(pi.Name)
         AirCraftOperation.g_projectList.WriteProjectInfoXml()
 
     def listBoxProject_SelectedIndexChanged(self):
-        if (self.listBoxAIPChart.SelectedIndex < 0):
+        if self.listBoxAIPChart.SelectedIndex < 0:
             return
         index = AirCraftOperation.g_projectList.FindByName(self.listBoxAIPChart.Items[self.listBoxAIPChart.SelectedIndex], enumProjectType.ptAipChart)
         self.textNameAIPChart.Text = AirCraftOperation.g_projectList.ProjectsList[index].Name
         self.textPathAIPChart.Text = AirCraftOperation.g_projectList.ProjectsList[index].Path
-
