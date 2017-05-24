@@ -73,12 +73,6 @@ class ProjectMngForm(QDialog):
         self.buttonDeleteProject.setText("Delete")
         self.btnFrame.Add = self.buttonDeleteProject
 
-        self.buttonSaveProject = QPushButton(self.btnFrame)
-        self.buttonSaveProject.setObjectName("buttonSaveProject")
-        self.buttonSaveProject.setText("Save")
-        self.buttonSaveProject.setVisible(False)
-        self.btnFrame.Add = self.buttonSaveProject
-
         self.buttonCloseProject = QPushButton(self.btnFrame)
         self.buttonCloseProject.setObjectName("buttonCloseProject")
         self.buttonCloseProject.setText("Close")
@@ -90,7 +84,6 @@ class ProjectMngForm(QDialog):
         self.buttonAddProject.clicked.connect(self.buttonAddProject_Click)
         self.buttonModifyProject.clicked.connect(self.buttonModifyProject_Click)
         self.buttonDeleteProject.clicked.connect(self.buttonDeleteProject_Click)
-        self.buttonSaveProject.clicked.connect(self.buttonSaveProject_Click)
         self.buttonCloseProject.clicked.connect(self.buttonCloseProject_Click)
         
         for pi in AirCraftOperation.g_projectList.ProjectsList:
@@ -124,18 +117,8 @@ class ProjectMngForm(QDialog):
 
             nIndex = self.listBoxProject.Add(pi.Name)
             self.listBoxProject.SelectedIndex = nIndex
-            self.buttonSaveProject.setEnabled(True)
         except:#(System.Exception ex)
             # MessageBox.Show(ex.Message)
-            pass
-
-    def buttonSaveProject_Click(self):
-        res = QMessageBox.question(self, "Alert", "Save changes to project information?", QMessageBox.Yes | QMessageBox.No)
-
-        if res == QMessageBox.Yes:
-            AirCraftOperation.g_projectList.WriteProjectInfoXml()
-            self.buttonSaveProject.setEnabled(False)
-        elif res == QMessageBox.No:
             pass
 
     def CheckInputValues(self):
@@ -179,8 +162,6 @@ class ProjectMngForm(QDialog):
             for pi in AirCraftOperation.g_projectList.ProjectsList:
                 if pi.Pt == enumProjectType.ptProject:
                     self.listBoxProject.Add(pi.Name)
-
-            self.buttonSaveProject.setEnabled(True)
         except:
             # MessageBox.Show(ex.Message)
             pass
@@ -205,7 +186,6 @@ class ProjectMngForm(QDialog):
                 if (pi.Pt == enumProjectType.ptProject):
                     self.listBoxProject.Add(pi.Name)
 
-            self.buttonSaveProject.setEnabled(True)
             AirCraftOperation.g_projectList.WriteProjectInfoXml()
         except:
             pass
@@ -223,11 +203,5 @@ class ProjectMngForm(QDialog):
             pass
 
     def buttonCloseProject_Click(self):
-        res = QMessageBox.question(self, "Alert", "Save changes to project information?", QMessageBox.Yes | QMessageBox.No)
-
-        if res == QMessageBox.Yes:
-            AirCraftOperation.g_projectList.WriteProjectInfoXml()
-            self.buttonSaveProject.setEnabled(False)
-        elif res == QMessageBox.No:
-            pass
+        AirCraftOperation.g_projectList.WriteProjectInfoXml()
         self.accept()
