@@ -1,10 +1,10 @@
-
-from PyQt4.QtXml import QDomDocument, QDomElement
+from PyQt4.QtXml import QDomDocument
 from PyQt4.QtCore import QFile, QTextStream, QString
 from Type.FasDataBlockFile import FasDataBlockFile
 from FlightPlanner.Dialogs.DlgCrcCheck import DlgCrcCheck
 from Type.switch import switch
 import os
+
 
 class enumProjectType:
     ptAipChart = "ptAipChart"
@@ -12,6 +12,7 @@ class enumProjectType:
     ptSubProject = "ptSubProject"
     ptWorkspace = "ptWorkspace"
     ptFile = "ptFile"
+
 
 class ProjectInfo:
     def __init__(self):
@@ -26,7 +27,7 @@ class ProjectInfo:
         self.FullName = ""
         
     def get_Name(self):
-        for case in switch (self.Pt):
+        for case in switch(self.Pt):
             if case(enumProjectType.ptProject):
                 return self.ProjName
             elif case(enumProjectType.ptSubProject):
@@ -37,8 +38,9 @@ class ProjectInfo:
                 return self.ProcedureName
             else:
                 return self.ProjName
+
     def set_Name(self, value):
-        for case in switch (self.Pt):
+        for case in switch(self.Pt):
             if case(enumProjectType.ptProject):
                 self.ProjName = value
                 break
@@ -56,43 +58,12 @@ class ProjectInfo:
                 break
     Name = property(get_Name, set_Name, None, None)
 
-    # def get_FullName(self):
-    #     for case in switch (self.Pt):
-    #         if case(enumProjectType.ptProject):
-    #             return self.ProjName
-    #         elif case(enumProjectType.ptSubProject):
-    #             return self.ProjName + "_" + self.SubProjName
-    #         elif case(enumProjectType.ptWorkspace):
-    #             return self.ProjName + "_" + self.SubProjName + "_" + self.WorkspaceName
-    #         elif case(enumProjectType.ptFile):
-    #             return self.ProjName + "_" + self.SubProjName + "_" + self.WorkspaceName + "_" + self.ProcedureName
-    #         else:
-    #             return self.ProjName
-    # # def set_FullName(self, value):
-    # #     for case in switch (self.Pt):
-    # #         if case(enumProjectType.ptProject):
-    # #             self.ProjName = value
-    # #             break
-    # #         elif case(enumProjectType.ptSubProject):
-    # #             self.SubProjName = value
-    # #             break
-    # #         elif case(enumProjectType.ptWorkspace):
-    # #             self.WorkspaceName = value
-    # #             break
-    # #         elif case(enumProjectType.ptFile):
-    # #             self.ProcedureName = value
-    # #             break
-    # #         else:
-    # #             self.ProjName = value
-    # #             break
-    # FullName = property(get_FullName, None, None)
 
 class ProjectList:
     def __init__(self):
         self.PROJECTINFO_FILENAME = "\\ProjectInfo.xml"
         self.ProjectsList = []
         self.m_strProjectInfoFullName = os.getcwdu() + self.PROJECTINFO_FILENAME
-
 
     def Add(self, project):
         self.ProjectsList.append(project)
@@ -102,16 +73,19 @@ class ProjectList:
 
     def FindProjectListByPt(self, pt):
         piList = []
+
         for pi in self.ProjectsList:
-            if (pi.Pt == pt):
+            if pi.Pt == pt:
                 piList.append(pi)
+
         return piList
 
-    def FindByName(self, strName, type = None):
-        if type == None:
+    def FindByName(self, strName, type=None):
+        if type is None:
             i = 0
+
             for pi in self.ProjectsList:
-                if (pi.Name == strName):
+                if pi.Name == strName:
                     return i
                 i += 1
             return None
@@ -123,13 +97,15 @@ class ProjectList:
                 i += 1
             return None
 
-    def Find(self, strName, type = None):
+    def Find(self, strName, type=None):
         try:
-            if type == None:
+            if type is None:
                 i = 0
+
                 for pi in self.ProjectsList:
-                    if (pi.FullName == strName):
+                    if pi.FullName == strName:
                         return i
+
                     i += 1
                 return None
             else:
@@ -204,14 +180,11 @@ class ProjectList:
             self.ProjectsList.append(pj)
         return True
 
-
-
-
     def WriteProjectInfoXml(self):
         doc = QDomDocument()
         rootElem = doc.createElement("ProjectListClass")
-        xmlDeclaration = doc.createProcessingInstruction( "xml", "version=\"1.0\" encoding=\"utf-8\"" )
-        doc.appendChild( xmlDeclaration )
+        xmlDeclaration = doc.createProcessingInstruction("xml", "version=\"1.0\" encoding=\"utf-8\"")
+        doc.appendChild(xmlDeclaration)
 
         elem = doc.createElement("ProjectCount")
         elem.appendChild(doc.createTextNode(str(len(self.ProjectsList))))
@@ -268,7 +241,7 @@ class ProjectList:
             qFile.close()
 
             # ###CRC file is created.
-            contents = None
+
             with open(self.m_strProjectInfoFullName, 'rb', 0) as tempFile:
                 contents = tempFile.read()
                 tempFile.flush()
@@ -282,78 +255,88 @@ class ProjectList:
 
         else:
             raise UserWarning, "can not open file:" + self.m_strProjectInfoFullName
+
     def Insert(self, index, pi):
         self.ProjectsList.insert(index, pi)
-    def Remove(self, p, type = None):
+
+    def Remove(self, p, type=None):
         try:
             if isinstance(p, int):
                 self.ProjectsList.pop(p)
                 return
-            if type == None:
+            if type is None:
                 if not isinstance(p, ProjectInfo):
                     i = self.Find(p)
-                    if (i == None):
+
+                    if i is None:
                         return
+
                     self.ProjectsList.pop(i)
                 else:
                     i = self.Find(p.FullName, p.Pt)
-                    if (i == None):
+
+                    if i is None:
                         return
+
                     self.ProjectsList.pop(i)
             else:
                 i = self.Find(p, type)
-                if (i == None):
+
+                if i is None:
                     return
+
                 self.ProjectsList.pop(i)
         except:
             pass
 
-
-    def GetLinkedProjects(self, pi, refProjectType, outProjectType = None):
+    def GetLinkedProjects(self, pi, refProjectType, outProjectType=None):
         try:
-            if outProjectType == None:
+            if outProjectType is None:
                 listProject = []
+
                 for piItem in self.ProjectsList:
-                    if (piItem.Pt != refProjectType):
+                    if piItem.Pt != refProjectType:
                         continue
-                    for case in switch (pi.Pt):
+
+                    for case in switch(pi.Pt):
                         if case(enumProjectType.ptProject):
-                            if (pi.Name == piItem.ProjName):
+                            if pi.Name == piItem.ProjName:
                                 listProject.append(piItem)
                             break
                         elif case(enumProjectType.ptSubProject):
-                            if (pi.Name == piItem.SubProjName):
+                            if pi.Name == piItem.SubProjName:
                                 listProject.append(piItem)
                             break
                         elif case(enumProjectType.ptWorkspace):
-                            if (pi.Name == piItem.WorkspaceName):
+                            if pi.Name == piItem.WorkspaceName:
                                 listProject.append(piItem)
                             break
                         elif case(enumProjectType.ptFile):
-                            if (pi.Name == piItem.ProcedureName):
+                            if pi.Name == piItem.ProcedureName:
                                 listProject.append(piItem)
                             break
                 return listProject
             else:
                 listProject = []
                 for piItem in self.ProjectsList:
-                    if (piItem.Pt != outProjectType):
+                    if piItem.Pt != outProjectType:
                         continue
-                    for case in switch (refProjectType):
+
+                    for case in switch(refProjectType):
                         if case(enumProjectType.ptProject):
-                            if (pi == piItem.ProjName):
+                            if pi == piItem.ProjName:
                                 listProject.append(piItem.Name)
                             break
                         elif case(enumProjectType.ptSubProject):
-                            if (pi == piItem.SubProjName):
+                            if pi == piItem.SubProjName:
                                 listProject.append(piItem.Name)
                             break
                         elif case(enumProjectType.ptWorkspace):
-                            if (pi == piItem.WorkspaceName):
+                            if pi == piItem.WorkspaceName:
                                 listProject.append(piItem.Name)
                             break
                         elif case(enumProjectType.ptFile):
-                            if (pi == piItem.ProcedureName):
+                            if pi == piItem.ProcedureName:
                                 listProject.append(piItem.Name)
                             break
                 return listProject
@@ -361,7 +344,7 @@ class ProjectList:
             # MessageBox.Show(ex.Message)
             return None
 
-    def GetListOfWsOrProcedure(self, type, projectName, subProjectName, workspaceName = None):
+    def GetListOfWsOrProcedure(self, type, projectName, subProjectName, workspaceName=None):
         resultList = []
         if type == enumProjectType.ptWorkspace:
             for projectInfo in self.ProjectsList:
@@ -380,7 +363,7 @@ class ProjectList:
                             resultList.append(projectInfo.ProcedureName)
         return resultList
 
-    def GetIndexOfWsOrProcedure(self, type, projectName, subProjectName, workspaceName = None, procedureName = None):
+    def GetIndexOfWsOrProcedure(self, type, projectName, subProjectName, workspaceName=None, procedureName=None):
         if type == enumProjectType.ptSubProject:
             i = 0
             for projectInfo in self.ProjectsList:
@@ -417,4 +400,3 @@ class ProjectList:
                 i += 1
 
         return None
-

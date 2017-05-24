@@ -98,11 +98,11 @@ class SubProjectMngForm(QDialog):
         self.buttonCloseSubproject.setText("Close")
         self.btnFrame.Add = self.buttonCloseSubproject
 
-        self.connect(self.listBoxSubproject, SIGNAL("Event_0"), self.listBox1_SelectedIndexChanged)
+        self.connect(self.listBoxSubproject, SIGNAL("Event_0"), self.listBoxSubproject_SelectedIndexChanged)
         self.connect(self.textPathSubproject, SIGNAL("Event_1"), self.buttonBrowseSubproject_Click)
 
         self.connect(self.textNameSubproject, SIGNAL("Event_0"), self.setFullName)
-        self.connect(self.comboProjectSubproject, SIGNAL("Event_0"), self.setFullNameProjectNameChaged)
+        self.connect(self.comboProjectSubproject, SIGNAL("Event_0"), self.setFullNameProjectNameChanged)
 
         self.buttonCloseSubproject.clicked.connect(self.buttonCloseSubproject_Click)
         self.buttonDeleteSubproject.clicked.connect(self.buttonDeleteSubproject_Click)
@@ -117,7 +117,7 @@ class SubProjectMngForm(QDialog):
                 self.comboProjectSubproject.Add(pi.Name)
 
         self.editFlag = False
-        self.setFullNameProjectNameChaged()
+        self.setFullNameProjectNameChanged()
 
     def setFullName(self):
         if self.editFlag:
@@ -135,7 +135,7 @@ class SubProjectMngForm(QDialog):
 
         self.editFlag = False
 
-    def setFullNameProjectNameChaged(self):
+    def setFullNameProjectNameChanged(self):
         if self.editFlag:
             return
 
@@ -202,7 +202,7 @@ class SubProjectMngForm(QDialog):
 
         return True
     
-    def listBox1_SelectedIndexChanged(self):
+    def listBoxSubproject_SelectedIndexChanged(self):
         if self.listBoxSubproject.SelectedIndex < 0:
             return
 
@@ -277,7 +277,7 @@ class SubProjectMngForm(QDialog):
             QMessageBox.warning(self, "Warning", "Please select project in the projects list!")
             return
 
-        if QMessageBox.question(self, "Question", "Are you sure to delete " + self.listBoxSubproject.Items[self.listBoxSubproject.SelectedIndex] + "?",QMessageBox.Yes | QMessageBox.No) == QMessageBox.No:
+        if QMessageBox.question(self, "Question", "Are you sure to delete " + self.listBoxSubproject.Items[self.listBoxSubproject.SelectedIndex] + "?", QMessageBox.Yes | QMessageBox.No) == QMessageBox.No:
             return
 
         AirCraftOperation.g_projectList.Remove(self.textFullName.Value)
