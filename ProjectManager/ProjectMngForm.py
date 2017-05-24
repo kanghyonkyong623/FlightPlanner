@@ -1,25 +1,24 @@
-
-
 from PyQt4.QtGui import QDialog, QPushButton, QVBoxLayout, QFont, QFileDialog, QMessageBox, QIcon
-from PyQt4.QtCore import SIGNAL, QFileInfo, QDir
+from PyQt4.QtCore import SIGNAL, QDir
 from FlightPlanner.Panels.ListBox import ListBox
 from FlightPlanner.Panels.TextBoxPanel import TextBoxPanel
 from FlightPlanner.Panels.GroupBox import GroupBox
 from FlightPlanner.Panels.Frame import Frame
 
 from ProjectManager.ProjectInfo import enumProjectType
-from ProjectManager.ProjectInfo import ProjectInfo, ProjectList
+from ProjectManager.ProjectInfo import ProjectInfo
 from AircraftOperation import AirCraftOperation
 import define
 
-class ProjectMngForm(QDialog):
-    def __init__(self, parent = None):
-        QDialog.__init__(self)
 
-        self.setObjectName(("ui_ProjectMngForm"))
+class ProjectMngForm(QDialog):
+    def __init__(self, parent=None):
+        QDialog.__init__(self, parent)
+
+        self.setObjectName("ui_ProjectMngForm")
         self.resize(200, 200)
         font = QFont()
-        font.setFamily(("Arial"))
+        font.setFamily("Arial")
         font.setBold(False)
         font.setWeight(50)
         self.setFont(font)
@@ -27,7 +26,7 @@ class ProjectMngForm(QDialog):
         self.setWindowTitle("Project Manage Dialog")
 
         self.vlForm = QVBoxLayout(self)
-        self.vlForm.setObjectName(("vl_ProjectMngForm"))
+        self.vlForm.setObjectName("vl_ProjectMngForm")
         self.vlForm.setSpacing(9)
         self.vlForm.setMargin(9)
 
@@ -95,23 +94,24 @@ class ProjectMngForm(QDialog):
         self.buttonCloseProject.clicked.connect(self.buttonCloseProject_Click)
         
         for pi in AirCraftOperation.g_projectList.ProjectsList:
-            if (pi.Pt == enumProjectType.ptProject):
+            if pi.Pt == enumProjectType.ptProject:
                 self.listBoxProject.Add(pi.Name)
 
     def buttonBrowseProject_Click(self):
         folderPath = QFileDialog.getExistingDirectory(self, "Open Project Path", define.projectManageDir)
-        if (folderPath != None and folderPath != ""):
+        if folderPath is not None and folderPath != "":
             self.textPathProject.Value = folderPath
             define.projectManageDir = folderPath
 
     def buttonAddProject_Click(self):
         try:
-            if (not self.CheckInputValues()):
+            if not self.CheckInputValues():
                 return
 
-            if (AirCraftOperation.g_projectList.Find(self.textNameProject.Value) != None):
+            if AirCraftOperation.g_projectList.Find(self.textNameProject.Value) is not None:
                 QMessageBox.warning(self, "Warning", "The same project exist!")
                 return
+
             pi = ProjectInfo()
             pi.Pt = enumProjectType.ptProject
             pi.Name = self.textNameProject.Value
@@ -131,56 +131,38 @@ class ProjectMngForm(QDialog):
 
     def buttonSaveProject_Click(self):
         res = QMessageBox.question(self, "Alert", "Save changes to project information?", QMessageBox.Yes | QMessageBox.No)
-        if (res == QMessageBox.Yes):
+
+        if res == QMessageBox.Yes:
             AirCraftOperation.g_projectList.WriteProjectInfoXml()
             self.buttonSaveProject.setEnabled(False)
-        elif (res == QMessageBox.No):
+        elif res == QMessageBox.No:
             pass
 
-
-    # def ProjectMngF
-    # }orm_FormClosing(object sender, FormClosingEventArgs e)
-    # {
-    #     if (self.buttonSaveProject.Enabled == true)
-    #     {
-    #         DialogResult res = MessageBox.Show("Save changes to project information?", "Alert", MessageBoxButtons.YesNoCancel)
-    #         if (res == DialogResult.Yes)
-    #         {
-    #             self.buttonSaveProject_Click(sender, e)
-    #         }
-    #         else if (res == DialogResult.No)
-    #         {
-    #         }
-    #         else if (res == DialogResult.Cancel)
-    #         {
-    #             self.DialogResult = DialogResult.None
-    #             return
-    #         }
-    #     }
-
     def CheckInputValues(self):
-        if (self.textNameProject.Value == None or self.textNameProject.Value == ""):
-            raise ("Please input project name!")
-        if (self.textPathProject.Value == None or self.textPathProject.Value == ""):
-            raise ("Please input project path!")
+        if self.textNameProject.Value is None or self.textNameProject.Value == "":
+            raise "Please input project name!"
+
+        if self.textPathProject.Value is None or self.textPathProject.Value == "":
+            raise "Please input project path!"
+
         d = QDir(self.textPathProject.Value)
-        if (not d.exists()):
-            if (QMessageBox.question(self, "Question", "Procedure path dose not exist! Do you create the directory?", QMessageBox.Yes | QMessageBox.No) == QMessageBox.Yes):
+
+        if not d.exists():
+            if QMessageBox.question(self, "Question", "Procedure path dose not exist! Do you create the directory?", QMessageBox.Yes | QMessageBox.No) == QMessageBox.Yes:
                 d = QDir(self.textPathProject.Value)
                 d.mkpath(self.textPathProject.Value)
             else:
                 return False
         return True
-        # except:#(System.Exception ex)
-        #     # MessageBox.Show(ex.Message)
-        #     return False
 
     def buttonModifyProject_Click(self):
         try:
-            if (self.listBoxProject.SelectedIndex < 0):
-                raise ("Please select project in the projects list!")
-            if (not self.CheckInputValues()):
+            if self.listBoxProject.SelectedIndex < 0:
+                raise "Please select project in the projects list!"
+
+            if not self.CheckInputValues():
                 return
+
             pi = ProjectInfo()
             pi.Pt = enumProjectType.ptProject
             pi.Name = self.textNameProject.Value
@@ -193,9 +175,11 @@ class ProjectMngForm(QDialog):
 
             AirCraftOperation.g_projectList.Insert(self.listBoxProject.SelectedIndex, pi)
             self.listBoxProject.Clear()
+
             for pi in AirCraftOperation.g_projectList.ProjectsList:
-                if (pi.Pt == enumProjectType.ptProject):
+                if pi.Pt == enumProjectType.ptProject:
                     self.listBoxProject.Add(pi.Name)
+
             self.buttonSaveProject.setEnabled(True)
         except:
             # MessageBox.Show(ex.Message)
@@ -203,19 +187,24 @@ class ProjectMngForm(QDialog):
 
     def buttonDeleteProject_Click(self):
         try:
-            if (self.listBoxProject.SelectedIndex < 0):
+            if self.listBoxProject.SelectedIndex < 0:
                 QMessageBox.warning (self, "Warning", "Please select project in the projects list!")
                 return
+
             res = QMessageBox.question(self, "Alert", "Delete selected project?", QMessageBox.Yes | QMessageBox.No)
-            if (res == QMessageBox.No):
+
+            if res == QMessageBox.No:
                 return
+
             AirCraftOperation.g_projectList.Remove(self.listBoxProject.Items[self.listBoxProject.SelectedIndex])
             self.listBoxProject.Clear()
             self.textNameProject.Value = ""
             self.textPathProject.Value = ""
+
             for pi in AirCraftOperation.g_projectList.ProjectsList:
                 if (pi.Pt == enumProjectType.ptProject):
                     self.listBoxProject.Add(pi.Name)
+
             self.buttonSaveProject.setEnabled(True)
             AirCraftOperation.g_projectList.WriteProjectInfoXml()
         except:
@@ -224,8 +213,9 @@ class ProjectMngForm(QDialog):
 
     def listBoxProject_SelectedIndexChanged(self):
         try:
-            if (self.listBoxProject.SelectedIndex < 0):
+            if self.listBoxProject.SelectedIndex < 0:
                 return
+
             i = AirCraftOperation.g_projectList.Find(self.listBoxProject.Items[self.listBoxProject.SelectedIndex])
             self.textNameProject.Value = AirCraftOperation.g_projectList.ProjectsList[i].Name
             self.textPathProject.Value = AirCraftOperation.g_projectList.ProjectsList[i].Path
@@ -234,11 +224,10 @@ class ProjectMngForm(QDialog):
 
     def buttonCloseProject_Click(self):
         res = QMessageBox.question(self, "Alert", "Save changes to project information?", QMessageBox.Yes | QMessageBox.No)
-        if (res == QMessageBox.Yes):
+
+        if res == QMessageBox.Yes:
             AirCraftOperation.g_projectList.WriteProjectInfoXml()
             self.buttonSaveProject.setEnabled(False)
-        elif (res == QMessageBox.No):
+        elif res == QMessageBox.No:
             pass
         self.accept()
-
-
