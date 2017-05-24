@@ -4030,8 +4030,14 @@ class QadDimStylesClass():
             self.clear()
         
          # se esiste un progetto caricato il percorso è quello del progetto
-         prjFileInfo = QFileInfo(QgsProject.instance().fileName())
-         path = prjFileInfo.absolutePath()
+
+         prjFileName = QgsProject.instance().fileName()
+         path = QString("")
+
+         if not prjFileName.isEmpty():
+            prjFileInfo = QFileInfo(prjFileName)
+            path = prjFileInfo.absolutePath()
+
          if len(path) > 0:
             path += "/;"
          path += QgsApplication.qgisSettingsDirPath() + "python/plugins/qad/"

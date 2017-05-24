@@ -921,7 +921,13 @@ class QadVariablesClass():
    def getProjectQadIniFilePath(self):
       # ottiene il percorso incluso il nome del file dove salvare il file qad.ini del progetto
       # se esiste un progetto caricato il percorso è quello del progetto
-      prjFileInfo = QFileInfo(QgsProject.instance().fileName())
+
+      prjFileName = QgsProject.instance().fileName()
+
+      if prjFileName.isEmpty():
+         return ""
+
+      prjFileInfo = QFileInfo(prjFileName)
       path = prjFileInfo.absolutePath()
       if len(path) == 0: # se non esiste un progetto caricato
          return ""
