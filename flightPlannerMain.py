@@ -98,6 +98,10 @@ def main(argv):
         # create QGis application
         app = QgsApplication(argv, True)
 
+        QCoreApplication.setOrganizationName("IRSG")
+        QCoreApplication.setOrganizationDomain("irsg.dev@yahoo.com")
+        QCoreApplication.setApplicationName("FlightPlanner")
+
         # Initialize qgis libraries
         QgsApplication.setPrefixPath(".", True)
         QgsApplication.initQgis()

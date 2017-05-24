@@ -45,8 +45,8 @@ class RegProjectFolderForm(QDialog):
 
     # From system registry, read saved projects 's folder data
     def __readProjectFoldersData(self):
-        settings = QSettings("FlightPlanner", "Project")
-        totaldata = settings.value("/SavedProjectFolders", "").toString()
+        settings = QSettings()
+        totaldata = settings.value("Project/SavedProjectFolders", "").toString()
 
         datalist = totaldata.split(self.DataSeparator)
 
@@ -70,8 +70,8 @@ class RegProjectFolderForm(QDialog):
 
             totaldata = totaldata + self.DataSeparator + data
 
-        settings = QSettings("FlightPlanner", "Project")
-        settings.setValue("/SavedProjectFolders", totaldata)
+        settings = QSettings()
+        settings.setValue("Project/SavedProjectFolders", totaldata)
 
     # update listwidget with __projectFolderData content.
     # Note that clear all and replace with current data.
