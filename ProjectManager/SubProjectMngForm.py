@@ -284,8 +284,6 @@ class SubProjectMngForm(QDialog):
 
         self.listBoxSubproject.Clear()
 
-        for pi in AirCraftOperation.g_projectList.ProjectsList:
-            if pi.Pt == enumProjectType.ptSubProject:
-                self.listBoxSubproject.Add(pi.Name)
+        self.setFullNameProjectNameChanged()
 
         AirCraftOperation.g_projectList.WriteProjectInfoXml()
