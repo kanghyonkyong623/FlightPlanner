@@ -1,31 +1,23 @@
-
 from PyQt4.QtGui import QMessageBox
 from PyQt4.QtCore import QFile, QIODevice, QDataStream, QString
 from ProjectManager.MYUSERINFO import MYUSERINFO
 import os
 
+
 class UserList:
-    # des = DESCryptoServiceProvider()
-    def __init__(self, strPath = None):
+    def __init__(self, strPath=None):
         self.currentDir = os.getcwdu()
         self.USERINFO_FILENAME = "\\user.coc"
-        if strPath == None:
-            self.ListUserInfo = []
+
+        self.ListUserInfo = []
+
+        if strPath is None:
             self.m_strUserInfoFullName = self.currentDir + self.USERINFO_FILENAME
         else:
-            self.ListUserInfo = []
             self.m_strUserInfoFullName = strPath + self.USERINFO_FILENAME
+
         self.m_Key = "user320"
         self.m_IV = "1985120"
-        # self.m_strUserInfoFullName = None
-
-
-
-    # def get_ListUserInfo(self):
-    #     return self.ListUserInfo
-    # def set_ListUserInfo(self, value):
-    #     self.ListUserInfo = value
-    # ListUserInfo = property(get_ListUserInfo, set_ListUserInfo, None, None)
 
     def SetUserInfoPath(self, val):
         self.m_strUserInfoFullName = val + self.USERINFO_FILENAME
@@ -34,7 +26,7 @@ class UserList:
     def FindUser(self, userInfo):
         if isinstance(userInfo, MYUSERINFO):
             for myUserInfo in self.ListUserInfo:
-                if (myUserInfo.equal(userInfo)):
+                if myUserInfo.equal(userInfo):
                     return self.ListUserInfo.index(myUserInfo)
             return -1
         else:
@@ -47,7 +39,9 @@ class UserList:
         if (self.FindUser(userInfo) > -1):
             QMessageBox.warning(None, "Warning", "User already exist!")
             return False
+
         self.ListUserInfo.append(userInfo)
+
         return True
 
     def DeleteUser(self, userinfo):
@@ -64,18 +58,23 @@ class UserList:
                     self.ListUserInfo.pop(nIndex)
             except:
                 pass
+
     def FindUserID(self, p):
         i = 0
+
         for ui in self.ListUserInfo:
-            if (ui.Name == p):
+            if ui.Name == p:
                 return i
+
             i += 1
+
         return -1
 
     def ReadUserInfoFile(self):
         try:
             if not QFile.exists(self.m_strUserInfoFullName):
                 return
+
             file0 = QFile(self.m_strUserInfoFullName)
             file0.open(QIODevice.ReadOnly)
             dataStream = QDataStream(file0)
@@ -84,6 +83,7 @@ class UserList:
             self.m_Key = dataStream.readQString()
             self.m_IV = dataStream.readQString()
             userInfoCount = dataStream.readInt()
+
             for i in range(userInfoCount):
                 userInfo = MYUSERINFO()
                 userInfo.readData(dataStream)
@@ -93,16 +93,15 @@ class UserList:
             return True
         except:
             return False
+
     def WriteUserInfoFile(self):
         if QFile.exists(self.m_strUserInfoFullName):
             fl = QFile.remove(self.m_strUserInfoFullName)
             f = open(self.m_strUserInfoFullName, 'w')
             f.flush()
             f.close()
-
         else:
             f = open(self.m_strUserInfoFullName, 'w')
-            # f = open("D:/xml/phxasar.txt")
             f.flush()
             f.close()
 
@@ -117,6 +116,8 @@ class UserList:
 
         for userInfo in self.ListUserInfo:
             userInfo.writeData(dataStream)
+
         file0.flush()
         file0.close()
+
         return True

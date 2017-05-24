@@ -284,20 +284,10 @@ class MyWnd(QMainWindow):
         # self.menuBar().setStyleSheet("background-color: rgb(93, 93, 93)border-width: 2pxcolor: rgb(0, 0, 0)border-color: rgb(70, 73, 82)")
 
         # self.acc
+
     def readUserAndProject(self):
         self.procedureMenuUserManagementAction.setEnabled(False)
         self.createProcedureToolStripMenuItem.setEnabled(False)
-
-        # self.toolbarFlightPlannerImportExportToolsAction.setEnabled(False)
-        # self.toolbarFlightPlannerOlsSurfaces.setEnabled(False)
-        # self.toolbarFlightPlannerConventionalApproachToolsAction.setEnabled(False)
-        # self.toolbarFlightPlannerConventionalDepartureToolsAction.setEnabled(False)
-        # self.toolbarFlightPlannerConventionalEnrouteToolsAction.setEnabled(False)
-        # self.toolbarFlightPlannerPBNToolsAction.setEnabled(False)
-        # self.toolbarFlightPlannerPansOpsToolsAction.setEnabled(False)
-        # self.toolbarFlightPlannerChartingToolsAction.setEnabled(False)
-        # self.qad.toolBar.setEnabled(False)
-        # self.qad.dimToolBar.setEnabled(False)
 
         AirCraftOperation.g_AppSetting = AppSetting()
         AirCraftOperation.g_AppSetting.ReadSettings()
@@ -309,6 +299,7 @@ class MyWnd(QMainWindow):
         AirCraftOperation.g_projectList = ProjectList()
         AirCraftOperation.g_projectList.SetProjectInfoPath(AirCraftOperation.g_AppSetting.ProjectFolderPath)
         flag = AirCraftOperation.g_projectList.ReadProjectInfoXml()
+
     def addPlugInsMenu(self):
 
         menuBar = self.menuBar()
@@ -2363,18 +2354,22 @@ class MyWnd(QMainWindow):
                 self.actionTreesDEM.setChecked(False)
         else:
             define._treesDEM = 0.0
+
     def fileMenuPrintActionEvent(self):
         pass
         # wnd = Composer(self)
         # wnd.show()
+
     def fileMenuExitActionEvent(self):
         self.close()
 
     def userLogin(self):
         loginForm = LoginForm(self)
         result = loginForm.exec_()
-        if (result == QDialog.Accepted):
+
+        if result == QDialog.Accepted:
             userTypeStr = ""
+
             for case in switch(AirCraftOperation.g_loginedUser.Right):
                 if case(enumUserRight.ur_Admin):
                     userTypeStr = "Administrator"
@@ -2382,11 +2377,12 @@ class MyWnd(QMainWindow):
                     userTypeStr = "Super User"
                 elif case(enumUserRight.ur_ReadWrite):
                     userTypeStr = "Read/Write user"
-                # elif case(enumUserRight.ur_ReadWrite):
                 else:
                     userTypeStr = "Read Only user"
+
             QMessageBox.warning(self, "Information", "You have successfully logged in as the " + userTypeStr + ".")
             self.ResetProject()
+
     def ResetProject(self):
         loginedRole = AirCraftOperation.g_loginedUser.Right
         for case in switch (loginedRole):

@@ -1,12 +1,14 @@
 
 from PyQt4.QtCore import QString
 
+
 class enumUserRight:
     ur_None = 0
     ur_Admin = 1
     ur_SuperUser = 2
     ur_ReadWrite = 3
     ur_ReadOnly = 4
+
 
 class MYUSERINFO:
     def __init__(self):
@@ -20,8 +22,8 @@ class MYUSERINFO:
         self.City = ""
         self.State = ""
         self.Address = ""
-
         self.Right = 0
+
     def writeData(self, dataStream):
         dataStream.writeQString(QString(self.Name))
         dataStream.writeQString(QString(self.Password))
@@ -34,6 +36,7 @@ class MYUSERINFO:
         dataStream.writeQString(QString(self.State))
         dataStream.writeQString(QString(self.Address))
         dataStream.writeInt(self.Right)
+
     def readData(self, dataStream):
         self.Name = dataStream.readQString()
         self.Password = dataStream.readQString()
@@ -46,11 +49,12 @@ class MYUSERINFO:
         self.State = dataStream.readQString()
         self.Address = dataStream.readQString()
         self.Right = dataStream.readInt()
+
     def equal(self, other):
         try:
             if (self.Name == other.Name) or self.EMail == other.EMail:
                 return True
+
             return False
         except:
-            # MessageBox.Show(ex.Message);
             return False

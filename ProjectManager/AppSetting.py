@@ -1,5 +1,3 @@
-
-
 import os
 from Type.String import String
 
