@@ -2013,7 +2013,7 @@ class MyWnd(QMainWindow):
         dlg.show()
 
     def addObstacleRasterLayer(self):
-        filePathDirs = QFileDialog.getOpenFileNames(self, "Open Obstacle Raster File",QCoreApplication.applicationDirPath (),"ObstcleRasterFiles(*.dem)ObstcleRasterFiles(*.tif)")
+        filePathDirs = QFileDialog.getOpenFileNames(self, "Open Obstacle Raster File", QCoreApplication.applicationDirPath(), "Obstacle Raster Files(*.dem *.tif)")
 
         if len(filePathDirs) == 0:
             return
