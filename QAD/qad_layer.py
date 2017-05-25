@@ -29,7 +29,7 @@ from PyQt4.QtGui import *
 from qgis.core import *
 from qgis.gui import *
 import re # regular expression
-
+import math
 
 from qad_msg import QadMsg
 import qad_utils
@@ -227,7 +227,20 @@ def addPolygonToLayer(plugIn, layer, points, transform = True, refresh = True, c
       layerPoints = []
       for point in points:
          transformedPoint = plugIn.canvas.mapSettings().mapToLayerCoordinates(layer, point)
-         layerPoints.append(transformedPoint)      
+
+         if math.isnan(transformedPoint.x()):
+            raise Exception('NaN Exception')
+
+         if math.isnan(transformedPoint.y()):
+            raise Exception('NaN Exception')
+
+         if math.isinf(transformedPoint.x()):
+            raise Exception('Inf Exception')
+
+         if math.isinf(transformedPoint.y()):
+            raise Exception('Inf Exception')
+
+         layerPoints.append(transformedPoint)
       g = QgsGeometry.fromPolygon([layerPoints])
    else:
       g = QgsGeometry.fromPolygon([points])
