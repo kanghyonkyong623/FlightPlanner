@@ -175,11 +175,8 @@ class MyWnd(QMainWindow):
         print "Init menu"
         self.initMenus()
         self.setMapUnitsMeter()
-        statusBar = self.statusBar()
-        define._statusbar = statusBar
         self.initStatusBar()
-        statusBar.show()
-        
+
         self.canvas.scaleChanged.connect(self.showScale)
         define._obstacleLayers = []
         define._surfaceLayers = []
@@ -228,10 +225,6 @@ class MyWnd(QMainWindow):
         self.setWindowIcon(icon)
 
         self.setWindowTitle("FlightPlanner")
-
-        self.userLineLayer = []
-
-        self.aircraftOperation = AirCraftOperation()
 
         self.readUserAndProject()
 
@@ -2403,7 +2396,7 @@ class MyWnd(QMainWindow):
             if AirCraftOperation.ApplicationSetting.ProjectFolderPath == folder:
                 return
 
-            self.aircraftOperation.SelectProjectFolder(folder)
+            AirCraftOperation.SelectProjectFolder(folder)
             self.setWindowTitle("FlightPlanner(" + folder.replace("\\", "/") + ")")
 
     def registerProjectFolder(self):
