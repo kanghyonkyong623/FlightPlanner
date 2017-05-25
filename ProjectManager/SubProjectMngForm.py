@@ -241,7 +241,7 @@ class SubProjectMngForm(QDialog):
         pi.SubProjName = self.textNameSubproject.Text
         pi.Path = self.textPathSubproject.Text
         pi.ProjName = self.comboProjectSubproject.SelectedItem
-        pi.UserName = AirCraftOperation.g_loginedUser.Name
+        pi.UserName = AirCraftOperation.loginedUser.Name
         pi.FullName = self.textFullName.Value
 
         AirCraftOperation.g_projectList.Add(pi)
@@ -263,7 +263,7 @@ class SubProjectMngForm(QDialog):
         AirCraftOperation.g_projectList.ProjectsList[index].SubProjName = self.textNameSubproject.Text
         AirCraftOperation.g_projectList.ProjectsList[index].Path = self.textPathSubproject.Text
         AirCraftOperation.g_projectList.ProjectsList[index].ProjName = self.comboProjectSubproject.SelectedItem
-        AirCraftOperation.g_projectList.ProjectsList[index].UserName = AirCraftOperation.g_loginedUser.Name
+        AirCraftOperation.g_projectList.ProjectsList[index].UserName = AirCraftOperation.loginedUser.Name
         AirCraftOperation.g_projectList.ProjectsList[index].FullName = self.textFullName.Value
 
         self.listBoxSubproject.Clear()

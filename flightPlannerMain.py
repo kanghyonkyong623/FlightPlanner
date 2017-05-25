@@ -131,7 +131,7 @@ def main(argv):
         window.show()
         retval = app.exec_()
 
-        AirCraftOperation.g_AppSetting.WriteSettings()
+        AirCraftOperation.ApplicationSetting.WriteSettings()
 
         QgsApplication.exitQgis()
         sys.exit(retval)

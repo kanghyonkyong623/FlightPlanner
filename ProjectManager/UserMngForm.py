@@ -187,7 +187,7 @@ class UserMngForm(QDialog):
         self.buttonSaveUser.clicked.connect(self.buttonSaveUser_Click)
         self.buttonCloseUser.clicked.connect(self.buttonCloseUser_Click)
 
-        for ui in AirCraftOperation.g_userList.ListUserInfo:
+        for ui in AirCraftOperation.userList.ListUserInfo:
             self.listBoxUser.Add(ui.Name)
 
     def listBoxUser_SelectedIndexChanged(self):
@@ -195,7 +195,7 @@ class UserMngForm(QDialog):
             if (self.listBoxUser.SelectedIndex < 0):
                 return
             selectedName = self.listBoxUser.Items[self.listBoxUser.SelectedIndex]
-            ui = AirCraftOperation.g_userList.FindUser(selectedName)
+            ui = AirCraftOperation.userList.FindUser(selectedName)
             if (ui.FName != None):
                 self.textFirstName.Text = ui.FName
             else:
@@ -251,7 +251,7 @@ class UserMngForm(QDialog):
             return
         newUser = self.SetUserInfo()
 
-        if( AirCraftOperation.g_userList.AddUser(newUser) ):
+        if( AirCraftOperation.userList.AddUser(newUser) ):
             self.listBoxUser.Add(newUser.Name)
             self.buttonSaveUser.Enabled = True
 
@@ -262,13 +262,13 @@ class UserMngForm(QDialog):
             if (not self.CheckInputValues()):
                 return
             newUser = self.SetUserInfo()
-            oldUser = AirCraftOperation.g_userList.FindUser(self.listBoxUser.Items[self.listBoxUser.SelectedIndex])
+            oldUser = AirCraftOperation.userList.FindUser(self.listBoxUser.Items[self.listBoxUser.SelectedIndex])
             
             if (oldUser != None):
-                AirCraftOperation.g_userList.DeleteUser(oldUser)
-                AirCraftOperation.g_userList.AddUser(newUser)
+                AirCraftOperation.userList.DeleteUser(oldUser)
+                AirCraftOperation.userList.AddUser(newUser)
                 self.listBoxUser.Clear()
-                for ui in AirCraftOperation.g_userList.ListUserInfo:
+                for ui in AirCraftOperation.userList.ListUserInfo:
                     self.listBoxUser.Add(ui.Name)
                 self.buttonSaveUser.setEnabled(True)
         except:
@@ -280,11 +280,11 @@ class UserMngForm(QDialog):
             if (res == QMessageBox.No):
                 return
             userName = self.listBoxUser.Items[self.listBoxUser.SelectedIndex]
-            AirCraftOperation.g_userList.DeleteUser(userName)
+            AirCraftOperation.userList.DeleteUser(userName)
             self.listBoxUser.Clear()
-            for ui in AirCraftOperation.g_userList.ListUserInfo:
+            for ui in AirCraftOperation.userList.ListUserInfo:
                 self.listBoxUser.Add(ui.Name)
-            AirCraftOperation.g_userList.WriteUserInfoFile()
+            AirCraftOperation.userList.WriteUserInfoFile()
             # self.buttonSaveUser.setEnabled(True)
             self.listBoxUser.SelectedIndex = self.listBoxUser.SelectedIndex - 1 if(self.listBoxUser.SelectedIndex > 0) else 0
             self.listBoxUser_SelectedIndexChanged()
@@ -294,14 +294,14 @@ class UserMngForm(QDialog):
         if (self.buttonSaveUser.isEnabled() == True):
             res = QMessageBox.question(self, "Question", "Save changes to user information?", QMessageBox.Yes | QMessageBox.No)
             if (res == QMessageBox.Yes):
-                AirCraftOperation.g_userList.WriteUserInfoFile()
+                AirCraftOperation.userList.WriteUserInfoFile()
                 self.buttonSaveUser.setEnabled(False)
 
     def buttonCloseUser_Click(self):
         if (self.buttonSaveUser.isEnabled() == True):
             res = QMessageBox.question(self, "Question", "Save changes to user information?", QMessageBox.Yes | QMessageBox.No)
             if (res == QMessageBox.Yes):
-                AirCraftOperation.g_userList.WriteUserInfoFile()
+                AirCraftOperation.userList.WriteUserInfoFile()
                 self.buttonSaveUser.setEnabled(False)
         self.accept()
     

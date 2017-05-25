@@ -249,7 +249,7 @@ class WorkspaceMngForm(QDialog):
         pi.SubProjName = self.comboSubProjectWorkspace.SelectedItem
         pi.WorkspaceName = self.textNameWorkspace.Text
         pi.FullName = self.textFullName.Text
-        pi.UserName = AirCraftOperation.g_loginedUser.Name
+        pi.UserName = AirCraftOperation.loginedUser.Name
 
         AirCraftOperation.g_projectList.Add(pi)
 
@@ -275,7 +275,7 @@ class WorkspaceMngForm(QDialog):
         AirCraftOperation.g_projectList.ProjectsList[index].FullName = self.textFullName.Text
         AirCraftOperation.g_projectList.ProjectsList[index].ProjName = self.comboProjectWorkspace.SelectedItem
         AirCraftOperation.g_projectList.ProjectsList[index].SubProjName = self.comboSubProjectWorkspace.SelectedItem
-        AirCraftOperation.g_projectList.ProjectsList[index].UserName = AirCraftOperation.g_loginedUser.Name
+        AirCraftOperation.g_projectList.ProjectsList[index].UserName = AirCraftOperation.loginedUser.Name
 
         self.listBoxWorkspace.Clear()
         self.comboProjectWorkspace_SelectedIndexChanged()

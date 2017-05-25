@@ -242,7 +242,7 @@ class ProcedureMngForm(QDialog):
         pi.SubProjName = self.comboSubProjectProcedure.SelectedItem
         pi.WorkspaceName = self.comboWorkspaceProcedure.SelectedItem
         pi.FullName = self.textFullName.Text
-        pi.UserName = AirCraftOperation.g_loginedUser.Name
+        pi.UserName = AirCraftOperation.loginedUser.Name
 
         AirCraftOperation.g_projectList.Add(pi)
 
@@ -270,7 +270,7 @@ class ProcedureMngForm(QDialog):
         AirCraftOperation.g_projectList.ProjectsList[index].SubProjName = self.comboSubProjectProcedure.SelectedItem
         AirCraftOperation.g_projectList.ProjectsList[index].WorkspaceName = self.comboWorkspaceProcedure.SelectedItem
         AirCraftOperation.g_projectList.ProjectsList[index].FullName = self.textFullName.Text
-        AirCraftOperation.g_projectList.ProjectsList[index].UserName = AirCraftOperation.g_loginedUser.Name
+        AirCraftOperation.g_projectList.ProjectsList[index].UserName = AirCraftOperation.loginedUser.Name
 
         self.listBoxProcedure.Clear()
         self.comboProjectProcedure_SelectedIndexChanged()

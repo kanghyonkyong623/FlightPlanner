@@ -110,7 +110,7 @@ class ProjectMngForm(QDialog):
             pi.Name = self.textNameProject.Value
             pi.ProjName = self.textNameProject.Value
             pi.Path = self.textPathProject.Value
-            pi.UserName = AirCraftOperation.g_loginedUser.Name
+            pi.UserName = AirCraftOperation.loginedUser.Name
             pi.FullName = self.textNameProject.Value
 
             AirCraftOperation.g_projectList.Add(pi)
@@ -151,7 +151,7 @@ class ProjectMngForm(QDialog):
             pi.Name = self.textNameProject.Value
             pi.ProjName = self.textNameProject.Value
             pi.Path = self.textPathProject.Value
-            pi.UserName = AirCraftOperation.g_loginedUser.Name
+            pi.UserName = AirCraftOperation.loginedUser.Name
             pi.FullName = self.textNameProject.Value
 
             AirCraftOperation.g_projectList.Remove(self.listBoxProject.SelectedIndex)

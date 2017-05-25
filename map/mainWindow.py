@@ -239,15 +239,15 @@ class MyWnd(QMainWindow):
         self.procedureMenuUserManagementAction.setEnabled(False)
         self.createProcedureToolStripMenuItem.setEnabled(False)
 
-        AirCraftOperation.g_AppSetting = AppSetting()
-        AirCraftOperation.g_AppSetting.ReadSettings()
+        AirCraftOperation.ApplicationSetting = AppSetting()
+        AirCraftOperation.ApplicationSetting.ReadSettings()
 
-        AirCraftOperation.g_userList = UserList()
-        AirCraftOperation.g_userList.SetUserInfoPath(AirCraftOperation.g_AppSetting.ProjectFolderPath)
-        flag = AirCraftOperation.g_userList.ReadUserInfoFile()
+        AirCraftOperation.userList = UserList()
+        AirCraftOperation.userList.SetUserInfoPath(AirCraftOperation.ApplicationSetting.ProjectFolderPath)
+        flag = AirCraftOperation.userList.ReadUserInfoFile()
 
         AirCraftOperation.g_projectList = ProjectList()
-        AirCraftOperation.g_projectList.SetProjectInfoPath(AirCraftOperation.g_AppSetting.ProjectFolderPath)
+        AirCraftOperation.g_projectList.SetProjectInfoPath(AirCraftOperation.ApplicationSetting.ProjectFolderPath)
         flag = AirCraftOperation.g_projectList.ReadProjectInfoXml()
 
     def addPlugInsMenu(self):
@@ -2322,7 +2322,7 @@ class MyWnd(QMainWindow):
         if result == QDialog.Accepted:
             userTypeStr = ""
 
-            for case in switch(AirCraftOperation.g_loginedUser.Right):
+            for case in switch(AirCraftOperation.loginedUser.Right):
                 if case(enumUserRight.ur_Admin):
                     userTypeStr = "Administrator"
                 elif case(enumUserRight.ur_SuperUser):
@@ -2336,7 +2336,7 @@ class MyWnd(QMainWindow):
             self.ResetProject()
 
     def ResetProject(self):
-        loginedRole = AirCraftOperation.g_loginedUser.Right
+        loginedRole = AirCraftOperation.loginedUser.Right
 
         for case in switch (loginedRole):
             if case(enumUserRight.ur_Admin):
@@ -2360,7 +2360,7 @@ class MyWnd(QMainWindow):
         result = userMngForm.exec_()
 
     def projectToolStripMenuItem_Click(self):
-        if AirCraftOperation.g_loginedUser is None:
+        if AirCraftOperation.loginedUser is None:
             QMessageBox.warning(self, "Warning", "Please login as a valid user!")
             return
 
@@ -2368,7 +2368,7 @@ class MyWnd(QMainWindow):
         projectMngForm.exec_()
 
     def subprojectToolStripMenuItem_Click(self):
-        if AirCraftOperation.g_loginedUser is None:
+        if AirCraftOperation.loginedUser is None:
             QMessageBox.warning(self, "Warning", "Please login as a valid user!")
             return
 
@@ -2376,7 +2376,7 @@ class MyWnd(QMainWindow):
         subprojectMngForm.exec_()
 
     def workspaceToolStripMenuItem_Click(self):
-        if AirCraftOperation.g_loginedUser is None:
+        if AirCraftOperation.loginedUser is None:
             QMessageBox.warning(self, "Warning", "Please login as a valid user!")
             return
 
@@ -2384,7 +2384,7 @@ class MyWnd(QMainWindow):
         workspaceMngForm.exec_()
 
     def procedureFileToolStripMenuItem_Click(self):
-        if AirCraftOperation.g_loginedUser is None:
+        if AirCraftOperation.loginedUser is None:
             QMessageBox.warning(self, "Warning", "Please login as a valid user!")
             return
 
@@ -2397,7 +2397,7 @@ class MyWnd(QMainWindow):
         if folder is not None and folder != "":
             define.projectManageDir = folder
 
-            if AirCraftOperation.g_AppSetting.ProjectFolderPath == folder:
+            if AirCraftOperation.ApplicationSetting.ProjectFolderPath == folder:
                 return
 
             self.aircraftOperation.SelectProjectFolder(folder)
@@ -2408,7 +2408,7 @@ class MyWnd(QMainWindow):
         regProjectFolderForm.exec_()
 
     def registerAIPChartToolStripMenuItem_Click(self):
-        if AirCraftOperation.g_loginedUser is None:
+        if AirCraftOperation.loginedUser is None:
             QMessageBox.warning(self, "Warning", "Please login as a valid user!")
             return
 
@@ -2416,7 +2416,7 @@ class MyWnd(QMainWindow):
         aipChartMngForm.exec_()
 
     def createProcedureToolStripMenuItem_Click(self):
-        if (AirCraftOperation.g_loginedUser is None):
+        if (AirCraftOperation.loginedUser is None):
             QMessageBox.warning(self, "Warning", "Please login as a valid user!")
             return
 
@@ -2426,7 +2426,7 @@ class MyWnd(QMainWindow):
 
         if result:
             try:
-                define.obstaclePath = AirCraftOperation.g_currentProcedure.Path
+                define.obstaclePath = AirCraftOperation.currentProcedure.Path
                 self.toolbarFlightPlannerImportExportToolsAction.setEnabled(True)
                 self.toolbarFlightPlannerOlsSurfaces.setEnabled(True)
                 self.toolbarFlightPlannerConventionalApproachToolsAction.setEnabled(True)
@@ -2438,15 +2438,15 @@ class MyWnd(QMainWindow):
                 self.qad.toolBar.setEnabled(True)
                 self.qad.dimToolBar.setEnabled(True)
 
-                self.setWindowTitle("FlightPlanner(" + AirCraftOperation.g_currentAIP.Path.replace("\\", "/") + ")")
+                self.setWindowTitle("FlightPlanner(" + AirCraftOperation.currentAIP.Path.replace("\\", "/") + ")")
 
-                QgsProject.instance().read(QFileInfo(AirCraftOperation.g_currentAIP.Path))
+                QgsProject.instance().read(QFileInfo(AirCraftOperation.currentAIP.Path))
                 self.saveFlag = False
             except:
                 pass
 
     def openProcedureToolStripMenuItem_Click(self):
-        if AirCraftOperation.g_loginedUser is None:
+        if AirCraftOperation.loginedUser is None:
             QMessageBox.warning(self, "Warning", "Please login as a valid user!")
             return
 
@@ -2455,7 +2455,7 @@ class MyWnd(QMainWindow):
 
         if result:
             try:
-                define.obstaclePath = AirCraftOperation.g_currentProcedure.Path
+                define.obstaclePath = AirCraftOperation.currentProcedure.Path
                 self.toolbarFlightPlannerImportExportToolsAction.setEnabled(True)
                 self.toolbarFlightPlannerOlsSurfaces.setEnabled(True)
                 self.toolbarFlightPlannerConventionalApproachToolsAction.setEnabled(True)
@@ -2467,9 +2467,9 @@ class MyWnd(QMainWindow):
                 self.qad.toolBar.setEnabled(True)
                 self.qad.dimToolBar.setEnabled(True)
 
-                self.setWindowTitle("FlightPlanner(" + AirCraftOperation.g_currentAIP.Path.replace("\\", "/") + ")")
+                self.setWindowTitle("FlightPlanner(" + AirCraftOperation.currentAIP.Path.replace("\\", "/") + ")")
 
-                QgsProject.instance().read(QFileInfo(AirCraftOperation.g_currentAIP.Path))
+                QgsProject.instance().read(QFileInfo(AirCraftOperation.currentAIP.Path))
                 self.saveFlag = False
             except:
                 pass

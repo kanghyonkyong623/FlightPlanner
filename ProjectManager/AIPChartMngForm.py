@@ -123,7 +123,7 @@ class AIPChartMngForm(QDialog):
         pi.Pt = enumProjectType.ptAipChart
         pi.Name = self.textNameAIPChart.Text
         pi.Path = self.textPathAIPChart.Text
-        pi.UserName = AirCraftOperation.g_loginedUser.Name
+        pi.UserName = AirCraftOperation.loginedUser.Name
 
         AirCraftOperation.g_projectList.Add(pi)
 
@@ -166,7 +166,7 @@ class AIPChartMngForm(QDialog):
         AirCraftOperation.g_projectList.ProjectsList[index].Pt = enumProjectType.ptAipChart
         AirCraftOperation.g_projectList.ProjectsList[index].Name = self.textNameAIPChart.Text
         AirCraftOperation.g_projectList.ProjectsList[index].Path = self.textPathAIPChart.Text
-        AirCraftOperation.g_projectList.ProjectsList[index].UserName = AirCraftOperation.g_loginedUser.Name
+        AirCraftOperation.g_projectList.ProjectsList[index].UserName = AirCraftOperation.loginedUser.Name
         self.buttonSaveAIPChart.setEnabled(True)
         self.listBoxAIPChart.Clear()
         for pi in AirCraftOperation.g_projectList.ProjectsList:

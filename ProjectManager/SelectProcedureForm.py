@@ -90,7 +90,7 @@ class SelectProcedureForm(QDialog):
         self.buttonStart.clicked.connect(self.buttonStart_Click)
         self.buttonCalcel.clicked.connect(self.buttonCalcel_Click)
         
-        for ui in AirCraftOperation.g_userList.ListUserInfo:
+        for ui in AirCraftOperation.userList.ListUserInfo:
             self.comboUser.Add(ui.Name)
 
         for pi in AirCraftOperation.g_projectList.ProjectsList:
@@ -110,8 +110,8 @@ class SelectProcedureForm(QDialog):
     def buttonStart_Click(self):
         index = AirCraftOperation.g_projectList.FindByName(self.comboAIP.SelectedItem, enumProjectType.ptAipChart)
         if index != None:
-            AirCraftOperation.g_currentAIP = AirCraftOperation.g_projectList.ProjectsList[index]
-            if (not QFile.exists(AirCraftOperation.g_currentAIP.Path)):
+            AirCraftOperation.currentAIP = AirCraftOperation.g_projectList.ProjectsList[index]
+            if (not QFile.exists(AirCraftOperation.currentAIP.Path)):
                 QMessageBox.warning(self, "Warning", "Invalid AIPChart!")
                 return
 
@@ -122,12 +122,12 @@ class SelectProcedureForm(QDialog):
                                                                         self.comboWorkspace.SelectedItem,
                                                                         self.comboProcedure.SelectedItem)
         if index != None:
-            AirCraftOperation.g_currentProcedure = AirCraftOperation.g_projectList.ProjectsList[index]
+            AirCraftOperation.currentProcedure = AirCraftOperation.g_projectList.ProjectsList[index]
         else:
             QMessageBox.warning(self, "Warning", "Invalid Procedure!\nPlease create or modify a procedure!")
             self.reject()
         # IWorkspaceFactory ipWSF = new ShapefileWorkspaceFactoryClass()
-        # IWorkspace ipWS = ipWSF.OpenFromFile(AirCraftOperation.g_currentProcedure.Path, 0)
+        # IWorkspace ipWS = ipWSF.OpenFromFile(AirCraftOperation.currentProcedure.Path, 0)
         # if (ipWS == null)
         # {
         #     throw new Exception("Failed in opening the procedure path!")
@@ -135,7 +135,7 @@ class SelectProcedureForm(QDialog):
 
         index = AirCraftOperation.g_projectList.Find(self.comboProject.SelectedItem, enumProjectType.ptProject)
         if index != None:
-            AirCraftOperation.g_currentProject = AirCraftOperation.g_projectList.ProjectsList[index]
+            AirCraftOperation.currentProject = AirCraftOperation.g_projectList.ProjectsList[index]
         else:
             QMessageBox.warning(self, "Warning", "Invalid Project!\nPlease create or modify a project!")
             self.reject()
@@ -144,7 +144,7 @@ class SelectProcedureForm(QDialog):
                                                                         self.comboProject.SelectedItem,
                                                                         self.comboSubproject.SelectedItem)
         if index != None:
-            AirCraftOperation.g_currentSubproject = AirCraftOperation.g_projectList.ProjectsList[index]
+            AirCraftOperation.currentSubproject = AirCraftOperation.g_projectList.ProjectsList[index]
         else:
             QMessageBox.warning(self, "Warning", "Invalid Sub-Project!\nPlease create or modify a sub-project!")
             self.reject()
@@ -154,7 +154,7 @@ class SelectProcedureForm(QDialog):
                                                                         self.comboSubproject.SelectedItem,
                                                                         self.comboWorkspace.SelectedItem)
         if index != None:
-            AirCraftOperation.g_currentWorkspace = AirCraftOperation.g_projectList.ProjectsList[index]
+            AirCraftOperation.currentWorkspace = AirCraftOperation.g_projectList.ProjectsList[index]
         else:
             QMessageBox.warning(self, "Warning", "Invalid Workspace!\nPlease create or modify a Workspace!")
             self.reject()

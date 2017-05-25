@@ -60,21 +60,21 @@ class LoginForm(QDialog):
             if self.textNameLogin.Value == "":
                 QMessageBox.warning(self, "Warning", "Please, input your user name.")
             else:
-                ui = AirCraftOperation.g_userList.FindUser(self.textNameLogin.Value)
+                ui = AirCraftOperation.userList.FindUser(self.textNameLogin.Value)
                 if ui is not None:
                     if ui.Password is not None:
                         if ui.Password == self.textPasswordLogin.Value:
-                            AirCraftOperation.g_loginedUser = ui
+                            AirCraftOperation.loginedUser = ui
                             self.accept()
                         else:
                             QMessageBox.warning(self, "Warning", "Your password is incorrect! Please retry.")
                     elif self.textPasswordLogin.Value == "":
-                        AirCraftOperation.g_loginedUser = ui
+                        AirCraftOperation.loginedUser = ui
                         self.accept()
                     else:
                         QMessageBox.warning(self, "Warning", "Your password is incorrect! Please retry.")
                 else:
-                    if (AirCraftOperation.g_userList.m_IV == self.textPasswordLogin.Value) and (AirCraftOperation.g_userList.m_Key == self.textNameLogin.Value):
+                    if (AirCraftOperation.userList.m_IV == self.textPasswordLogin.Value) and (AirCraftOperation.userList.m_Key == self.textNameLogin.Value):
                         self.parentDlg.procedureMenuUserManagementAction.setEnabled(True)
                         self.reject()
                     else:
