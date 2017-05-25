@@ -1,7 +1,7 @@
 from PyQt4.QtCore import QString
 import os
 from PyQt4 import QtGui
-from PyQt4.QtCore import QUrl, Qt, SIGNAL, QCoreApplication, QFileInfo, QSettings, QObject
+from PyQt4.QtCore import QUrl, Qt, SIGNAL, QCoreApplication, QDir, QFileInfo, QSettings, QObject
 from PyQt4.QtGui import QMainWindow, QSizePolicy, QWidget, QVBoxLayout, QAction, QColor, QPixmap, QLabel,\
     QIcon, QMessageBox, QFrame, QFileDialog, QFont, QMenu, QDockWidget, QApplication, QToolButton, QCursor, QTabBar
 
@@ -2183,16 +2183,23 @@ class MyWnd(QMainWindow):
        self.canvas.setMapTool(self.toolPan)
         
     def AddVectorLayer(self):
-        filenames = QFileDialog.getOpenFileNames(self, "Open Vector Files",QCoreApplication.applicationDirPath (),"Shapefiles(*.shp *.SHP)")
+        settings = QSettings()
 
-        if filenames=="":
+        lastusedir = settings.value("/UI/lastVectorFileFilterDir", QDir.homePath()).toString()
+
+        filenames = QFileDialog.getOpenFileNames(self, "Open ESRI Shapefiles", lastusedir, "ESRI Shapefiles(*.shp *.SHP)")
+
+        # filenames 's type is QStringList
+
+        if filenames.__len__() == 0:
             return
 
         layerList =[]
       
         for file in filenames:           
-            filePathDirInfo= QFileInfo(file)
-            m=filePathDirInfo.fileName()                        
+            filePathDirInfo = QFileInfo(file)
+            m = filePathDirInfo.fileName()
+
             layer = QgsVectorLayer(file, m, "ogr")
 
             if layer.crs() is None:
@@ -2202,6 +2209,13 @@ class MyWnd(QMainWindow):
 
         QgisHelper.appendToCanvas(define._canvas, layerList)
         self.canvas.zoomToFullExtent()
+
+        # Save last used directory
+
+        firstfilename = filenames.first()
+        fi = QFileInfo(firstfilename)
+        path = fi.path()
+        settings.setValue("/UI/lastVectorFileFilterDir", path)
 
     def setMapUnits(self, unit):
         if unit == QGis.DecimalDegrees:
