@@ -1,12 +1,14 @@
 
 from PyQt4.QtGui import QMessageBox
+from ProjectManager.AppSetting import AppSetting
+from ProjectManager.UserList import UserList
 from ProjectManager.ProjectInfo import ProjectList
 
 
 class AirCraftOperation:
-    userList = None
+    userList = UserList()
     loginedUser = None
-    g_projectList = None
+    g_projectList = ProjectList()
 
     currentProject = None
     currentSubproject = None
@@ -14,7 +16,7 @@ class AirCraftOperation:
     currentProcedure = None
     currentAIP = None
 
-    ApplicationSetting = None
+    ApplicationSetting = AppSetting()
 
     def __init__(self):
         pass

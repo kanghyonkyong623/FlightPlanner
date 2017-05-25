@@ -90,8 +90,6 @@ from FlightPlanner.NpaAtDistanceTime.NpaAtDistanceTimeDlg import NpaAtDistanceTi
 from ProjectManager.LoginForm import LoginForm
 from ProjectManager.UserMngForm import UserMngForm
 from ProjectManager.RegProjectFolderForm import RegProjectFolderForm
-from ProjectManager.UserList import UserList
-from ProjectManager.ProjectInfo import ProjectList
 from AircraftOperation import AirCraftOperation
 from ProjectManager.ProjectMngForm import ProjectMngForm
 from ProjectManager.SubProjectMngForm import SubProjectMngForm
@@ -100,7 +98,6 @@ from ProjectManager.ProcedureMngForm import ProcedureMngForm
 from ProjectManager.MYUSERINFO import enumUserRight
 from ProjectManager.AIPChartMngForm import AIPChartMngForm
 from ProjectManager.SelectProcedureForm import SelectProcedureForm
-from ProjectManager.AppSetting import AppSetting
 
 from Type.switch import switch
 
@@ -226,25 +223,21 @@ class MyWnd(QMainWindow):
 
         self.setWindowTitle("FlightPlanner")
 
-        self.readUserAndProject()
-
-    def readUserAndProject(self):
         self.procedureMenuUserManagementAction.setEnabled(False)
         self.createProcedureToolStripMenuItem.setEnabled(False)
 
-        AirCraftOperation.ApplicationSetting = AppSetting()
+        self.readUserAndProject()
+
+    def readUserAndProject(self):
         AirCraftOperation.ApplicationSetting.ReadSettings()
 
-        AirCraftOperation.userList = UserList()
         AirCraftOperation.userList.SetUserInfoPath(AirCraftOperation.ApplicationSetting.ProjectFolderPath)
         flag = AirCraftOperation.userList.ReadUserInfoFile()
 
-        AirCraftOperation.g_projectList = ProjectList()
         AirCraftOperation.g_projectList.SetProjectInfoPath(AirCraftOperation.ApplicationSetting.ProjectFolderPath)
         flag = AirCraftOperation.g_projectList.ReadProjectInfoXml()
 
     def addPlugInsMenu(self):
-
         menuBar = self.menuBar()
         self.pluginsMenu = menuBar.addMenu("&Plugins")
         self.openLayer = OpenlayersPlugin(self, self.pluginsMenu)
