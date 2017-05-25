@@ -2202,7 +2202,9 @@ class MyWnd(QMainWindow):
 
             layer = QgsVectorLayer(file, m, "ogr")
 
-            if layer.crs() is None:
+            crs = layer.crs()
+
+            if crs is None:
                 layer.setCrs(QgsCoordinateReferenceSystem(32633, QgsCoordinateReferenceSystem.EpsgCrsId))
 
             layerList.append(layer)
@@ -3155,10 +3157,20 @@ class MyWnd(QMainWindow):
         self.canvas.refresh()
         
     def userScale(self):
+        # To avoid ZeroDivisionError
+        if float(self.mScaleEdit.scale()) == 0.0:
+            self.canvas.updateScale()
+            return
+
         self.canvas.zoomScale(1.0 / float(self.mScaleEdit.scale()))
 
+    def setScale(self, scale):
+        self.mScaleEdit.blockSignals(True)
+        self.mScaleEdit.setScale(scale)
+        self.mScaleEdit.blockSignals(False)
+
     def showScale(self, theScale):
-        self.mScaleEdit.setScale(1.0 / float(theScale))
+        self.setScale(1.0 / float(theScale))
         if self.mScaleEdit.width() > self.mScaleEdit.minimumWidth():
             self.mScaleEdit.setMinimumWidth(self.mScaleEdit.width())
             
