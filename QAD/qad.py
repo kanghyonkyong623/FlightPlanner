@@ -44,6 +44,11 @@ from qad_layer import getLayerById, QadLayerStatusEnum, QadLayerStatusListClass
 import qad_undoredo
 from qad_array_cmd import QadARRAYCommandClassSeriesTypeEnum
 
+mainwindow = None
+
+
+def mainWindow():
+   return mainwindow
 
 class Qad(QObject):
    """
@@ -385,6 +390,10 @@ class Qad(QObject):
       
       # Save reference to the QGIS interface
       self.iface = iface
+
+      global mainwindow
+
+      mainwindow = iface
       
       # initialize plugin directory
       self.plugin_dir = os.path.dirname(__file__)

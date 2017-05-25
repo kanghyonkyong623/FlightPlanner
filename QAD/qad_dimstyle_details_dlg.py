@@ -28,7 +28,6 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from qgis.core import *
 from qgis.core import QgsApplication
-from qgis.utils import *
 from qgis.gui import *
 
 import qad_dimstyle_details_ui

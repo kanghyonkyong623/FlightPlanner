@@ -27,7 +27,6 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from qgis.core import *
 from qgis.gui import *
-import qgis.utils
 
 import codecs
 import ConfigParser
@@ -43,6 +42,7 @@ import qad_layer
 import qad_label
 from qad_entity import *
 from qad_variables import *
+import qad
 
 
 """
@@ -4788,7 +4788,7 @@ class QadDimEntity():
       # la funzione verifica se la rotazione del testo della quota è calcolato dalla grafica o se è stato forzato una rotazione diversa
       measure = self.getTextValue()
       txtRot = self.getTextRot()
-      canvas = qgis.utils.iface.mapCanvas()
+      canvas = qad.mainWindow().mapCanvas()
       destinationCrs = canvas.mapSettings().destinationCrs()
 
       if self.dimStyle.dimType == QadDimTypeEnum.ALIGNED: # quota lineare allineata ai punti di origine delle linee di estensione
@@ -4835,7 +4835,7 @@ class QadDimEntity():
       # offSetY = spostamento Y in map coordinate
       if self.isValid() == False: return False;
 
-      canvas = qgis.utils.iface.mapCanvas()
+      canvas = qad.mainWindow().mapCanvas()
       destinationCrs = canvas.mapSettings().destinationCrs()
       
       g = self.textualFeature.geometry()
@@ -4887,7 +4887,7 @@ class QadDimEntity():
       # basePt = punto base espresso in map coordinate
       if self.isValid() == False: return False;
       
-      canvas = qgis.utils.iface.mapCanvas()
+      canvas = qad.mainWindow().mapCanvas()
       destinationCrs = canvas.mapSettings().destinationCrs()
       
       measure = None if self.isCalculatedText() else self.getTextValue()
@@ -4969,7 +4969,7 @@ class QadDimEntity():
       # basePt = punto base espresso in map coordinate
       if self.isValid() == False: return False;
       
-      canvas = qgis.utils.iface.mapCanvas()
+      canvas = qad.mainWindow().mapCanvas()
       destinationCrs = canvas.mapSettings().destinationCrs()
 
       measure = None if self.isCalculatedText() else self.getTextValue()
@@ -5054,7 +5054,7 @@ class QadDimEntity():
       # mirrorPt = punto base espresso in map coordinate
       if self.isValid() == False: return False;
       
-      canvas = qgis.utils.iface.mapCanvas()
+      canvas = qad.mainWindow().mapCanvas()
       destinationCrs = canvas.mapSettings().destinationCrs()
 
       measure = None if self.isCalculatedText() else self.getTextValue()
@@ -5148,7 +5148,7 @@ class QadDimEntity():
       """
       if self.isValid() == False: return False;
       
-      canvas = qgis.utils.iface.mapCanvas()
+      canvas = qad.mainWindow().mapCanvas()
       destinationCrs = canvas.mapSettings().destinationCrs()
       
       measure = None if self.isCalculatedText() else self.getTextValue()

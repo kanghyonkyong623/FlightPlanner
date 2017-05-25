@@ -28,7 +28,6 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from qgis.core import *
 from qgis.gui import *
-import qgis.utils
 
 
 import qad_utils
@@ -127,7 +126,7 @@ def arrayRectangleEntity(plugIn, ent, basePt, rows, cols, distanceBetweenRows, d
    if ent.whatIs() == "ENTITY":
       f = ent.getFeature()
       # trasformo la geometria nel crs del canvas per lavorare con coordinate piane xy
-      CRS = qgis.utils.iface.mapCanvas().mapSettings().destinationCrs() # CRS corrente
+      CRS = plugIn.iface.mapCanvas().mapSettings().destinationCrs() # CRS corrente
       coordTransform = QgsCoordinateTransform(ent.crs(), CRS)
       g = f.geometry()
       g.transform(coordTransform)
@@ -194,7 +193,7 @@ def arrayPathEntity(plugIn, ent, basePt, rows, cols, distanceBetweenRows, distan
    if ent.whatIs() == "ENTITY":
       f = ent.getFeature()
       # trasformo la geometria nel crs del canvas per lavorare con coordinate piane xy
-      CRS = qgis.utils.iface.mapCanvas().mapSettings().destinationCrs() # CRS corrente
+      CRS = plugIn.iface.mapCanvas().mapSettings().destinationCrs() # CRS corrente
       coordTransform = QgsCoordinateTransform(ent.crs(), CRS)
       g = f.geometry()
       g.transform(coordTransform)
@@ -261,7 +260,7 @@ def arrayPolarEntity(plugIn, ent, basePt, centerPt, itemsNumber, angleBetween, r
    if ent.whatIs() == "ENTITY":
       f = ent.getFeature()
       # trasformo la geometria nel crs del canvas per lavorare con coordinate piane xy
-      CRS = qgis.utils.iface.mapCanvas().mapSettings().destinationCrs() # CRS corrente
+      CRS = plugIn.iface.mapCanvas().mapSettings().destinationCrs() # CRS corrente
       coordTransform = QgsCoordinateTransform(ent.crs(), CRS)
       g = f.geometry()
       g.transform(coordTransform)

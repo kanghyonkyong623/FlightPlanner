@@ -27,7 +27,6 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from qgis.core import *
 from qgis.gui import *
-import qgis.utils
 
 
 import math
@@ -258,7 +257,7 @@ def str2QgsPoint(s, lastPoint = None, currenPoint = None, oneNumberAllowed = Tru
             pt = QgsPoint(x, y)
             
          if pt is not None:
-            destCRS = qgis.utils.iface.mapCanvas().mapSettings().destinationCrs() # CRS corrente
+            destCRS = qad.mainWindow().mapCanvas().mapSettings().destinationCrs() # CRS corrente
             return QgsCoordinateTransform(CRS, destCRS).transform(pt) # trasformo le coord
 
 

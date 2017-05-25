@@ -28,7 +28,6 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from qgis.core import *
 from qgis.gui import *
-from qgis.utils import iface
 import sys
 
 
@@ -38,7 +37,7 @@ from qad_circle import *
 import qad_layer
 import qad_stretch_fun
 import qad_label
-
+import qad
 
 #===============================================================================
 # QadEntityGeomTypeEnum class.
@@ -114,7 +113,7 @@ class QadEntity():
          return QadEntityGeomTypeEnum.NONE
 
       # trasformo la geometria nel crs del canvas per lavorare con coordinate piane xy
-      coordTransform = QgsCoordinateTransform(self.layer.crs(), iface.mapCanvas().mapSettings().destinationCrs())
+      coordTransform = QgsCoordinateTransform(self.layer.crs(), qad.mainWindow().mapCanvas().mapSettings().destinationCrs())
       g.transform(coordTransform)
 
       wkbType = g.wkbType()
@@ -421,7 +420,7 @@ class QadEntity():
    def rotate(self, basePt, angle):
       # basePt = punto base espresso in map coordinate
       # restituisce una feature ruotata
-      canvas = qgis.utils.iface.mapCanvas()
+      canvas = qad.mainWindow().mapCanvas()
       destinationCrs = canvas.mapSettings().destinationCrs()
 
       f = self.getFeature()
