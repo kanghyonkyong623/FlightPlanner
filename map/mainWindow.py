@@ -3151,11 +3151,6 @@ class MyWnd(QMainWindow):
         if triggerRepaint:
             layer.triggerRepaint()
             
-    def saveEdits1(self):
-        for layer in self._mLayerTreeView.selectedLayers():
-            self.saveEdits(layer, True, False)
-        self.canvas.refresh()
-        
     def userScale(self):
         # To avoid ZeroDivisionError
         if float(self.mScaleEdit.scale()) == 0.0:
