@@ -2359,33 +2359,36 @@ class MyWnd(QMainWindow):
         userMngForm = UserMngForm(self)
         result = userMngForm.exec_()
 
-    def projectToolStripMenuItem_Click(self):
+    def isLogin(self):
         if AirCraftOperation.loginedUser is None:
             QMessageBox.warning(self, "Warning", "Please login as a valid user!")
+            return False
+        else:
+            return True
+
+    def projectToolStripMenuItem_Click(self):
+        if not self.isLogin():
             return
 
         projectMngForm = ProjectMngForm(self)
         projectMngForm.exec_()
 
     def subprojectToolStripMenuItem_Click(self):
-        if AirCraftOperation.loginedUser is None:
-            QMessageBox.warning(self, "Warning", "Please login as a valid user!")
+        if not self.isLogin():
             return
 
         subprojectMngForm = SubProjectMngForm(self)
         subprojectMngForm.exec_()
 
     def workspaceToolStripMenuItem_Click(self):
-        if AirCraftOperation.loginedUser is None:
-            QMessageBox.warning(self, "Warning", "Please login as a valid user!")
+        if not self.isLogin():
             return
 
         workspaceMngForm = WorkspaceMngForm(self)
         workspaceMngForm.exec_()
 
     def procedureFileToolStripMenuItem_Click(self):
-        if AirCraftOperation.loginedUser is None:
-            QMessageBox.warning(self, "Warning", "Please login as a valid user!")
+        if not self.isLogin():
             return
 
         procedureMngForm = ProcedureMngForm(self)
@@ -2408,16 +2411,14 @@ class MyWnd(QMainWindow):
         regProjectFolderForm.exec_()
 
     def registerAIPChartToolStripMenuItem_Click(self):
-        if AirCraftOperation.loginedUser is None:
-            QMessageBox.warning(self, "Warning", "Please login as a valid user!")
+        if not self.isLogin():
             return
 
         aipChartMngForm = AIPChartMngForm(self)
         aipChartMngForm.exec_()
 
     def createProcedureToolStripMenuItem_Click(self):
-        if (AirCraftOperation.loginedUser is None):
-            QMessageBox.warning(self, "Warning", "Please login as a valid user!")
+        if not self.isLogin():
             return
 
         procedureForm = SelectProcedureForm(self)
@@ -2446,8 +2447,7 @@ class MyWnd(QMainWindow):
                 pass
 
     def openProcedureToolStripMenuItem_Click(self):
-        if AirCraftOperation.loginedUser is None:
-            QMessageBox.warning(self, "Warning", "Please login as a valid user!")
+        if not self.isLogin():
             return
 
         procedureForm = SelectProcedureForm(self)
