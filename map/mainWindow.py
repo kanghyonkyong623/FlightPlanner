@@ -234,7 +234,6 @@ class MyWnd(QMainWindow):
         self.aircraftOperation = AirCraftOperation()
 
         self.readUserAndProject()
-        self.setWindowTitle("FlightPlanner")
 
     def readUserAndProject(self):
         self.procedureMenuUserManagementAction.setEnabled(False)
