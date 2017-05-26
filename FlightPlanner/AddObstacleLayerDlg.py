@@ -1,11 +1,14 @@
+from PyQt4.QtCore import QCoreApplication, QFileInfo, QSettings, QDir
 from PyQt4.QtGui import QDialog, QFileDialog
-from PyQt4.QtCore import QCoreApplication, QFileInfo
+
 from qgis.core import QGis
+from qgis.core import QgsVectorLayer
+
+import define
+from QgisHelper import QgisHelper
+
 from FlightPlanner.ui_AddObstacleLayerDlg import Ui_AddObstacleLayerDlg
 from FlightPlanner.types import SurfaceTypes
-from QgisHelper import QgisHelper
-from qgis.core import QgsVectorLayer
-import define
 
 
 class AddObstacleLayerDlg(QDialog):
@@ -28,12 +31,18 @@ class AddObstacleLayerDlg(QDialog):
             self.ui.cmbDisplayCrs.setCurrentIndex(1)
         
     def OpenObstacleFile(self):
-        filePathDir = QFileDialog.getOpenFileName(self, "Open Obstacle File", QCoreApplication.applicationDirPath(), "Obstclefiles(*.txt *.csv)")
+        settings = QSettings()
 
-        if filePathDir == "":
+        lastusedir = settings.value("/UI/lastObstacleVectorFileDir", QDir.homePath()).toString()
+
+        path = QFileDialog.getOpenFileName(self, "Open Obstacle File", lastusedir, "Obstacle files(*.txt *.csv)")
+
+        if path == "":
             return
 
-        self.ui.txtPath.setText(filePathDir)
+        self.ui.txtPath.setText(path)
+
+        settings.setValue("/UI/lastObstacleVectorFileDir", path)
 
     def verify(self):
         if self.ui.txtPath.text() == "":
