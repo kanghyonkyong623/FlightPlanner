@@ -40,7 +40,7 @@ from FlightPlanner.RnavDmeUpdateArea.RnavDmeUpdateAreaDlg import RnavDmeUpdateAr
 from FlightPlanner.Holding.HoldingRnav.HoldingRnavDlg import HoldingRnavDlg
 from FlightPlanner.AcadHelper import AcadHelper
 from FlightPlanner.types import SurfaceTypes
-from FlightPlanner.AddObstacleLayerDlg import AddObstcleLayerDlg
+from FlightPlanner.AddObstacleLayerDlg import AddObstacleLayerDlg
 from FlightPlanner.AddMeasureToolDlg import AddMeasureToolDlg
 from FlightPlanner.AddMeasureAngleDlg import AddMeasureAngleToolDlg
 from FlightPlanner.QgisHelper import QgisHelper
@@ -2144,7 +2144,7 @@ class MyWnd(QMainWindow):
         dlg.show()
 
     def addObstacleLayer(self):
-        dlg = AddObstcleLayerDlg(self,self.canvas)
+        dlg = AddObstacleLayerDlg(self,self.canvas)
         dlg.exec_()
 
     def measureTool(self):
