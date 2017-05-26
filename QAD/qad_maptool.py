@@ -131,16 +131,16 @@ class QadMapTool(QgsMapTool):
 
    
    def canvasPressEvent(self, event):
-      # volevo mettere questo evento nel canvasReleaseEvent
-      # ma il tasto destro non genera quel tipo di evento
+      # I wanted to put this event in the canvasReleaseEvent
+      # But the right button does not generate that kind of event
       if event.button() == Qt.RightButton:
          self.displayPopupMenuOnQuiescentState(event.pos())
       elif event.button() == Qt.LeftButton:
-         # verifico se tasto shift premuto
+         # I check if the shift key is pressed
          shiftKey = True if event.modifiers() & Qt.ShiftModifier else False
-         # posizione corrente del mouse
+         # Current mouse position
          point = self.toMapCoordinates(event.pos())
-         # leggo il punto grip che si interseca alla posizione del mouse
+         # I read the grip point that intersects the mouse position
          entityGripPoint = self.entitySetGripPoints.isIntersecting(point)
          if entityGripPoint is not None:
             if shiftKey == False: # lancio il comando
@@ -154,8 +154,8 @@ class QadMapTool(QgsMapTool):
                # lancio il comando
                self.plugIn.runCommand("QadVirtualGripCommandsClass", [QadVirtualGripCommandsEnum.STRECTH, \
                                       self.entitySetGripPoints, entityGripPoint.getPoint()])
-            else: # shift premuto
-               # inverto lo stato ai grip che intersecano il punto 
+            else: # Shift pressed
+               # Invert the state of grips intersecting the point
                self.entitySetGripPoints.toggleSelectIntersectingGripPoints(point)
          else:
             result = qad_utils.getEntSel(event.pos(), self, \
@@ -168,9 +168,9 @@ class QadMapTool(QgsMapTool):
                SSGetClass = QadSSGetClass(self.plugIn)
                SSGetClass.entitySet.set(self.entitySet)
                SSGetClass.elaborateEntity(tmpEntity, shiftKey)
-               self.plugIn.showMsg("\n", True) # ripete il prompt
+               self.plugIn.showMsg("\n", True) # Repeat the prompt
                self.entitySet.set(SSGetClass.entitySet)
-               del SSGetClass # che deseleziona gli oggetti
+               del SSGetClass # Which deselects objects
                self.entitySet.selectOnLayer(False)
                self.refreshEntityGripPoints(self.entitySet)
             else:
