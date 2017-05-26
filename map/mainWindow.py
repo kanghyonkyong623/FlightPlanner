@@ -1,19 +1,21 @@
-from PyQt4.QtCore import QString
 import os
+
 from PyQt4 import QtGui
+from PyQt4.QtCore import QString
 from PyQt4.QtCore import QUrl, Qt, SIGNAL, QCoreApplication, QDir, QFileInfo, QSettings, QObject
+
 from PyQt4.QtGui import QMainWindow, QSizePolicy, QWidget, QVBoxLayout, QAction, QColor, QPixmap, QLabel,\
-    QIcon, QMessageBox, QFrame, QFileDialog, QFont, QMenu, QDockWidget, QApplication, QToolButton, QCursor, QTabBar
-
+     QIcon, QMessageBox, QFrame, QFileDialog, QFont, QMenu, QDockWidget, QApplication, QToolButton, QCursor, QTabBar
 from PyQt4.QtGui import QDialog, QDesktopServices
-from qgis.core import QgsRasterLayer, QgsDistanceArea, QgsCoordinateReferenceSystem,\
-    QgsRectangle, QgsProject, QgsPluginLayer, QgsLayerTreeNode, \
-    QgsLayerTree, QgsMapLayerRegistry, QgsMapLayer, QgsVectorDataProvider, QgsSnapper,\
-    QgsTolerance, QgsApplication, QgsLayerTreeModel
-from qgis.core import QgsPalLayerSettings, QGis, QgsVectorLayer, QgsFeature,\
-    QgsRasterBandStats, QgsRasterShader, QgsColorRampShader, QgsSingleBandPseudoColorRenderer
 
-from qgis.gui import QgsMessageBar, QgsGenericProjectionSelector,QgsMapCanvas, QgsMapToolPan, QgsMapToolZoom, \
+from qgis.core import QgsRasterLayer, QgsDistanceArea, QgsCoordinateReferenceSystem,\
+     QgsRectangle, QgsProject, QgsPluginLayer, QgsLayerTreeNode, \
+     QgsLayerTree, QgsMapLayerRegistry, QgsMapLayer, QgsVectorDataProvider, QgsSnapper,\
+     QgsTolerance, QgsApplication, QgsLayerTreeModel
+from qgis.core import QgsPalLayerSettings, QGis, QgsVectorLayer, QgsFeature,\
+     QgsRasterBandStats, QgsRasterShader, QgsColorRampShader, QgsSingleBandPseudoColorRenderer
+
+from qgis.gui import QgsMapCanvas, QgsLayerTreeView, QgsGenericProjectionSelector, QgsMessageBar, QgsMapToolPan, QgsMapToolZoom, \
      QgsExpressionSelectionDialog, QgsLayerTreeMapCanvasBridge, QgsMapOverviewCanvas, QgsScaleComboBox
 
 from map.VectorEditTool.mapToolFeature import QgsMapToolAddFeature, QgsMapToolMoveFeature, QgsMapToolNodeTool, QgsMapToolAddCircularString
@@ -46,7 +48,6 @@ from FlightPlanner.AddMeasureAngleDlg import AddMeasureAngleToolDlg
 from FlightPlanner.QgisHelper import QgisHelper
 from map.AnnotaionTool.QgsMapToolTextAnnotation import QgsMapToolTextAnnotation
 from map.QgsAppLayerTreeViewMenuProvider import QgsAppLayerTreeViewMenuProvider
-from map.myLayerTreeView import MyLayerTreeView
 from map.tools import SelectByRect, QgsMapToolSelectFreehand, QgsMapToolSelectPolygon, QgsMapToolSelectRadius
 from FlightPlanner.Holding.RnavVorDme.RnavVorDmeDlg import RnavVorDme
 from FlightPlanner.Holding.RnavDmeDme.RnavDmeDmeDlg import RnavDmeDme
@@ -635,7 +636,7 @@ class MyWnd(QMainWindow):
 
         self.setMouseTracking(True)
         self.canvas.xyCoordinates.connect(self.mouseMoveHandler)
-        define._mLayerTreeView.currentLayerChanged.connect(self.layersChanged)
+        self._mLayerTreeView.currentLayerChanged.connect(self.layersChanged)
         self.saveFlag = True
         self.dlgRnpAR = None
 
@@ -839,7 +840,7 @@ class MyWnd(QMainWindow):
         self.addToolBarBreak()
 
     def cancelForSelectedLayersFunc(self):
-        layerList = define._mLayerTreeView.selectedLayers()
+        layerList = self._mLayerTreeView.selectedLayers()
 
         if len(layerList) <= 0:
             return
@@ -854,7 +855,7 @@ class MyWnd(QMainWindow):
             self.toggleEditingFunc()
 
     def rollBackForSelectedLayersFunc(self):
-        layerList = define._mLayerTreeView.selectedLayers()
+        layerList = self._mLayerTreeView.selectedLayers()
 
         if len(layerList) <= 0:
             return
@@ -868,7 +869,7 @@ class MyWnd(QMainWindow):
                     layer.startEditing()
 
     def saveForSelectedLayersFunc(self):
-        layerList = define._mLayerTreeView.selectedLayers()
+        layerList = self._mLayerTreeView.selectedLayers()
 
         if len(layerList) <= 0:
             return
@@ -2645,7 +2646,7 @@ class MyWnd(QMainWindow):
 
         mLegend.setObjectName("Layers")
         mLegend.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
-        self._mLayerTreeView = MyLayerTreeView(mLegend)
+        self._mLayerTreeView = QgsLayerTreeView(mLegend)
         define._mLayerTreeView = self._mLayerTreeView
         self._mLayerTreeView.setObjectName("theLayerTreeView")
         
