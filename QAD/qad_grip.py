@@ -84,8 +84,11 @@ class QadGripMarker(QgsMapCanvasItem):
 
 
    def removeItem(self):
-      self.canvas.scene().removeItem(self)
-      
+      graphicsscene = self.scene()
+
+      if graphicsscene is not None:
+         if graphicsscene == self.canvas.scene():
+            self.canvas.scene().removeItem(self)
 
    def setCenter(self, point):
       # point è in map coordinates
