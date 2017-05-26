@@ -2641,6 +2641,20 @@ class MyWnd(QMainWindow):
         self.canvas.setMapUpdateInterval(k[0])
         mOverviewDock.hide()
 
+    def layerTreeView(self):
+        return self._mLayerTreeView
+
+    def layers(self):
+        layertreelayerlist = self._mLayerTreeView.layerTreeModel().rootGroup().findLayers()
+
+        layerlist = []
+
+        for layertreelayer in layertreelayerlist:
+            if layertreelayer.layer() is not None:
+                layerlist.append(layertreelayer.layer())
+
+        return layerlist
+
     def initLayerTreeView(self):
         mLegend = QDockWidget("Layers", self)
 
