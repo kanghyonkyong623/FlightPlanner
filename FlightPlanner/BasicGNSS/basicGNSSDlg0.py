@@ -1,11 +1,6 @@
 # -*- coding: utf-8 -*-
-'''
-Created on 17 Feb 2015
 
-@author: Administrator
-'''
-from PyQt4.QtGui import QDialog, QVBoxLayout, QMenu, QMessageBox, QStandardItemModel, QPixmap, QStandardItem, QTextDocument, QPushButton, QAbstractItemView, QComboBox, QFileDialog
-# from PyQt4.QtCore import Qt
+from PyQt4.QtGui import QDialog, QVBoxLayout, QMenu, QMessageBox, QTextDocument, QPushButton, QAbstractItemView, QComboBox, QFileDialog
 from FlightPlanner.BasicGNSS.ui_BasicGNSSDlg0 import Ui_basicGNSSDlg
 from PyQt4.QtCore import SIGNAL, Qt, QSize, QSizeF, QCoreApplication, QString
 from PyQt4.QtGui import QFont, QLineEdit
@@ -15,28 +10,26 @@ from FlightPlanner.BasicGNSS.gnssSegments import FinalApproachSegment, MissedApp
                 InitialSegment1, InitialSegment2, InitialSegment3
 from FlightPlanner.BasicGNSS.GnssSegmentObstacles import GnssSegmentObstacles
 from FlightPlanner.types import RnavSegmentType, AircraftSpeedCategory, AltitudeUnits, SpeedUnits, AngleGradientSlopeUnits,\
-                Point3D, RnavCommonWaypoint, WindType, AngleUnits, SurfaceTypes
+                Point3D, RnavCommonWaypoint, AngleUnits, SurfaceTypes
 from FlightPlanner.AcadHelper import AcadHelper
 from FlightPlanner.helpers import Speed, Altitude, AngleGradientSlope, MathHelper, Unit
 from FlightPlanner.Obstacle.ObstacleTable import ObstacleTable
 from qgis.gui import QgsTextAnnotationItem, QgsAnnotationItem, QgsRubberBand
-from qgis.core import QgsPoint, QGis,QgsRectangle,  QgsGeometry, QgsVectorLayer, QgsFeature, QgsField, QgsSvgMarkerSymbolLayerV2, QgsCategorizedSymbolRendererV2, QgsSingleSymbolRendererV2, QgsSymbolV2, QgsRendererCategoryV2
+from qgis.core import QgsPoint, QGis,QgsRectangle,  QgsGeometry, QgsVectorLayer, QgsSvgMarkerSymbolLayerV2, QgsCategorizedSymbolRendererV2, QgsSymbolV2, QgsRendererCategoryV2
 from FlightPlanner.QgisHelper import QgisHelper
 from FlightPlanner.expressions import Expressions
 from FlightPlanner.Captions import Captions
 from FlightPlanner.DataHelper import DataHelper
 from FlightPlanner.FlightPlanBaseDlg import FlightPlanBaseDlg
 from FlightPlanner.Panels.TrackRadialBoxPanel import TrackRadialBoxPanel
-
 from FlightPlanner.Panels.Frame import Frame
 from FlightPlanner.Panels.ComboBoxPanel import ComboBoxPanel
-from FlightPlanner.QgisHelper import AerodromeAndRwyCmb
 from FlightPlanner.Obstacle.Obstacle import Obstacle
 from Type.String import String
 import define, math
 
+
 class basicGNSSDlg(FlightPlanBaseDlg):
-    
     SOCAnnotation = None
     FinalAnnotation = None
     
@@ -45,22 +38,16 @@ class basicGNSSDlg(FlightPlanBaseDlg):
         self.surfaceType = SurfaceTypes.BasicGNSS
         self.layers = None
         self.setObjectName("BasicGNSS_Dialog")
-        # selftabCtrlGeneral.removeTab(2)
         self.ui = Ui_basicGNSSDlg()
         self.ui.setupUi(self)
         self.resize(500, 200)
         QgisHelper.matchingDialogSize(self, 980, 600)
-#         self.objectName()
         self.ui.btnEvaluate.setEnabled(False)
         self.ui.btnUpdateQA.setVisible(False)
         self.ui.btnUpdateQA_2.setVisible(False)
-#         self.ui.btnMarkSoc.setEnabled(False)
         self.ui.btnEvaluate_2.setEnabled(False)
         self.ui.radioBtn_Straight.setChecked(True)
         self.ui.grbImage.setStyleSheet("border-image: url(Resource/IA20.png);")
-        
-#         self.ui.groupBox_32.hide()
-#         self.ui.groupBox_33.hide()
         self.ui.groupBox_8.hide()
         font = QFont()
         font.setFamily("Arial")
@@ -72,45 +59,13 @@ class basicGNSSDlg(FlightPlanBaseDlg):
         self.ui.btnMarkSoc.setIconSize(QSize(32,32))
         self.ui.btnMarkSoc.setToolTip("Mark SOC")
         self.ui.verticalLayout_4.insertWidget(0, self.ui.btnMarkSoc)
-#         self.ui.btnOpenData = QPushButton("Open Data")
-#         self.ui.btnOpenData.setFont(font)
-#         self.ui.verticalLayout_7.insertWidget(0, self.ui.btnOpenData)
-#         
-#         self.ui.btnSaveData = QPushButton("Save Data")        
-#         self.ui.btnSaveData.setFont(font)
-#         self.ui.verticalLayout_7.insertWidget(1, self.ui.btnSaveData)
-#         self.ui.btnExportResult = QPushButton("Export Result")
-#         self.ui.btnExportResult.setFont(font)
-#         self.ui.verticalLayout_4.insertWidget(3, self.ui.btnExportResult)
         self.ui.btnExportResult.setDisabled(True)
         self.ui.btnExportResult.clicked.connect(self.exportResult)
         self.ui.btnOpenData.clicked.connect(self.openData)
         self.ui.btnSaveData.clicked.connect(self.saveData)
-                
-#         self.ui.btnUpdateQA_2.hide()
         self.socRubber = []
         self.socAnnotation = []
         QgisHelper.ClearCanvas(define._canvas)
-        
-#         self.segmendtsModel = QStandardItemModel()
-#         icon = QIcon()
-#         icon.addPixmap(QPixmap("Resource/apply.png"), QIcon.Normal, QIcon.Off)
-#         item1 = QStandardItem(icon, "Missed Approach")
-#         self.segmendtsModel.setItem(0, 0, item1)
-#         item2 = QStandardItem(icon, "Final Approach")
-#         self.segmendtsModel.setItem(1, 0, item2)
-#         item3 = QStandardItem(icon, "Intermediate")
-#         self.segmendtsModel.setItem(2, 0, item3)
-#         item4 = QStandardItem(icon, "Initial 1")
-#         self.segmendtsModel.setItem(3, 0, item4)
-#         item5 = QStandardItem(icon, "Initial 2")
-#         self.segmendtsModel.setItem(4, 0, item5)
-#         item6 = QStandardItem(icon, "Initial 3")
-#         self.segmendtsModel.setItem(5, 0, item6)        
-#         self.ui.trvSegments.setModel(self.segmendtsModel)
-#         index1 = self.segmendtsModel.indexFromItem(item2)
-#         self.ui.trvSegments.setCurrentIndex(index1) 
-#         self.connect(self.ui.trvSegments , SIGNAL("clicked(QModelIndex)"), self.segmentsChange)
         
         graphicsItems = define._canvas.items()
         scene = define._canvas.scene()
@@ -123,20 +78,15 @@ class basicGNSSDlg(FlightPlanBaseDlg):
                 if isinstance(item, QgsRubberBand):
                     scene.removeItem( item)
         
-#         self.collapseAllInLayout(self.ui.verticalLayout_parameters)
         self.ui.frame_MocMA.setVisible(True)
-#         
-# #         self.ui.cmbDataGroup.addItem("test")
         self.ui.cmbCategory.addItems(["A", "B", "C", "D", "E", "H", "Custom"])
         self.ui.cmbCategory.currentIndexChanged.connect(self.changeCategory)
         self.ui.cmbCategory.setCurrentIndex(3)
         
         self.ui.cmbConstruction.addItems(["2D", "3D"])
         self.ui.txtIsa.setText("15")
-#         
         self.annotationARP = QgsTextAnnotationItem(define._canvas)
         self.annotationARP.setDocument(QTextDocument("ARP"))
-#         self.annotationARP.setMapPosition(QgsPoint(664465.4750, 6616266.0911))
         self.annotationARP.hide()
 
         arpFrame = Frame(self.ui.groupBox_7)
@@ -158,13 +108,10 @@ class basicGNSSDlg(FlightPlanBaseDlg):
         self.gbARP.setObjectName("positionARP")
         self.gbARP.groupBox.setTitle("Aerodrom / Heliport Reference Point")
         
-#         self.gbARP.txtPointX.setText("664465.4750")
-#         self.gbARP.txtPointY.setText("6616266.0911")
         self.gbARP.hideframe_Altitude()
         self.gbARP.btnCalculater.setVisible(False)
         arpFrame.Add = self.gbARP
         self.gbARP.btnCapture.clicked.connect(self.buttunsDisable)
-# 
         self.ui.cmbUnits.addItems(["meter", "feet"])
         self.ui.cmbUnits.setCurrentIndex(1)
         self.ui.cmbSurface.addItems(["All", RnavSegmentType.MissedApproach, RnavSegmentType.FinalApproach, RnavSegmentType.Intermediate, RnavSegmentType.Initial1, RnavSegmentType.Initial2, RnavSegmentType.Initial3])
@@ -177,8 +124,6 @@ class basicGNSSDlg(FlightPlanBaseDlg):
         self.gbRunwayTHR = PositionPanel(self.ui.frame_2)
         self.gbRunwayTHR.setObjectName("positionRunwayTHR")
         self.gbRunwayTHR.groupBox.setTitle("Runway THR")
-#         self.gbARP.txtPointX.setText("664465.4750")
-#         self.gbARP.txtPointY.setText("6616266.0911")
         self.gbRunwayTHR.hideframe_Altitude()
         self.gbRunwayTHR.btnCalculater.setVisible(False)
         self.hLayout_RunwayTHR.addWidget(self.gbRunwayTHR)
@@ -187,28 +132,20 @@ class basicGNSSDlg(FlightPlanBaseDlg):
         self.gbRunwayEnd = PositionPanel(self.ui.frame_2)
         self.gbRunwayEnd.setObjectName("positionRunwayEnd")
         self.gbRunwayEnd.groupBox.setTitle("Runway End")
-#         self.gbARP.txtPointX.setText("664465.4750")
-#         self.gbARP.txtPointY.setText("6616266.0911")
         self.gbRunwayEnd.hideframe_Altitude()
         self.gbRunwayEnd.btnCalculater.setVisible(False)
         self.hLayout_RunwayTHR.addWidget(self.gbRunwayEnd)
         self.gbRunwayEnd.btnCapture.clicked.connect(self.buttunsDisable)
 
-
-
-        # self.hLayout_RunwayTHR.addWidget(self.ui.frame_18_1)
-#         self.ui.cmbRnavSpecification.addItems(["Rnav5", "Rnav2", "Rnav1", "Rnp4", "Rnp2", "Rnp1", "ARnp2", "ARnp1", "ARnp09", "ARnp08", "ARnp07", "ARnp06", "ARnp05", "ARnp04", "ARnp03", "RnpApch"])
-#         self.ui.cmbRnavSpecification.setCurrentIndex(2)
         self.verticalLayout_grbPoints = QVBoxLayout(self)
         self.verticalLayout_grbPoints.setSpacing(0)
         self.verticalLayout_grbPoints.setMargin(0)
         self.verticalLayout_grbPoints.setObjectName("verticalLayout_grbPoints")
-#         
+
         self.annotationMAHWP = QgsTextAnnotationItem(define._canvas)
         self.annotationMAHWP.setDocument(QTextDocument("MAHF"))
         self.annotationMAHWP.hide()
-#         self.annotationMAHWP.setMapPosition(QgsPoint(663824.4766, 6608668.6437))
-        
+
         self.verticalLayout_MAPoints = QVBoxLayout(self.ui.frameMA_Point)
         self.verticalLayout_MAPoints.setSpacing(0)
         self.verticalLayout_MAPoints.setMargin(0)
@@ -217,32 +154,30 @@ class basicGNSSDlg(FlightPlanBaseDlg):
         self.gbMAHWP = PositionPanel(self.ui.frameMA_Point, self.annotationMAHWP)
         self.gbMAHWP.groupBox.setTitle("MAHF")
         self.gbMAHWP.setObjectName("positionMAHWP")
-#         self.gbMAHWP.setPosition(663824.4766, 6608668.6437)
-#         self.ui.verticalLayout_grbPoints.addWidget(self.gbMAHWP)
+
         self.gbMAHWP.btnCalculater.clicked.connect(self.calcMAHWP_Dlg)
         self.gbMAHWP.btnCapture.clicked.connect(self.buttunsDisable)
         self.gbMAHWP.txtPointX.textChanged.connect(self.drawLineBand)
         self.gbMAHWP.txtPointY.textChanged.connect(self.drawLineBand)
         self.gbMAHWP.hideframe_Altitude()
         self.verticalLayout_MAPoints.addWidget(self.gbMAHWP)
-#                 
+
         self.annotationMAWP = QgsTextAnnotationItem(define._canvas)
         self.annotationMAWP.setDocument(QTextDocument("MAPt"))
         self.annotationMAWP.hide()
-#         self.annotationMAWP.setMapPosition(QgsPoint(664685.0273, 6617887.9264))
+
         self.gbMAWP = PositionPanel(self.ui.frameMA_Point, self.annotationMAWP)
         self.gbMAWP.groupBox.setTitle("MAPt")
         self.gbMAWP.setObjectName("positionMAWP")
         self.gbMAWP.btnCalculater.setVisible(False)
-#         self.gbMAWP.setPosition(664685.0273, 6617887.9264)
-#         self.ui.verticalLayout_grbPoints.addWidget(self.gbMAWP)
+
         self.gbMAWP.btnCalculater.clicked.connect(self.calcMAWP_Dlg)
         self.gbMAWP.btnCapture.clicked.connect(self.buttunsDisable)
         self.gbMAWP.txtPointX.textChanged.connect(self.drawLineBand)
         self.gbMAWP.txtPointY.textChanged.connect(self.drawLineBand)
         self.gbMAWP.hideframe_Altitude()
         self.verticalLayout_MAPoints.addWidget(self.gbMAWP)
-#         
+
         self.annotationFAWP = QgsTextAnnotationItem(define._canvas)
         self.annotationFAWP.setDocument(QTextDocument("FAF"))
         self.annotationFAWP.hide()
@@ -252,21 +187,18 @@ class basicGNSSDlg(FlightPlanBaseDlg):
         self.verticalLayout_FAPoints.setMargin(0)
         self.verticalLayout_FAPoints.setObjectName("verticalLayout_FAPoints")
         
-#         self.annotationFAWP.setMapPosition(QgsPoint(665605.8453, 6627101.4135))
         self.gbFAWP = PositionPanel(self.ui.frameFA_Point, self.annotationFAWP)
         self.gbFAWP.groupBox.setTitle("FAF")
         self.gbFAWP.setObjectName("positionFAWP")
-#         self.gbFAWP.setPosition(665605.8453, 6627101.4135)
-#         self.ui.verticalLayout_grbPoints.addWidget(self.gbFAWP)
+
         self.gbFAWP.btnCalculater.clicked.connect(self.calcFAWP_Dlg)
         self.gbFAWP.btnCapture.clicked.connect(self.buttunsDisable)
         self.gbFAWP.txtPointX.textChanged.connect(self.drawLineBand)
         self.gbFAWP.txtPointY.textChanged.connect(self.drawLineBand)
-#         self.gbFAWP.frame_Altitude.setVisible(False)
+
         self.gbFAWP.hideframe_Altitude()
         self.verticalLayout_FAPoints.addWidget(self.gbFAWP)
-        
-        
+
         self.verticalLayout_IAPoints = QVBoxLayout(self.ui.frameIA_Point)
         self.verticalLayout_IAPoints.setSpacing(0)
         self.verticalLayout_IAPoints.setMargin(0)
@@ -275,74 +207,68 @@ class basicGNSSDlg(FlightPlanBaseDlg):
         self.annotationIWP = QgsTextAnnotationItem(define._canvas)
         self.annotationIWP.setDocument(QTextDocument("IF"))
         self.annotationIWP.hide()
-#         self.annotationIWP.setMapPosition(QgsPoint(666977.3404, 6641852.8886))
+
         self.gbIWP = PositionPanel(self.ui.frameIA_Point, self.annotationIWP)
         self.gbIWP.groupBox.setTitle("IF")
         self.gbIWP.setObjectName("positionIWP")
-#         self.gbIWP.setPosition(666977.3404, 6641852.8886)
-#         self.ui.verticalLayout_grbPoints.addWidget(self.gbIWP)
+
         self.gbIWP.btnCalculater.clicked.connect(self.calcIWP_Dlg)
         self.gbIWP.btnCapture.clicked.connect(self.buttunsDisable)
         self.gbIWP.txtPointX.textChanged.connect(self.drawLineBand)
         self.gbIWP.txtPointY.textChanged.connect(self.drawLineBand)
         self.gbIWP.hideframe_Altitude()
         self.verticalLayout_IAPoints.addWidget(self.gbIWP)
-#         
+
         self.annotationIAWP1 = QgsTextAnnotationItem(define._canvas)
         self.annotationIAWP1.setDocument(QTextDocument("IAFR"))
         self.annotationIAWP1.hide()
-#         self.annotationIAWP1.setMapPosition(QgsPoint(657757.3195,6642704.7333))
+
         self.gbIAWP1 = PositionPanel(self.ui.frameIW1, self.annotationIAWP1)        
         self.gbIAWP1.groupBox.setTitle("IAFR")
         self.gbIAWP1.setObjectName("positionIAWP1")
-#         self.gbIAWP1.setPosition(657757.3195,6642704.7333)
+
         self.ui.verticalLayout_IW1.insertWidget(0, self.gbIAWP1)
         self.gbIAWP1.btnCalculater.clicked.connect(self.calcIAWP1_Dlg)
         self.gbIAWP1.btnCapture.clicked.connect(self.buttunsDisable)
         self.gbIAWP1.txtPointX.textChanged.connect(self.drawLineBand)
         self.gbIAWP1.txtPointY.textChanged.connect(self.drawLineBand)
         self.gbIAWP1.hideframe_Altitude()
-#         
+
         self.annotationIAWP2 = QgsTextAnnotationItem(define._canvas)
         self.annotationIAWP2.setDocument(QTextDocument("IAFC"))
         self.annotationIAWP2.hide()
-#         self.annotationIAWP2.setMapPosition(QgsPoint(667829.0442, 6651073.1104))
+
         self.gbIAWP2 = PositionPanel(self.ui.frameIW2, self.annotationIAWP2)
         self.gbIAWP2.groupBox.setTitle("IAFC")
         self.gbIAWP2.setObjectName("positionIAWP2")
-#         self.gbIAWP2.setPosition(667829.0442, 6651073.1104)
+
         self.ui.verticalLayout_IW2.insertWidget(0, self.gbIAWP2)
         self.gbIAWP2.btnCalculater.clicked.connect(self.calcIAWP2_Dlg)
         self.gbIAWP2.btnCapture.clicked.connect(self.buttunsDisable)
         self.gbIAWP2.txtPointX.textChanged.connect(self.drawLineBand)
         self.gbIAWP2.txtPointY.textChanged.connect(self.drawLineBand)
         self.gbIAWP2.hideframe_Altitude()
-#         
+
         self.annotationIAWP3 = QgsTextAnnotationItem(define._canvas)
         self.annotationIAWP3.setDocument(QTextDocument("IAFL"))
         self.annotationIAWP3.hide()
-#         self.annotationIAWP3.setMapPosition(QgsPoint(676197.7064, 6641000.9784))
+
         self.gbIAWP3 = PositionPanel(self.ui.frameIW3, self.annotationIAWP3)
         self.gbIAWP3.groupBox.setTitle("IAFL")
         self.gbIAWP3.hideframe_Altitude()
         self.gbIAWP3.setObjectName("positionIAWP3")
-#         self.gbIAWP3.setPosition(676197.7064, 6641000.9784)
+
         self.ui.verticalLayout_IW3.insertWidget(0, self.gbIAWP3)
         self.gbIAWP3.btnCalculater.clicked.connect(self.calcIAWP3_Dlg)
         self.gbIAWP3.btnCapture.clicked.connect(self.buttunsDisable)
         self.gbIAWP3.txtPointX.textChanged.connect(self.drawLineBand)
         self.gbIAWP3.txtPointY.textChanged.connect(self.drawLineBand)
-#                 
-#         self.ui.verticalLayout_grbPoints.setSpacing(0)
-#         self.ui.verticalLayout_grbPoints.setContentsMargins(0, 0, 0, 0)
-#         self.collapseAllInLayout(self.ui.verticalLayout_grbPoints)
-#         self.gbMAWP.setVisible(True)
-#         self.gbFAWP.setVisible(True)
+
         self.RwyTHR = None
         self.RwyEND = None 
         self.parameterCalcList = []
         self.ui.btnConstruct.clicked.connect(self.construct)
-#         self.ui.btnUpdateQA.clicked.connect(self.updateQA)
+
         self.ui.btnEvaluate.clicked.connect(self.evalute)
         self.ui.btnClose.clicked.connect(self.reject)
         self.ui.btnClose_2.clicked.connect(self.reject)
@@ -351,7 +277,6 @@ class basicGNSSDlg(FlightPlanBaseDlg):
         self.ui.btnMarkSoc.clicked.connect(self.markSoc)
         self.ui.btnMarkSoc.setEnabled(False)
         self.ui.chbInsertSymbols.stateChanged.connect(self.annotationFlag)
-        
         
         self.ui.cmbRnavSpecification.addItems(["Rnav1", "Rnp1", "ARnp1", "ARnp09", "ARnp08", "ARnp07", "ARnp06", "ARnp05", "ARnp04", "ARnp03", "RnpApch"])
         self.ui.cmbRnavSpecification_2.addItems(["Rnav1", "Rnp1", "ARnp1", "ARnp09", "ARnp08", "ARnp07", "ARnp06", "ARnp05", "ARnp04", "ARnp03", "RnpApch"])
@@ -365,25 +290,23 @@ class basicGNSSDlg(FlightPlanBaseDlg):
         self.ui.cmbRnavSpecification_4.currentIndexChanged.connect(self.cmbRnavSpecificationChanged_4)
         self.ui.cmbRnavSpecification_5.currentIndexChanged.connect(self.cmbRnavSpecificationChanged_5)
         
-#         
         self.obstaclesModel = GnssSegmentObstacles(None)
         self.obstaclesModel.setSurfaceType(SurfaceTypes.BasicGNSS)
-#         
+
         self.ui.tblObstacles.setModel(self.obstaclesModel)
         self.ui.tblObstacles.setSortingEnabled(True)
-#         
-#         define._canvas.mapUnitsChanged.connect(self.changeMapUnit)
+
         self.ui.cmbUnits.currentIndexChanged.connect(self.setResultPanel)
-#         self.ui.txtWindIA1.setEnabled(False)
-#         self.ui.txtWindIA3.setEnabled(False)
-#         self.ui.cmbWindIA1.addItems(["ICAO", "UK", "Custom"])
-#         self.ui.cmbWindIA3.addItems(["ICAO", "UK", "Custom"])
+
         self.ui.txtAltitudeIA1.textChanged.connect(self.changeWindIA1)
         altitude = Altitude(float(self.ui.txtAltitudeIA1.text()), AltitudeUnits.FT)
+
         if altitude != None:
-            self.ui.pnlWindIA1.setAltitude(altitude) 
+            self.ui.pnlWindIA1.setAltitude(altitude)
+
         self.ui.txtAltitudeIA3.textChanged.connect(self.changeWindIA3)
         altitude = Altitude(float(self.ui.txtAltitudeIA3.text()), AltitudeUnits.FT)
+
         if altitude != None:
             self.ui.pnlWindIA3.setAltitude(altitude) 
          
@@ -395,13 +318,11 @@ class basicGNSSDlg(FlightPlanBaseDlg):
         self.ui.tblObstacles.clicked.connect(self.tblObstaclesClicked)
         self.ui.tblObstacles.verticalHeader().sectionClicked.connect(self.tblObstaclesClicked)
          
-#         lstTextControls = self.ui.groupBox_11.findChildren(QLineEdit)
-#         for ctrl in lstTextControls:
-#             ctrl.textChanged.connect(self.initResultPanel)
-             
         lstTextControls = self.ui.groupBox_11.findChildren(QComboBox)
+
         for ctrl in lstTextControls:
             ctrl.currentIndexChanged.connect(self.initResultPanel)
+
         self.ui.tabControlSegments.currentChanged.connect(self.tabControlSegmentsCurrentChanged)
         
         self.ui.radioBtn_T_Bar.clicked.connect(self.radioTClicked)
@@ -409,7 +330,6 @@ class basicGNSSDlg(FlightPlanBaseDlg):
         self.ui.radioBtn_Straight.clicked.connect(self.radioSClicked)
         
         self.ui.btnCriticalLocate.clicked.connect(self.btnCriticalLocateClicked)
-        
         
         self.selectedRnavSpecificationFA = "Rnav1"
         self.selectedRnavSpecificationMA = "Rnav1"
@@ -429,18 +349,13 @@ class basicGNSSDlg(FlightPlanBaseDlg):
         self.ui.txtCriticalX.setEnabled(False)
         self.ui.txtCriticalY.setEnabled(False)
         
-#         self.gbRunwayTHR.btnCapture.clicked
-        
         self.radioBtnStr = ""
-        # self.gbRunwayTHR.txtPointY.textChanged.connect(self.CalcRwyBearing)
-        # self.gbRunwayEnd.txtPointY.textChanged.connect(self.CalcRwyBearing)
         self.connect(self.gbRunwayTHR, SIGNAL("positionChanged"), self.CalcRwyBearing)
         self.connect(self.gbRunwayEnd, SIGNAL("positionChanged"), self.CalcRwyBearing)
 
         self.connect(self.ui.tblObstacles, SIGNAL("tableViewObstacleMouseReleaseEvent_rightButton"), self.tableViewObstacleMouseTeleaseEvent_rightButton)
         self.connect(self.ui.tblObstacles, SIGNAL("pressedEvent"), self.tblObstacles_pressed)
-        
-        
+
         self.gbIAWP1.setVisible(False)
         self.ui.gbParamIW_1.setVisible(False)
         self.gbIAWP3.setVisible(False)
@@ -457,14 +372,11 @@ class basicGNSSDlg(FlightPlanBaseDlg):
         self.resultLayerList = []
 
         self.criticalObstaclesBySurfaces = dict()
+
     def initAerodromeAndRwyCmb(self):
-        # self.currentLayer = define._canvas.currentLayer()
         if self.currentLayer != None and self.currentLayer.isValid() and isinstance(self.currentLayer, QgsVectorLayer):
             self.arpFeatureArray = self.aerodromeAndRwyCmbFill(self.currentLayer, self.cmbAerodrome, self.gbARP, self.cmbRwyDir)
-            # AerodromeAndRwyCmb.aerodromeAndRwyCmbFill(self.currentLayer, self.cmbAerodrome, self.gbARP, self.cmbRwyDir, self.gbRunwayTHR, self.gbRunwayEnd)
 
-
-#         self.ui.horizontalLayout_6.addWidget(self.ui.frame_3)
     def aerodromeAndRwyCmbFill(self, layer, aerodromeCmbObj, aerodromePositionPanelObj, rwyDirCmbObj = None):
         idx = layer.fieldNameIndex('Type')
         idxName = layer.fieldNameIndex('Name')
@@ -473,6 +385,7 @@ class basicGNSSDlg(FlightPlanBaseDlg):
         idxAltitude = layer.fieldNameIndex('Altitude')
         arpList = []
         arpFeatureList = []
+
         if idx >= 0:
             featIter = layer.getFeatures()
             for feat in featIter:
@@ -502,7 +415,6 @@ class basicGNSSDlg(FlightPlanBaseDlg):
                 aerodromeCmbObj.Items = aerodromeCmbObjItems
                 aerodromeCmbObj.SelectedIndex = 0
 
-                # if idxAttributes
                 for feat in arpFeatureList:
                     attrValue = feat.attributes()[idxName].toString()
                     if attrValue != aerodromeCmbObj.SelectedItem:
@@ -541,86 +453,19 @@ class basicGNSSDlg(FlightPlanBaseDlg):
                     self.rwyFeatureArray = rwyFeatList
                     self.rwyDirCmbObj_Event_0()
 
-                    # items = rwyDirCmbObj.Items
-                    # if len(items) != 0:
-                    #     rwyDirCmbObj.SelectedIndex = 0
-                    #     for feat in rwyFeatList:
-                    #         attrValue = feat.attributes()[idxName].toString()
-                    #         if attrValue != rwyDirCmbObj.SelectedItem:
-                    #             continue
-                    #         latAttrValue = feat.attributes()[idxLat].toDouble()
-                    #         lat = latAttrValue[0]
-                    #
-                    #         longAttrValue = feat.attributes()[idxLong].toDouble()
-                    #         long = longAttrValue[0]
-                    #
-                    #         altAttrValue = feat.attributes()[idxAltitude].toDouble()
-                    #         alt = altAttrValue[0]
-                    #
-                    #         self.gbRunwayTHR.Point3d = Point3D(long, lat, alt)
-                    #
-                    #         valStr = None
-                    #         if attrValue.right(1).toUpper() =="L" or attrValue.right(1).toUpper() =="R":
-                    #             s = attrValue.right(attrValue.length() - 1)
-                    #             valStr = s.right(2)
-                    #         else:
-                    #             valStr = attrValue.right(2)
-                    #         val = int(valStr)
-                    #         val += 18
-                    #         if val > 36:
-                    #             val -= 36
-                    #         newValStr = None
-                    #         if len(str(val)) == 1:
-                    #             newValStr = "0" + str(val)
-                    #         else:
-                    #             newValStr = str(val)
-                    #         otherAttrValue = attrValue.replace(valStr, newValStr)
-                    #         for feat in rwyFeatList:
-                    #             attrValue = feat.attributes()[idxName].toString()
-                    #             if attrValue != otherAttrValue:
-                    #                 continue
-                    #             latAttrValue = feat.attributes()[idxLat].toDouble()
-                    #             lat = latAttrValue[0]
-                    #
-                    #             longAttrValue = feat.attributes()[idxLong].toDouble()
-                    #             long = longAttrValue[0]
-                    #
-                    #             altAttrValue = feat.attributes()[idxAltitude].toDouble()
-                    #             alt = altAttrValue[0]
-                    #
-                    #             self.gbRunwayEnd.Point3d = Point3D(long, lat, alt)
-                    #             break
-                    #         break
-
-                    # if len(rwyFeatList) != 0:
-                    #     for feat in rwyFeatList:
-
-
-
-
-
-
-
         return arpFeatureList
+
     def rwyDirCmbObj_Event_0(self):
         if len(self.rwyFeatureArray) == 0:
             return
+
         idxName = self.currentLayer.fieldNameIndex('Name')
         idxLat = self.currentLayer.fieldNameIndex('Latitude')
         idxLong = self.currentLayer.fieldNameIndex('Longitude')
         idxAltitude = self.currentLayer.fieldNameIndex('Altitude')
         idxAttr = self.currentLayer.fieldNameIndex('Attributes')
-        # rwyFeatList = []
         featIter = self.currentLayer.getFeatures()
-        # for feat in featIter:
-        #     attrValue = feat.attributes()[idxAttr].toString()
-        #     if attrValue == self.cmbAerodrome.SelectedItem:
-        #         attrValue = feat.attributes()[idxName].toString()
-        #         s = attrValue.replace(" ", "")
-        #         compStr = s.left(6).toUpper()
-        #         if compStr == "THRRWY":
-        #             valStr = s.right(s.length() - 6)
-        #             rwyFeatList.append(feat)
+
         for feat in self.rwyFeatureArray:
             attrValue = feat.attributes()[idxName].toString()
             attrValueStr = QString(attrValue)
@@ -678,9 +523,11 @@ class basicGNSSDlg(FlightPlanBaseDlg):
                 self.gbRunwayEnd.Point3d = Point3D(long, lat, alt)
                 break
             break
+
     def aerodromeCmbObj_Event_0(self):
         if len(self.arpFeatureArray) == 0:
             return
+
         self.gbARP.Point3d = None
         self.gbRunwayTHR.Point3d = None
         self.gbRunwayEnd.Point3d = None
@@ -689,7 +536,7 @@ class basicGNSSDlg(FlightPlanBaseDlg):
         idxLong = self.currentLayer.fieldNameIndex('Longitude')
         idxAltitude = self.currentLayer.fieldNameIndex('Altitude')
         self.rwyFeatureArray = []
-        # if idxAttributes
+
         for feat in self.arpFeatureArray:
             attrValue = feat.attributes()[idxName].toString()
             if attrValue != self.cmbAerodrome.SelectedItem:
@@ -722,17 +569,14 @@ class basicGNSSDlg(FlightPlanBaseDlg):
                         rwyFeatList.append(feat)
                         self.rwyFeatureArray = rwyFeatList
             self.rwyDirCmbObj_Event_0()
-        # resultValueList.append(altitudeValue.toString())
-        #     pass
-        # altitudeValue = feature.attributes()[idx]
-
-        # resultValueList.append(altitudeValue.toString())
 
     def tblObstacles_pressed(self, modelIndex):
         self.selectedObstacleMoselIndex = modelIndex
+
     def tableViewObstacleMouseTeleaseEvent_rightButton(self, e):
         if self.obstaclesModel == None:
             return
+
         featID = self.obstaclesModel.data(self.obstaclesModel.index(self.selectedObstacleMoselIndex.row(), self.obstaclesModel.IndexObjectId)).toString()
         layerID = self.obstaclesModel.data(self.obstaclesModel.index(self.selectedObstacleMoselIndex.row(), self.obstaclesModel.IndexLayerId)).toString()
         name = self.obstaclesModel.data(self.obstaclesModel.index(self.selectedObstacleMoselIndex.row(), self.obstaclesModel.IndexName)).toString()
@@ -752,6 +596,7 @@ class basicGNSSDlg(FlightPlanBaseDlg):
         actionSetCriticalObst = QgisHelper.createAction(menu, "Set Most Critical Obstacles", self.menuSetCriticalObstClick)
         menu.addAction( actionSetCriticalObst )
         menu.exec_( self.ui.tblObstacles.mapToGlobal(e.pos() ))
+
     def menuSetCriticalObstClick(self):
         obstacle = self.changedCriticalObstacleValue["Obstacle"]
         self.ui.txtCriticalID.setText(str(obstacle.name))
@@ -783,45 +628,30 @@ class basicGNSSDlg(FlightPlanBaseDlg):
         self.ui.txtOCA.setText(RnavSegmentType.FinalApproach)
         if self.changedCriticalObstacleValue["SurfaceName"] == RnavSegmentType.FinalApproach:
             self.ui.txtOCAResults.setText(str(round(oca, 2)))
-                    # else:
-        #     self.ui.txtOCAResults.setText(Captions.GROUND_PLANE)
 
         self.ui.txtOCH.setText(RnavSegmentType.MissedApproach)
         if self.changedCriticalObstacleValue["SurfaceName"] == RnavSegmentType.MissedApproach:
             self.ui.txtOCHResults.setText(str(round(oca, 2)))
-        # else:
-        #     self.ui.txtOCHResults.setText(Captions.GROUND_PLANE)
 
         self.ui.txtOCH_2.setText(RnavSegmentType.Intermediate)
         if self.changedCriticalObstacleValue["SurfaceName"] == RnavSegmentType.Intermediate:
             self.ui.txtOCHResults_2.setText(str(round(oca, 2)))
-        # else:
-        #     self.ui.txtOCHResults_2.setText(Captions.GROUND_PLANE)
 
         self.ui.txtOCA_2.setText(RnavSegmentType.Initial1)
         if self.changedCriticalObstacleValue["SurfaceName"] == RnavSegmentType.Initial1:
             self.ui.txtOCAResults_2.setText(str(round(oca, 2)))
-        # else:
-        #     self.ui.txtOCAResults_2.setText(Captions.GROUND_PLANE)
 
         self.ui.txtOCH_3.setText(RnavSegmentType.Initial2)
         if self.changedCriticalObstacleValue["SurfaceName"] == RnavSegmentType.Initial2:
             self.ui.txtOCHResults_3.setText(str(round(oca, 2)))
-        # else:
-        #     self.ui.txtOCHResults_3.setText(Captions.GROUND_PLANE)
 
         self.ui.txtOCH_4.setText(RnavSegmentType.Initial3)
         if self.changedCriticalObstacleValue["SurfaceName"] == RnavSegmentType.Initial3:
             self.ui.txtOCHResults_4.setText(str(round(oca, 2)))
-        # else:
-        #     self.ui.txtOCHResults_4.setText(Captions.GROUND_PLANE)
         if tempValM != None:
             self.criticalObstaclesBySurfaces.__setitem__(String.QString2Str(self.changedCriticalObstacleValue["SurfaceName"]), [str(round(tempValM, 2)) + " m", str(round(tempValFt, 2)) + " ft"])
         else:
             self.criticalObstaclesBySurfaces.__setitem__(String.QString2Str(self.changedCriticalObstacleValue["SurfaceName"]), [Captions.GROUND_PLANE, Captions.GROUND_PLANE])
-
-
-
 
     def trackRadialPanelSetEnabled(self):
         positionPanels = self.findChildren(PositionPanel)
@@ -836,6 +666,7 @@ class basicGNSSDlg(FlightPlanBaseDlg):
         if len(trPanels) > 0:
             for pnl in trPanels:
                 pnl.Enabled = flag
+
     def btnCriticalLocateClicked(self):
         point = None
         try:
@@ -854,7 +685,6 @@ class basicGNSSDlg(FlightPlanBaseDlg):
  
     def getExtentForLocate(self, point):
         extent = None
-#         surfaceType = self.source.item(sourceRow, self.IndexSurface).text()
         surfaceLayers = QgisHelper.getSurfaceLayers(SurfaceTypes.BasicGNSS)
         for sfLayer in surfaceLayers:
             lId = sfLayer.name()
@@ -862,6 +692,7 @@ class basicGNSSDlg(FlightPlanBaseDlg):
                 extent = sfLayer.extent()
                 break
         return extent
+
     def radioSClicked(self):
         self.ui.grbImage.setStyleSheet("border-image: url(Resource/IA20.png);")
         self.radioBtnStr = "Straight"
@@ -869,6 +700,7 @@ class basicGNSSDlg(FlightPlanBaseDlg):
         self.ui.gbParamIW_1.setVisible(False)
         self.gbIAWP3.setVisible(False)
         self.ui.gbParamIW_3.setVisible(False)
+
     def radioYClicked(self):
         self.ui.grbImage.setStyleSheet("border-image: url(Resource/IA30.png);")
         self.radioBtnStr = "Y-Bar"
@@ -877,6 +709,7 @@ class basicGNSSDlg(FlightPlanBaseDlg):
         self.ui.gbParamIW_1.setVisible(True)
         self.gbIAWP3.setVisible(True)
         self.ui.gbParamIW_3.setVisible(True)
+
     def radioTClicked(self):
         self.ui.grbImage.setStyleSheet("border-image: url(Resource/IA10.png);")
         self.radioBtnStr = "T-Bar"
@@ -895,22 +728,25 @@ class basicGNSSDlg(FlightPlanBaseDlg):
         elif self.ui.tabControlSegments.currentIndex() == 3:
             self.selectedRnavSpecificationIA = self.ui.cmbRnavSpecification.currentText()
             self.selectedRnavSpecificationIAIndex = self.ui.cmbRnavSpecification.currentIndex()
+
     def cmbRnavSpecificationChanged_2(self, index):
         self.selectedRnavSpecificationIA = self.ui.cmbRnavSpecification_2.currentText()
+
     def cmbRnavSpecificationChanged_3(self, index):
         self.selectedRnavSpecificationIW1 = self.ui.cmbRnavSpecification_3.currentText()
+
     def cmbRnavSpecificationChanged_4(self, index):
         self.selectedRnavSpecificationIW2 = self.ui.cmbRnavSpecification_4.currentText()
+
     def cmbRnavSpecificationChanged_5(self, index):
         self.selectedRnavSpecificationIW3 = self.ui.cmbRnavSpecification_5.currentText()
+
     def tabControlSegmentsCurrentChanged(self, index):
-#         self.ui.cmbRnavSpecification.clear()
         if index == 1:
             self.resize(400, 200)
             
             self.ui.horizontalLayout_5.addWidget(self.ui.groupBox_6)
             self.verticalLayout_MAPoints.insertWidget(1, self.gbMAWP)
-#             if self.selectedRnavSpecificationMAIndex != 0:
             self.ui.cmbRnavSpecification.setCurrentIndex(self.selectedRnavSpecificationMAIndex)
             
             print self.selectedRnavSpecificationMAIndex
@@ -938,9 +774,7 @@ class basicGNSSDlg(FlightPlanBaseDlg):
             self.verticalLayout_FAPoints.insertWidget(0, self.gbMAWP)
             self.ui.horizontalLayout_6.addWidget(self.ui.groupBox_6)
             self.verticalLayout_FAPoints.insertWidget(1, self.gbFAWP)
-#             if self.selectedRnavSpecificationFAIndex != 0:
-#             self.ui.cmbConstruction.setCurrentIndex(self.selectedRnavSpecificationFAIndex)
-            
+
             self.ui.frame_RNVA.setVisible(False)
             self.ui.frame_IasMA.setVisible(False)
             self.ui.frame_MocMA1.setVisible(False)
@@ -962,12 +796,10 @@ class basicGNSSDlg(FlightPlanBaseDlg):
             self.ui.pnlWindIA3.setVisible(False)
         elif index == 3:
             self.resize(400, 200)
-#             self.ui.cmbRnavSpecification.addItems(["Rnav1", "Rnp1", "ARnp2", "ARnp1", "ARnp09", "ARnp08", "ARnp07", "ARnp06", "ARnp05", "ARnp04", "ARnp03", "RnpApch"])
             self.ui.horizontalLayout_7.addWidget(self.ui.groupBox_6)
             self.verticalLayout_IAPoints.insertWidget(0, self.gbFAWP)
             self.verticalLayout_IAPoints.insertWidget(1, self.gbIWP)
             self.ui.groupBox_6.layout().addWidget(self.ui.frame_MocI)
-#             if self.selectedRnavSpecificationIAIndex != 0:
             self.ui.cmbRnavSpecification.setCurrentIndex(self.selectedRnavSpecificationIAIndex)
             print self.selectedRnavSpecificationIAIndex
             self.ui.frame_RNVA.setVisible(True)
@@ -990,12 +822,8 @@ class basicGNSSDlg(FlightPlanBaseDlg):
             self.ui.pnlWindIA1.setVisible(False)
             self.ui.pnlWindIA3.setVisible(False)
         elif index == 4:
-#             self.ui.horizontalLayout_7.addWidget(self.ui.groupBox_6)
             self.ui.verticalLayout_IW.insertWidget(0, self.gbIWP)
-            
             self.ui.verticalLayout_ParamIW.addWidget(self.ui.frame_MocI)
-            
-            
             self.ui.verticalLayout_ParamIW1.addWidget(self.ui.frame_IasIA1)
             self.ui.verticalLayout_ParamIW1.addWidget(self.ui.frame_AltitudeIA1)
             self.ui.verticalLayout_ParamIW1.addWidget(self.ui.frame_BankIA1)
@@ -1021,7 +849,7 @@ class basicGNSSDlg(FlightPlanBaseDlg):
             self.ui.pnlWindIA3.setVisible(True)
             self.ui.frame_MocIA3.setVisible(True)
             self.ui.cmbRnavSpecification_2.setCurrentIndex(self.selectedRnavSpecificationIAIndex)
-#         print index
+
     def saveData(self):
         try:
             filePathDir = QFileDialog.getSaveFileName(self, "Save Input Data",QCoreApplication.applicationDirPath (),"Xml Files(*.xml)")        
@@ -1035,68 +863,6 @@ class basicGNSSDlg(FlightPlanBaseDlg):
             return filePathDir
         except UserWarning as e:
             QMessageBox.warning(self, "Error", e.message)
-#         fileName = FlightPlanBaseDlg.saveData(self)
-#         if fileName == None:
-#             return
-#         doc = DataHelper.loadXmlDocFromFile(fileName)
-#         dialogNodeList = doc.elementsByTagName(self.objectName())
-#         if dialogNodeList.isEmpty():
-#             raise UserWarning, "This file is not correct."
-#         dialogElem = dialogNodeList.at(0).toElement()
-#         
-#         elemCmbIndexs= doc.createElement("CmbIndexs")
-#         elemCmbMAIndex = doc.createElement("MA")
-#         elemCmbMAIndex.appendChild(doc.createTextNode(str(self.selectedRnavSpecificationMAIndex)))
-#         elemCmbFAIndex = doc.createElement("FA")
-#         elemCmbFAIndex.appendChild(doc.createTextNode(str(self.selectedRnavSpecificationFAIndex)))
-#         elemCmbIAIndex = doc.createElement("IA")
-#         elemCmbIAIndex.appendChild(doc.createTextNode(str(self.selectedRnavSpecificationIAIndex)))
-#         elemCmbIndexs.appendChild(elemCmbMAIndex)
-#         elemCmbIndexs.appendChild(elemCmbFAIndex)
-#         elemCmbIndexs.appendChild(elemCmbIAIndex)
-#         dialogElem.appendChild(elemCmbIndexs)
-#         if self.RwyEND !=None and self.RwyTHR != None:            
-#             elemTrack = doc.createElement("Runway")            
-#             elemStart = doc.createElement("RwyTHR")
-#             elemX = doc.createElement("X")
-#             elemX.appendChild(doc.createTextNode(str(self.RwyTHR.x())))
-#             elemY = doc.createElement("Y")
-#             elemY.appendChild(doc.createTextNode(str(self.RwyTHR.y())))
-#             elemStart.appendChild(elemX)
-#             elemStart.appendChild(elemY)
-#             elemTrack.appendChild(elemStart)
-#     
-#             elemEnd = doc.createElement("RwyEND")
-#             elemX = doc.createElement("X")
-#             elemX.appendChild(doc.createTextNode(str(self.RwyEND.x())))
-#             elemY = doc.createElement("Y")
-#             elemY.appendChild(doc.createTextNode(str(self.RwyEND.y())))
-#             elemEnd.appendChild(elemX)
-#             elemEnd.appendChild(elemY)
-#             elemTrack.appendChild(elemEnd)
-#             dialogElem.appendChild(elemTrack)
-#             
-#         if len(self.parameterCalcList) > 0:
-#             elemParameter = doc.createElement("CalculaterParameters")
-#             for i in range(len(self.parameterCalcList)):
-#                 if self.parameterCalcList[i] == None:
-#                     elemBearing = doc.createElement("Bearing")
-#                     elemBearing.appendChild(doc.createTextNode(""))
-#                     elemDistance = doc.createElement("Distance")
-#                     elemDistance.appendChild(doc.createTextNode(""))
-#                     elemParameter.appendChild(elemBearing)
-#                     elemParameter.appendChild(elemDistance)
-#                 else:
-#                     strBearing, strDistance = self.parameterCalcList[i]
-#                     elemBearing = doc.createElement("Bearing")
-#                     elemBearing.appendChild(doc.createTextNode(strBearing))
-#                     elemDistance = doc.createElement("Distance")
-#                     elemDistance.appendChild(doc.createTextNode(strDistance))
-#                     elemParameter.appendChild(elemBearing)
-#                     elemParameter.appendChild(elemDistance)
-#             dialogElem.appendChild(elemParameter)         
-#         DataHelper.saveXmlDocToFile(fileName, doc)
-        
 
     def openData(self):
         try:
@@ -1161,7 +927,6 @@ class basicGNSSDlg(FlightPlanBaseDlg):
             return filePathDir
         except UserWarning as e:
             QMessageBox.warning(self, "Error", e.message)
-        
 
     def initResultPanel(self):
         if self.obstaclesModel != None and self.ui.btnEvaluate.isEnabled():
@@ -1176,11 +941,12 @@ class basicGNSSDlg(FlightPlanBaseDlg):
     def tblObstaclesClicked(self, idx):
         if len(self.ui.tblObstacles.selectedIndexes()) > 0:
             self.ui.btnEvaluate_2.setEnabled(True)
+
     def locate(self):
         selectedRowIndexes = self.ui.tblObstacles.selectedIndexes()
         self.obstaclesModel.locate(selectedRowIndexes)
-#         QMessageBox.warning(self, "info", self.obstaclesModel.data(selectedRowIndexes[1]).toString())
         pass
+
     def markSoc(self):
         if len(self.socRubber) < 2:
             self.socRubber = [QgsRubberBand(define._canvas, QGis.Line), QgsRubberBand(define._canvas, QGis.Line)]
@@ -1196,9 +962,6 @@ class basicGNSSDlg(FlightPlanBaseDlg):
         self.socRubber[0].addPoint(point3d)
         self.socRubber[0].show()
         
-#         DBText dBText = AcadHelper.smethod_140(Captions.SOC, point3d, 50, 1, 3);
-#         dBText.set_Rotation(num);
-#         AcadHelper.smethod_18(transaction, blockTableRecord, dBText, str);
         if basicGNSSDlg.SOCAnnotation == None:
             basicGNSSDlg.SOCAnnotation = QgsTextAnnotationItem(define._canvas)
             basicGNSSDlg.SOCAnnotation.setDocument(QTextDocument(Captions.SOC))
@@ -1214,10 +977,6 @@ class basicGNSSDlg(FlightPlanBaseDlg):
         self.socRubber[1].addPoint(point3d)
         self.socRubber[1].show()
         
-#         AcadHelper.smethod_18(transaction, blockTableRecord, new Line(BasicGnssApproachObstacleAnalyser.startOfFinalMA, point3d), str);
-#         dBText = AcadHelper.smethod_140(Captions.FINAL_MISSED_APPROACH, point3d, 50, 1, 3);
-#         dBText.set_Rotation(num);
-#         AcadHelper.smethod_18(transaction, blockTableRecord, dBText, str);
         if basicGNSSDlg.FinalAnnotation == None:
             basicGNSSDlg.FinalAnnotation = QgsTextAnnotationItem(define._canvas)
             basicGNSSDlg.FinalAnnotation.setDocument(QTextDocument(Captions.FINAL_MISSED_APPROACH))
@@ -1231,6 +990,7 @@ class basicGNSSDlg(FlightPlanBaseDlg):
     
     def changeMapUnit(self):
         self.ui.btnEvaluate.setEnabled(False)
+
     def collapseAllInLayout(self, layout):
         i = 0
         while (i < layout.count()):
@@ -1245,7 +1005,7 @@ class basicGNSSDlg(FlightPlanBaseDlg):
             self.obstaclesModel.setFilterFixedString(str(self.ui.cmbSurface.currentText()))
         if self.obstaclesModel.rowCount() == 0:
             self.ui.btnEvaluate_2.setEnabled(False)
-#         self.obstaclesModel.setVerticalHeader()
+
     def segmentsChange(self, modelIndex):
         selectSegId = modelIndex.row()
         if selectSegId == 0:
@@ -1307,6 +1067,7 @@ class basicGNSSDlg(FlightPlanBaseDlg):
             self.ui.frame_BankIA3.setVisible(True)
             self.ui.pnlWindIA3.setVisible(True)
             self.ui.frame_MocIA3.setVisible(True)
+
     def calcMAHWP_Dlg(self):
         try:
             position = self.gbFAWP.getPoint3D()
@@ -1322,16 +1083,11 @@ class basicGNSSDlg(FlightPlanBaseDlg):
         except UserWarning :
             positionList = [None]
         calcMAHWPDlg = CalcDlg(self, RnavCommonWaypoint.MAHWP, self.ui.cmbCategory.currentIndex(), position, position1, positionList)
-#         calcMAHWPDlg.ui = CalcSimpleDlg()
-#         calcMAHWPDlg.ui.setupUi(calcMAHWPDlg)
         calcMAHWPDlg.setWindowTitle("Calculate MAHF")
-#         calcMAHWPDlg.ui.lbl1.setText(unicode("Acceptable bearings are 181.3° - 195.3°", "utf-8"))
-#         calcMAHWPDlg.ui.lbl2.setText(unicode("Acceptable minimum distance is 1 nm", "utf-8"))
         calcMAHWPDlg.txtForm.setText("MAPt")
         calcMAHWPDlg.groupBox_5.setVisible(False)
         calcMAHWPDlg.groupBox_4.setVisible(False)
         calcMAHWPDlg.lblDistance.setText("Distance (nm):")
-#         calcMAHWPDlg.ui.txtBearing.setText("187.86")
         calcMAHWPDlg.txtDistance.setEnabled(True)
         if len(self.parameterCalcList) > 2 and self.parameterCalcList[2] != None :
             str1, str2 = self.parameterCalcList[2]
@@ -1339,6 +1095,7 @@ class basicGNSSDlg(FlightPlanBaseDlg):
             calcMAHWPDlg.txtDistance.setText(str2)
         calcMAHWPDlg.show()
         self.annotationMAHWP.show()
+
     def calcMAWP_Dlg(self):
         try:
             position3 = self.gbFAWP.getPoint3D()
@@ -1352,8 +1109,6 @@ class basicGNSSDlg(FlightPlanBaseDlg):
         calcMAWPDlg = CalcDlg(self, RnavCommonWaypoint.MAWP, self.ui.cmbCategory.currentIndex(), position3, None, positionList)
         calcMAWPDlg.setWindowTitle("Calculate MAWP")
         calcMAWPDlg.lbl2.setVisible(False)
-#         calcMAWPDlg.txtForm.setText("FAWP")
-#         calcMAWPDlg.txtBearing.setText("188.25")
         calcMAWPDlg.txtDistance.setText("Abeam THR")
         calcMAWPDlg.txtDistance.setEnabled(False)
         calcMAWPDlg.btnCaptureDistance.setVisible(False)
@@ -1363,10 +1118,9 @@ class basicGNSSDlg(FlightPlanBaseDlg):
             str1, str2 = self.parameterCalcList[1]
             calcMAWPDlg.txtBearing.setText(str1)
             calcMAWPDlg.txtDistance.setText(str2)
-#         calcMAWPDlg.txtTHR_X.setText(self.gbMAWP.txtPointX.text())
-#         calcMAWPDlg.txtTHR_Y.setText(self.gbMAWP.txtPointY.text())
         calcMAWPDlg.show()
         self.annotationMAWP.show()
+
     def calcFAWP_Dlg(self):
         try:
             self.RwyTHR = self.gbRunwayTHR.Point3d
@@ -1383,24 +1137,19 @@ class basicGNSSDlg(FlightPlanBaseDlg):
         except UserWarning:
             positionList = [self.RwyTHR, self.RwyEND, None]
         calcFAWPDlg = CalcDlg(self, RnavCommonWaypoint.FAWP, self.ui.cmbCategory.currentIndex(), None, None, positionList)
-#         calcFAWPDlg.ui = CalcDlg()
-#         calcFAWPDlg.ui.setupUi(calcFAWPDlg)
         calcFAWPDlg.setWindowTitle("Calculate FAF")
         calcFAWPDlg.groupBox_4.setVisible(False)
         calcFAWPDlg.groupBox_5.setVisible(False)
         calcFAWPDlg.resize(200,100)
-#         calcFAWPDlg.lbl1.setText(unicode("Acceptable bearings are 355.4° - 025.4°", "utf-8"))
-#         calcFAWPDlg.lbl2.setText(unicode("Acceptable minimum distance is 3 nm", "utf-8"))
         calcFAWPDlg.txtForm.setText("MAPt")
         if len(self.parameterCalcList) > 0 and self.parameterCalcList[0] != None :
             str1, str2 = self.parameterCalcList[0]
             calcFAWPDlg.txtBearing.setText(str1)
             calcFAWPDlg.txtDistance.setText(str2)
-#         calcFAWPDlg.txtBearing.setText("007.86")
-#         calcFAWPDlg.txtDistance.setText("")
         calcFAWPDlg.txtDistance.setEnabled(True)
         self.annotationFAWP.show()
         calcFAWPDlg.show()
+
     def calcIWP_Dlg(self):
         try:
             position6 = self.gbMAWP.getPoint3D()
@@ -1419,12 +1168,14 @@ class basicGNSSDlg(FlightPlanBaseDlg):
         calcIWPDlg.txtForm.setText("FAF")
         calcIWPDlg.lblDistance.setText("Distance (nm):")
         calcIWPDlg.txtDistance.setEnabled(True)
+
         if len(self.parameterCalcList) > 3 and self.parameterCalcList[3] != None :
             str1, str2 = self.parameterCalcList[3]
             calcIWPDlg.txtBearing.setText(str1)
             calcIWPDlg.txtDistance.setText(str2)
         calcIWPDlg.show()
         self.annotationIWP.show()
+
     def calcIAWP1_Dlg(self):
         try:
             position9 = self.gbFAWP.getPoint3D()
@@ -1444,12 +1195,9 @@ class basicGNSSDlg(FlightPlanBaseDlg):
         calcIAWP1Dlg.groupBox_5.setVisible(False)
         calcIAWP1Dlg.lblDistance.setText("Distance (nm):")
         calcIAWP1Dlg.txtDistance.setEnabled(True)
-#         if len(self.parameterCalcList) > 4 and self.parameterCalcList[4] != None :
-#             str1, str2 = self.parameterCalcList[4]
-#             calcIAWP1Dlg.txtBearing.setText(str1)
-#             calcIAWP1Dlg.txtDistance.setText(str2)
         calcIAWP1Dlg.show()
         self.annotationIAWP1.show()
+
     def calcIAWP2_Dlg(self):
         try:
             position9 = self.gbFAWP.getPoint3D()
@@ -1468,12 +1216,9 @@ class basicGNSSDlg(FlightPlanBaseDlg):
         calcIAWP2Dlg.groupBox_5.setVisible(False)
         calcIAWP2Dlg.lblDistance.setText("Distance (nm):")
         calcIAWP2Dlg.txtDistance.setEnabled(True)
-#         if len(self.parameterCalcList) > 5 and self.parameterCalcList[5] != None :
-#             str1, str2 = self.parameterCalcList[5]
-#             calcIAWP2Dlg.txtBearing.setText(str1)
-#             calcIAWP2Dlg.txtDistance.setText(str2)
         calcIAWP2Dlg.show()
         self.annotationIAWP2.show()
+
     def calcIAWP3_Dlg(self):
         try:
             position9 = self.gbFAWP.getPoint3D()
@@ -1492,12 +1237,9 @@ class basicGNSSDlg(FlightPlanBaseDlg):
         calcIAWP3Dlg.groupBox_5.setVisible(False)
         calcIAWP3Dlg.lblDistance.setText("Distance (nm):")
         calcIAWP3Dlg.txtDistance.setEnabled(True)
-#         if len(self.parameterCalcList) > 6 and self.parameterCalcList[6] != None :
-#             str1, str2 = self.parameterCalcList[6]
-#             calcIAWP3Dlg.txtBearing.setText(str1)
-#             calcIAWP3Dlg.txtDistance.setText(str2)
         calcIAWP3Dlg.show()
         self.annotationIAWP3.show()
+
     def construct(self):
         flag = FlightPlanBaseDlg.btnConstruct_Click(self)
         if not flag:
@@ -1505,7 +1247,6 @@ class basicGNSSDlg(FlightPlanBaseDlg):
         try:
             QgisHelper.removeFromCanvas(define._canvas, define._surfaceLayers)
             gnssMapLayers = []
-#             self.selectedRnavSpecification = self.ui.cmbRnavSpecification.currentText()
             self.aircraftSpeedCategory = self.ui.cmbCategory.currentIndex()
 
             finalApproachSegment = FinalApproachSegment(self.gbIWP.getPoint3D(), self.gbFAWP.getPoint3D(), self.gbMAWP.getPoint3D(),
@@ -1586,9 +1327,7 @@ class basicGNSSDlg(FlightPlanBaseDlg):
                 
             for seg in self.obstaclesModel.surfacesList:
                 seg.vmethod_1("NON-Precision", gnssMapLayers)
-                #seg.drawPrimary("BasicGNSS", gnssMapLayers)
-                #seg.drawSecondary("BasicGNSS", gnssMapLayers)
-            
+
             gnssMapLayers.insert(0, self.nominalTrack2Layer())
             gnssMapLayers.insert(1, self.WPT2Layer())
             QgisHelper.appendToCanvas(define._canvas, gnssMapLayers, "NON-Precision with T- or Y-Bar")
@@ -1601,10 +1340,8 @@ class basicGNSSDlg(FlightPlanBaseDlg):
             self.nominalPolylineAreaList = []
         except UserWarning as e:
             QMessageBox.warning(self, "Error", e.message)
-#         except BaseException as e:
-#             QMessageBox.warning(self, "Error", e.message)
+
     def evalute(self):
-#         try:
         ObstacleTable.MocMultiplier = self.ui.mocSpinBox.value()
         gnssMapLayers = QgisHelper.getSurfaceLayers(SurfaceTypes.BasicGNSS)
         self.obstaclesModel.loadObstacles(gnssMapLayers)
@@ -1617,7 +1354,6 @@ class basicGNSSDlg(FlightPlanBaseDlg):
         self.setResultPanel()
         self.ui.btnMarkSoc.setEnabled(True)
         self.ui.btnExportResult.setEnabled(True)
-#         self.obstaclesModel.setVerticalHeader()
         self.obstaclesModel.setHiddenColumns(self.ui.tblObstacles)
         self.ui.tabBaroV.setCurrentIndex(1)
         
@@ -1636,9 +1372,6 @@ class basicGNSSDlg(FlightPlanBaseDlg):
             self.ui.txtCriticalAltitudeFt.setText(str(0.0))
         self.ui.txtCriticalSurface.setText(ocaMaxObs.area)
 
-
-
-
     def setResultPanel(self):
         self.ui.txtOCA.setText(RnavSegmentType.FinalApproach)
         self.ui.txtOCH.setText(RnavSegmentType.MissedApproach)
@@ -1654,28 +1387,6 @@ class basicGNSSDlg(FlightPlanBaseDlg):
         self.ui.txtOCHResults_3.setText(self.criticalObstaclesBySurfaces.__getitem__(RnavSegmentType.Initial2)[self.ui.cmbUnits.currentIndex()])
         self.ui.txtOCHResults_4.setText(self.criticalObstaclesBySurfaces.__getitem__(RnavSegmentType.Initial3)[self.ui.cmbUnits.currentIndex()])
 
-        # valueText = self.obstaclesModel.method_13(RnavSegmentType.FinalApproach, self.ui.cmbUnits.currentIndex())
-        # self.ui.txtOCAResults.setText(valueText)
-        #
-        #
-        # valueText = self.obstaclesModel.method_13(RnavSegmentType.MissedApproach, self.ui.cmbUnits.currentIndex())
-        # self.ui.txtOCHResults.setText(valueText)
-        #
-        #
-        # valueText = self.obstaclesModel.method_13(RnavSegmentType.Intermediate, self.ui.cmbUnits.currentIndex())
-        # self.ui.txtOCHResults_2.setText(valueText)
-        #
-        #
-        # valueText = self.obstaclesModel.method_13(RnavSegmentType.Initial1, self.ui.cmbUnits.currentIndex())
-        # self.ui.txtOCAResults_2.setText(valueText)
-        #
-        #
-        # valueText = self.obstaclesModel.method_13(RnavSegmentType.Initial2, self.ui.cmbUnits.currentIndex())
-        # self.ui.txtOCHResults_3.setText(valueText)
-        #
-        #
-        # valueText = self.obstaclesModel.method_13(RnavSegmentType.Initial3, self.ui.cmbUnits.currentIndex())
-        # self.ui.txtOCHResults_4.setText(valueText)
         if self.ui.cmbSurface.currentIndex() == 0 and self.ui.cmbSurface.currentText() == "All":
             self.obstaclesModel.setFilterFixedString("")
         else:
@@ -1683,6 +1394,7 @@ class basicGNSSDlg(FlightPlanBaseDlg):
 
     def buttunsDisable(self):
         pass
+
     def CalcRwyBearing(self):
         try:
             pointTHR = self.gbRunwayTHR.Point3d
@@ -1691,27 +1403,10 @@ class basicGNSSDlg(FlightPlanBaseDlg):
             self.ui.txtRunwayBearing.Value = Unit.ConvertRadToDeg(MathHelper.getBearing(pointEnd, pointTHR))
         except:
             return
-#         button = self.sender()
-#         gbClass = button.parentWidget().parentWidget().parentWidget()
-#         if gbClass != self.gbARP:
-#             self.gbARP.btnCapture.setChecked(False)
-#         if gbClass!= self.gbFAWP:
-#             self.gbFAWP.btnCapture.setChecked(False)
-#         if gbClass!= self.gbMAWP:
-#             self.gbMAWP.btnCapture.setChecked(False)
-#         if gbClass!= self.gbMAHWP:
-#             self.gbMAHWP.btnCapture.setChecked(False)
-#         if gbClass!= self.gbIWP:
-#             self.gbIWP.btnCapture.setChecked(False)
-#         if gbClass!= self.gbIAWP1:
-#             self.gbIAWP1.btnCapture.setChecked(False)
-#         if gbClass!= self.gbIAWP2:
-#             self.gbIAWP2.btnCapture.setChecked(False)
-#         if gbClass!= self.gbIAWP3:
-#             self.gbIAWP3.btnCapture.setChecked(False)
-#             
+
     def annotationShow(self, annotation, gbClass):
         annotation.setMapPosition(QgsPoint (float(gbClass.txtPointX.text()), float(gbClass.txtPointY.text())))
+
     def changeCategory(self):
         if self.ui.cmbCategory.currentIndex() == AircraftSpeedCategory.A:
             self.ui.txtIasMA.setText(str(Speed(100).Knots))
@@ -1755,6 +1450,7 @@ class basicGNSSDlg(FlightPlanBaseDlg):
             self.ui.txtMocMA2.setText(str(Altitude(40).Metres))
             self.ui.txtMACG.setText(str(AngleGradientSlope(4.2, AngleGradientSlopeUnits.Percent).Percent))
             return
+
     def changeWindIA1(self, valueTxt):
         try:
             altitude = Altitude(float(valueTxt), AltitudeUnits.FT)
@@ -1762,6 +1458,7 @@ class basicGNSSDlg(FlightPlanBaseDlg):
                 self.ui.pnlWindIA1.setAltitude(altitude)            
         except:
             altitude = None
+
     def changeWindIA3(self, valueTxt):
         try:
             altitude = Altitude(float(valueTxt), AltitudeUnits.FT)
@@ -1791,8 +1488,8 @@ class basicGNSSDlg(FlightPlanBaseDlg):
             self.annotationMAHWP.hide()
             self.annotationMAWP.hide()
             self.lineBand.hide()
+
     def drawLineBand(self, posTxt):
-#         self.annotationFlag()
         self.ui.chbInsertSymbols.setChecked(True)
         try:
             self.pointList = []
@@ -1844,7 +1541,6 @@ class basicGNSSDlg(FlightPlanBaseDlg):
             if pointIW != None and pointIW3 != None:
                 self.lineBand.addGeometry(QgsGeometry.fromPolyline([pointIW, pointIW3]),None)
                 self.points_3 = [pointIW, pointIW3]
-    #         self.lineBand.addPoint(pointIW3)
         except UnboundLocalError:
             pass
               
@@ -1860,7 +1556,7 @@ class basicGNSSDlg(FlightPlanBaseDlg):
         for nominalPolylineArea in self.nominalPolylineAreaList:
             AcadHelper.setGeometryAndAttributesInLayer(resultLayer, nominalPolylineArea)
         return resultLayer
-#         return resultLayer
+
     def WPT2Layer(self):
         resultLayer = AcadHelper.createVectorLayer("WPT_" + self.surfaceType.replace(" ", "_").replace("-", "_"), QGis.Point)
         i = 1
@@ -1916,7 +1612,7 @@ class basicGNSSDlg(FlightPlanBaseDlg):
         parameterList = self.getParameterList()
         DataHelper.saveExportResult(filePathDir, SurfaceTypes.BasicGNSS, self.ui.tblObstacles, self.filterList, parameterList, resultHideColumnNames)
         self.obstaclesModel.setFilterFixedString(self.filterList[self.ui.cmbSurface.currentIndex()])
-#         FlightPlanBaseDlg.exportResult()
+
     def getParameterList(self):
         parameterList = []
         
@@ -1926,10 +1622,7 @@ class basicGNSSDlg(FlightPlanBaseDlg):
         parameterList.append(("Aircraft Category", self.ui.cmbCategory.currentText()))
         parameterList.append(("Construction Type", self.ui.cmbConstruction.currentText()))
         parameterList.append(("MOCMultiplier", self.ui.mocSpinBox.text()))
-                
         parameterList.append(("Aerodrom / Heliport Reference Point", "group"))
-        # longLatPoint = QgisHelper.Meter2Degree(float(self.gbARP.txtPointX.text()), float(self.gbARP.txtPointY.text()))
-        
         parameterList.append(("Lat", self.gbARP.txtLat.Value))
         parameterList.append(("Lon", self.gbARP.txtLong.Value))
         parameterList.append(("X", self.gbARP.txtPointX.text()))
@@ -1937,16 +1630,13 @@ class basicGNSSDlg(FlightPlanBaseDlg):
         
         if self.gbRunwayTHR.IsValid():
             parameterList.append(("Runway THR", "group"))
-            # longLatPoint = QgisHelper.Meter2Degree(float(self.gbRunwayTHR.txtPointX.text()), float(self.gbRunwayTHR.txtPointY.text()))
-            
             parameterList.append(("Lat", self.gbRunwayTHR.txtLat.Value))
             parameterList.append(("Lon", self.gbRunwayTHR.txtLong.Value))
             parameterList.append(("X", self.gbRunwayTHR.txtPointX.text()))
             parameterList.append(("Y", self.gbRunwayTHR.txtPointY.text()))
+
         if self.gbRunwayEnd.IsValid():    
             parameterList.append(("Runway End", "group"))
-            # longLatPoint = QgisHelper.Meter2Degree(float(self.gbRunwayEnd.txtPointX.text()), float(self.gbRunwayEnd.txtPointY.text()))
-            
             parameterList.append(("Lat", self.gbRunwayEnd.txtLat.Value))
             parameterList.append(("Lon", self.gbRunwayEnd.txtLong.Value))
             parameterList.append(("X", self.gbRunwayEnd.txtPointX.text()))
@@ -1955,19 +1645,15 @@ class basicGNSSDlg(FlightPlanBaseDlg):
             parameterList.append(("Runway Back Azimuth", "Plan : " + str(self.ui.txtRunwayBearing.txtRadialPlan.Value) + define._degreeStr))
             parameterList.append(("", "Geodetic : " + str(self.ui.txtRunwayBearing.txtRadialGeodetic.Value) + define._degreeStr))
 
-            # parameterList.append(("Runway Back Azimuth", self.ui.txtRunwayBearing.Value + unicode("°", "utf-8")))
         parameterList.append(("Insert Symbols", str(self.ui.chbInsertSymbols.isChecked())))
         
         parameterList.append(("Missed Approach", "group"))
         parameterList.append(("MAHF", "group"))
-        # longLatPoint = QgisHelper.Meter2Degree(float(self.gbMAHWP.txtPointX.text()), float(self.gbMAHWP.txtPointY.text()))
         parameterList.append(("Lat", self.gbMAHWP.txtLat.Value))
         parameterList.append(("Lon", self.gbMAHWP.txtLong.Value))
         parameterList.append(("X", self.gbMAHWP.txtPointX.text()))
         parameterList.append(("Y", self.gbMAHWP.txtPointY.text()))
-        
         parameterList.append(("MAPt", "group"))
-        # longLatPoint = QgisHelper.Meter2Degree(float(self.gbMAWP.txtPointX.text()), float(self.gbMAWP.txtPointY.text()))
         parameterList.append(("Lat", self.gbMAWP.txtLat.Value))
         parameterList.append(("Lon", self.gbMAWP.txtLong.Value))
         parameterList.append(("X", self.gbMAWP.txtPointX.text()))
@@ -1980,69 +1666,34 @@ class basicGNSSDlg(FlightPlanBaseDlg):
         parameterList.append(("Primary Moc[fin.]", self.ui.txtMocMA2.text() + "m"))
         parameterList.append(("SOC Altitude", self.ui.txtSocAltitude.text() + "ft"))
         parameterList.append(("MA Climb Gradient", self.ui.txtMACG.text() + "%"))
-        
-        
         parameterList.append(("Final Approach", "group"))
-#         parameterList.append(("MAPt", "group"))
-#         longLatPoint = QgisHelper.Meter2Degree(float(self.gbMAWP.txtPointX.text()), float(self.gbMAWP.txtPointY.text()))
-#         parameterList.append(("Lat", str(longLatPoint.get_Y())))
-#         parameterList.append(("Lon", str(longLatPoint.get_X())))
-#         parameterList.append(("X", self.gbMAWP.txtPointX.text()))
-#         parameterList.append(("Y", self.gbMAWP.txtPointY.text()))
-        
         parameterList.append(("FAF", "group"))
-        # longLatPoint = QgisHelper.Meter2Degree(float(self.gbFAWP.txtPointX.text()), float(self.gbFAWP.txtPointY.text()))
         parameterList.append(("Lat", self.gbFAWP.txtLat.Value))
         parameterList.append(("Lon", self.gbFAWP.txtLong.Value))
         parameterList.append(("X", self.gbFAWP.txtPointX.text()))
         parameterList.append(("Y", self.gbFAWP.txtPointY.text()))
-                
         parameterList.append(("Parameters(Final Approach)", "group"))
         parameterList.append(("Primary Moc", self.ui.TxtMocFA.text() + "m"))
-        
         parameterList.append(("Intermediate Approach", "group"))
-#         parameterList.append(("FAF", "group"))
-#         longLatPoint = QgisHelper.Meter2Degree(float(self.gbFAWP.txtPointX.text()), float(self.gbFAWP.txtPointY.text()))
-#         parameterList.append(("Lat", str(longLatPoint.get_Y())))
-#         parameterList.append(("Lon", str(longLatPoint.get_X())))
-#         parameterList.append(("X", self.gbFAWP.txtPointX.text()))
-#         parameterList.append(("Y", self.gbFAWP.txtPointY.text()))
-        
         parameterList.append(("IF", "group"))
-        # longLatPoint = QgisHelper.Meter2Degree(float(self.gbIWP.txtPointX.text()), float(self.gbIWP.txtPointY.text()))
         parameterList.append(("Lat", self.gbIWP.txtLat.Value))
         parameterList.append(("Lon", self.gbIWP.txtLong.Value))
         parameterList.append(("X", self.gbIWP.txtPointX.text()))
         parameterList.append(("Y", self.gbIWP.txtPointY.text()))
-                
         parameterList.append(("Parameters(Intermediate Approach)", "group"))
         parameterList.append(("RNAV Specification", self.selectedRnavSpecificationIA))
         parameterList.append(("Primary Moc", self.ui.TxtMocI.text() + "m"))
-        
         parameterList.append(("Initial Approach", "group"))
-#         parameterList.append(("IF", "group"))
-#         longLatPoint = QgisHelper.Meter2Degree(float(self.gbIWP.txtPointX.text()), float(self.gbIWP.txtPointY.text()))
-#         parameterList.append(("Lat", str(longLatPoint.get_Y())))
-#         parameterList.append(("Lon", str(longLatPoint.get_X())))
-#         parameterList.append(("X", self.gbIWP.txtPointX.text()))
-#         parameterList.append(("Y", self.gbIWP.txtPointY.text()))
-                
-#         parameterList.append(("Parameters", "group"))
-#         parameterList.append(("RNAV Specification", self.selectedRnavSpecificationIA))
-#         parameterList.append(("Primary Moc", self.ui.TxtMocI.text() + "m"))
-        
         parameterList.append(("Y-Bar", str(self.ui.radioBtn_Y_Bar.isChecked())))
         parameterList.append(("Straight", str(self.ui.radioBtn_Straight.isChecked())))
         parameterList.append(("T-Bar", str(self.ui.radioBtn_T_Bar.isChecked())))
         
         if not self.ui.radioBtn_Straight.isChecked():
             parameterList.append(("IAFR", "group"))
-            # longLatPoint = QgisHelper.Meter2Degree(float(self.gbIAWP1.txtPointX.text()), float(self.gbIAWP1.txtPointY.text()))
             parameterList.append(("Lat", self.gbIAWP1.txtLat.Value))
             parameterList.append(("Lon", self.gbIAWP1.txtLong.Value))
             parameterList.append(("X", self.gbIAWP1.txtPointX.text()))
             parameterList.append(("Y", self.gbIAWP1.txtPointY.text()))
-                    
             parameterList.append(("Parameters(IAFR)", "group"))
             parameterList.append(("RNAV Specification", self.ui.cmbRnavSpecification_3.currentText()))
             parameterList.append(("IAS", self.ui.txtIasIA1.text() + "kts"))
@@ -2052,19 +1703,17 @@ class basicGNSSDlg(FlightPlanBaseDlg):
             parameterList.append(("Primary Moc", self.ui.TxtMocIA1.text() + "m"))
         
         parameterList.append(("IAFC", "group"))
-        # longLatPoint = QgisHelper.Meter2Degree(float(self.gbIAWP2.txtPointX.text()), float(self.gbIAWP2.txtPointY.text()))
         parameterList.append(("Lat", self.gbIAWP2.txtLat.Value))
         parameterList.append(("Lon", self.gbIAWP2.txtLong.Value))
         parameterList.append(("X", self.gbIAWP2.txtPointX.text()))
         parameterList.append(("Y", self.gbIAWP2.txtPointY.text()))
-                
+
         parameterList.append(("Parameters(IAFC)", "group"))
         parameterList.append(("RNAV Specification", self.ui.cmbRnavSpecification_4.currentText()))
         parameterList.append(("Primary Moc", self.ui.TxtMocIA2.text() + "m"))
         
         if not self.ui.radioBtn_Straight.isChecked():
             parameterList.append(("IAFL", "group"))
-            # longLatPoint = QgisHelper.Meter2Degree(float(self.gbIAWP3.txtPointX.text()), float(self.gbIAWP3.txtPointY.text()))
             parameterList.append(("Lat", self.gbIAWP3.txtLat.Value))
             parameterList.append(("Lon", self.gbIAWP3.txtLong.Value))
             parameterList.append(("X", self.gbIAWP3.txtPointX.text()))
