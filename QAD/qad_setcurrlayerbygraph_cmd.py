@@ -113,6 +113,7 @@ class QadSETCURRLAYERBYGRAPHCommandClass(QadCommandClass):
                   self.plugIn.canvas.currentLayer() != layer:                              
                   self.plugIn.canvas.setCurrentLayer(layer)
                   self.plugIn.iface.setActiveLayer(layer) # Launches event to deactivate and activate plugins
+                  self.plugIn.iface.layerTreeView().setCurrentLayer(layer)
                   self.plugIn.iface.layerTreeView().refreshLayerSymbology(layer.id())
                   msg = QadMsg.translate("Command_SETCURRLAYERBYGRAPH", "\nThe current layer is {0}.")
                   self.showMsg(msg.format(layer.name()))
@@ -201,6 +202,7 @@ class QadSETCURRUPDATEABLELAYERBYGRAPHCommandClass(QadCommandClass):
                self.plugIn.canvas.currentLayer() != layer:               
                self.plugIn.canvas.setCurrentLayer(layer)
                self.plugIn.iface.setActiveLayer(layer) # Launches event to deactivate and activate plugins
+               self.plugIn.iface.layerTreeView().setCurrentLayer(layer)
                self.plugIn.iface.layerTreeView().refreshLayerSymbology(layer.id())
                self.showMsg(QadMsg.translate("Command_SETCURRUPDATEABLELAYERBYGRAPH", "\nThe current layer is {0}.").format(layer.name()))
          

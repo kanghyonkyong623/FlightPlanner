@@ -65,16 +65,16 @@ class QadSSGetClass(QadCommandClass):
       self.entitySet = QadEntitySet()
       self.points = []
       self.currSelectionMode = ""
-      # opzioni per limitare gli oggetti da selezionare
+      # Options to limit the objects to be selected
       self.onlyEditableLayers = False
       self.checkPointLayer = True
       self.checkLineLayer = True
       self.checkPolygonLayer = True
-      self.checkDimLayers = True # include tutte le features che compongono le quotature selezionate
+      self.checkDimLayers = True # Includes all the features that make up the selected quotes
       
       self.help = False
-      # se SingleSelection = True viene selezionato il primo oggetto o gruppo di oggetti indicato,
-      # senza che vengano richieste altre selezioni.      
+      # If SingleSelection = True is selected the first object or group of objects indicated,
+      # Without requiring other selections.
       self.SingleSelection = False
       self.pickAdd = QadVariables.get(QadMsg.translate("Environment variables", "PICKADD"))
       
