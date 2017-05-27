@@ -1,7 +1,7 @@
-from PyQt4.QtGui import QColor, QDialogButtonBox, QStandardItemModel,QStandardItem, \
+from PyQt4.QtGui import QColor, QDialogButtonBox, QStandardItemModel, QStandardItem, \
              QFileDialog, QMessageBox, QDialog, QVBoxLayout,\
              QProgressBar, QSortFilterProxyModel, QApplication, QAbstractItemView
-from PyQt4.QtCore import QCoreApplication, Qt, QFileInfo, QFile, QVariant, QString, QDir, QStringList
+from PyQt4.QtCore import QCoreApplication, Qt, QFileInfo, QFile, QVariant, QString, QDir, QStringList, QUrl
 from PyQt4.QtXml import QDomDocument
 from FlightPlanner.polylineArea import PolylineArea
 from FlightPlanner.DataImport.ui_DataImport import Ui_DataImport
@@ -584,7 +584,16 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
                 fileInfo = QFileInfo(shpPath + "/" + self.csvLayerName + ".shp")
 
             er = QgsVectorFileWriter.writeAsVectorFormat(csvVectorLayer, shpPath + "/" + self.csvLayerName + ".shp", "utf-8", define._canvas.mapSettings().destinationCrs())
+
+            if er != QgsVectorFileWriter.NoError:
+                QMessageBox.critical(self, "Error", "Failed to create a Shapfile: " + shpPath + "/" + self.csvLayerName + ".shp")
+                return
+
             csvVectorLayer = QgsVectorLayer(shpPath + "/" + self.csvLayerName + ".shp", self.csvLayerName, "ogr")
+
+            if not csvVectorLayer.isValid():
+                QMessageBox.critical(self, "Error", "Invalid vectorlayer: " + shpPath + "/" + self.csvLayerName + ".shp")
+                return
 
             dlg = QDialog(self)
             dlg.setObjectName("dlg")
@@ -785,14 +794,16 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
         self.parametersPanel.cmbAlFieldName.clear()
         self.vectorLayer = None
         self.csvLayerName = layerName
-        s = uri
-        s = s.mid(8, s.indexOf("?type") - 8)
 
-        self.parametersPanel.txtFile.setText(s)
+        url = QUrl(uri)
+
+        filename = url.toLocalFile()
+
+        self.parametersPanel.txtFile.setText(filename)
         uri = String.QString2Str(uri).replace("&xyDms=yes", "")
         self.vectorLayer = QgsVectorLayer(uri, layerName, provider)
         fields = self.vectorLayer.dataProvider().fields()
-        fileInfo = QFileInfo(s)
+        fileInfo = QFileInfo(filename)
         define.xmlPath = fileInfo.path()
         iterFeat = self.vectorLayer.getFeatures()
         self.standardItemModel.clear()
