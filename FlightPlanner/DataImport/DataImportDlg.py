@@ -15,8 +15,8 @@ import define
 from FlightPlanner.types import SurfaceTypes, DistanceUnits, Point3D, TurnDirection, SymbolType
 from FlightPlanner.QgisHelper import QgisHelper
 from qgis.gui import QgsRendererV2PropertiesDialog
-from qgis.core import QgsVectorFileWriter, QgsGeometry, QgsCsException, QgsPoint,\
-        QgsFeatureRequest, QgsFeature, QgsProviderRegistry,\
+from qgis.core import QgsVectorFileWriter, QgsGeometry, QgsPoint,\
+        QgsFeature, QgsProviderRegistry,\
         QgsStyleV2, QgsField,QgsCoordinateReferenceSystem, QgsSvgMarkerSymbolLayerV2
 import math, random
 from qgis.core import (QgsVectorLayer,
@@ -3661,4 +3661,3 @@ class SymbolAttributes(list):
         return self.strBuild
 
     Remarks = property(get_Remarks, None, None, None)      
-    
