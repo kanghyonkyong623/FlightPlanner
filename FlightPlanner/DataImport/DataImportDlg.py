@@ -1,51 +1,35 @@
-'''
-Created on 25 May 2014
-
-@author: Administrator
-'''
-from PyQt4.QtGui import QColor, QDialogButtonBox, QStandardItemModel,QStandardItem, QMessageBox,\
-             QFileDialog,QColor, QPushButton, QMessageBox, QDialog, QHBoxLayout, QVBoxLayout,\
+from PyQt4.QtGui import QColor, QDialogButtonBox, QStandardItemModel,QStandardItem, \
+             QFileDialog, QMessageBox, QDialog, QVBoxLayout,\
              QProgressBar, QSortFilterProxyModel, QApplication, QAbstractItemView
-from PyQt4.QtCore import QCoreApplication,Qt,QFileInfo, QFile, QVariant, QString, QDir, QStringList
+from PyQt4.QtCore import QCoreApplication, Qt, QFileInfo, QFile, QVariant, QString, QDir, QStringList
 from PyQt4.QtXml import QDomDocument
-from FlightPlanner.polylineArea import PolylineArea, PolylineAreaPoint
+from FlightPlanner.polylineArea import PolylineArea
 from FlightPlanner.DataImport.ui_DataImport import Ui_DataImport
-from FlightPlanner.Obstacle.ObstacleTable import ObstacleTable
 from FlightPlanner.FlightPlanBaseSimpleDlg import FlightPlanBaseSimpleDlg
-from FlightPlanner.Panels.PositionPanel import PositionPanel
-from FlightPlanner.types import SurfaceTypes, AltitudeUnits, DegreesType, DegreesStyle,\
+from FlightPlanner.types import AltitudeUnits, DegreesType, DegreesStyle,\
                                  GeoCalculationType, DataBaseCoordinateType
-from FlightPlanner.Captions import Captions
-from FlightPlanner.validations import Validations
 from FlightPlanner.helpers import MathHelper, Altitude, Distance
 from FlightPlanner.helpers import Unit
-from FlightPlanner.QgisHelper import QgisHelper
 from FlightPlanner.Captions import Captions
-from map.tools import SelectByRect, QgsMapToolSelectFreehand, QgsMapToolSelectPolygon, QgsMapToolSelectRadius
 import define
-import math
-# from Type.Degrees import Degrees
 from FlightPlanner.types import SurfaceTypes, DistanceUnits, Point3D, TurnDirection, SymbolType
 from FlightPlanner.QgisHelper import QgisHelper
-from qgis.gui import QgsComposerView, QgsRubberBand, QgsRendererV2PropertiesDialog
-from qgis.core import QGis, QgsVectorFileWriter, QgsGeometry, QgsCsException, QgsPoint,\
-        QgsFeatureRequest, QgsCoordinateTransform, QgsFeature, QgsVectorLayer, QgsProviderRegistry,\
-        QgsStyleV2, QgsField,QgsCoordinateReferenceSystem, QgsSymbolV2, QgsSvgMarkerSymbolLayerV2,\
-        QgsRendererCategoryV2, QgsCategorizedSymbolRendererV2
-import os, math, random
+from qgis.gui import QgsRendererV2PropertiesDialog
+from qgis.core import QgsVectorFileWriter, QgsGeometry, QgsCsException, QgsPoint,\
+        QgsFeatureRequest, QgsFeature, QgsProviderRegistry,\
+        QgsStyleV2, QgsField,QgsCoordinateReferenceSystem, QgsSvgMarkerSymbolLayerV2
+import math, random
 from qgis.core import (QgsVectorLayer,
-                        QgsMapLayerRegistry,
                         QgsCategorizedSymbolRendererV2,
                         QgsSymbolV2,
                         QgsRendererCategoryV2)
-import ctypes, win32api
-# import os, datetime
 from FlightPlanner.DataImport.DlgAirspaceDataEdit import DlgAirspaceDataEdit
 from FlightPlanner.DataImport.DlgPointDataEdit import DlgPointDataEdit
 from FlightPlanner.DataImport.DlgGeoBorderDataEdit import DlgGeoBorderDataEdit
 from FlightPlanner.DataImport.DlgRouteDataEdit import DlgRouteDataEdit
 from FlightPlanner.DataImport.DlgDetailDataEdit import DlgDetailDataEdit
 from Type.String import String
+
 
 class DataImportDlg(FlightPlanBaseSimpleDlg):    
     def __init__(self, parent):
@@ -63,7 +47,6 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
         self.csvLayerSelect = False
         self.standardItemModel = QStandardItemModel()
         self.standardItemModelDetail = QStandardItemModel()
-#         self.parametersPanel.tableView.setModel(self.standardItemModel)
         self.aixm = None
         self.standardItemModel_tree = QStandardItemModel()
         self.parametersPanel.tree.setModel(self.standardItemModel_tree)
@@ -121,7 +104,6 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
                                      "SortByName"]
         
         self.sortFilterProxyModel = QSortFilterProxyModel()
-#         self.sortFilterProxyModel.setDynamicSortFilter(True)
         self.sortFilterProxyModel.setSourceModel(self.standardItemModel)
         self.sortFilterProxyModel.layoutChanged.connect(self.setVerticalHeader)
         self.parametersPanel.tableView.setModel(self.sortFilterProxyModel)
@@ -131,7 +113,6 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
 
         self.csvLayerSelect  = False
         self.selectedItem = None
-#         self.sortFilterProxyModel.setSortRole(Qt.UserRole + 1)
         self.abstructModel = QStandardItemModel()
         
         self.csvLayerName = ""
@@ -151,11 +132,7 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
         self.selectedDetailRow = None
         self.selectedRowSortModel = None
 
-#         sss = [[], 1, "s", [1,2]]
-#         print len(sss[0])
     def createLayer(self):
-#         if self.xmlFlag:
-#             self.dataImportCount = 0
         fileInfo = QFileInfo(self.parametersPanel.txtFile.text())
         fileName0 = fileInfo.fileName()
         constructionLayer = None
@@ -171,15 +148,6 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
         
         if len(self.aixm.pointData) > 0 and self.selectedItem != None and self.selectedItem.text() == Captions.SYMBOLS:
             constructionLayer = QgsVectorLayer("point?crs=EPSG:4326", Captions.SYMBOLS, "memory")
-
-            # if define.obstaclePath != None:
-            #     shpPath = define.obstaclePath
-            # elif define.xmlPath != None:
-            #     shpPath = define.xmlPath
-            # else:
-            #     shpPath = define.appPath
-            # er = QgsVectorFileWriter.writeAsVectorFormat(constructionLayer, shpPath + "/" + Captions.SYMBOLS + ".shp", "utf-8", constructionLayer.crs())
-            # constructionLayer = QgsVectorLayer(shpPath + "/" + Captions.SYMBOLS + ".shp", Captions.SYMBOLS, "ogr")
 
             constructionLayer.startEditing()
             pr = constructionLayer.dataProvider()          
@@ -217,7 +185,6 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
                                                 self.sortFilterProxyModel.data(self.sortFilterProxyModel.index(i, 4)).toString()])
                     pr.addFeatures([feature])
                     i += 1
-#                 constructionLayer.setLayerName(Captions.SYMBOLS + "_" + self.parametersPanel.cmbType.currentText())
             else:
                 pointDataCount = self.sortFilterProxyModel.rowCount()
                 self.progress.setMaximum(pointDataCount)
@@ -245,16 +212,6 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
                 
         if len(self.aixm.pointDataObstacles) > 0 and self.selectedItem != None and self.selectedItem.text() == Captions.OBSTACLES:
             constructionLayer = QgsVectorLayer("point?crs=EPSG:4326", Captions.OBSTACLES, "memory")
-            # shpPath = ""
-            # if define.obstaclePath != None:
-            #     shpPath = define.obstaclePath
-            # elif define.xmlPath != None:
-            #     shpPath = define.xmlPath
-            # else:
-            #     shpPath = define.appPath
-            # er = QgsVectorFileWriter.writeAsVectorFormat(constructionLayer, shpPath + "/" + Captions.OBSTACLES + ".shp", "utf-8", constructionLayer.crs())
-            # constructionLayer = QgsVectorLayer(shpPath + "/" + Captions.OBSTACLES + ".shp", Captions.OBSTACLES, "ogr")
-
 
             constructionLayer.startEditing()
             pr = constructionLayer.dataProvider()          
@@ -270,14 +227,12 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
                     self.progress.setValue(i)      
                     feature = QgsFeature()
                     feature.setGeometry( QgsGeometry.fromPoint(QgsPoint(float(obs[4]),float(obs[3]))) )
-    #                     if obs[3] == None or obs[3] == "":
-                    
+
                     if obs[5] == None or obs[5] == "":
                         feature.setAttributes([obs[0], 0.0, obs[6], obs[7]])
                     else:
                         feature.setAttributes([obs[0], float(obs[5]), obs[6], obs[7]])
-    #                     else:
-    #                         feature.setAttributes([obs[0], float(obs[3]), FlightPlanner.DataImport.DataImportDlg[4]])
+
                     pr.addFeatures([feature])
                     i += 1
             else:
@@ -286,31 +241,18 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
                         self.progress.setValue(i)      
                         feature = QgsFeature()
                         feature.setGeometry( QgsGeometry.fromPoint(QgsPoint(float(obs[4]),float(obs[3]))) )
-        #                     if obs[3] == None or obs[3] == "":
-                        
+
                         if obs[5] == None or obs[5] == "":
                             feature.setAttributes([obs[0], 0.0, obs[6], obs[7]])
                         else:
                             feature.setAttributes([obs[0], float(obs[5]), obs[6], obs[7]])
-        #                     else:
-        #                         feature.setAttributes([obs[0], float(obs[3]), FlightPlanner.DataImport.DataImportDlg[4]])
+
                         pr.addFeatures([feature])
                         i += 1
                 constructionLayer.setLayerName(Captions.OBSTACLES + "_" + self.parametersPanel.cmbType.currentText())
         if len(self.aixm.pointDataAirspace) > 0 and self.selectedItem != None and self.selectedItem.text() == Captions.AIRSPACE:
             resultPolylineAreaArray = self.method_49()
             constructionLayer = QgsVectorLayer("linestring?crs=EPSG:4326", Captions.AIRSPACE, "memory")
-            # shpPath = ""
-            # if define.obstaclePath != None:
-            #     shpPath = define.obstaclePath
-            # elif define.xmlPath != None:
-            #     shpPath = define.xmlPath
-            # else:
-            #     shpPath = define.appPath
-            # er = QgsVectorFileWriter.writeAsVectorFormat(constructionLayer, shpPath + "/" + Captions.AIRSPACE + ".shp", "utf-8", constructionLayer.crs())
-            # constructionLayer = QgsVectorLayer(shpPath + "/" + Captions.AIRSPACE + ".shp", Captions.AIRSPACE, "ogr")
-
-
 
             constructionLayer.startEditing()
             pr = constructionLayer.dataProvider()
@@ -335,22 +277,10 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
         if len(self.aixm.pointDataRoutes) > 0 and self.selectedItem != None and self.selectedItem.text() == Captions.ROUTES:
             resultPoint3dArrayList = self.method_53()
             if resultPoint3dArrayList == None or len(resultPoint3dArrayList) == 0:
-#                 constructionLayer.commitChanges()
                 self.vectorLayer = None
-#                 self.progress.setValue(pointDataCount)
-                define._messagBar.hide() 
+                define._messagBar.hide()
                 return
             constructionLayer = QgsVectorLayer("linestring?crs=EPSG:4326", Captions.ROUTES, "memory")
-            # shpPath = ""
-            # if define.obstaclePath != None:
-            #     shpPath = define.obstaclePath
-            # elif define.xmlPath != None:
-            #     shpPath = define.xmlPath
-            # else:
-            #     shpPath = define.appPath
-            # er = QgsVectorFileWriter.writeAsVectorFormat(constructionLayer, shpPath + "/" + Captions.ROUTES + ".shp", "utf-8", constructionLayer.crs())
-            # constructionLayer = QgsVectorLayer(shpPath + "/" + Captions.ROUTES + ".shp", Captions.ROUTES, "ogr")
-
 
             constructionLayer.startEditing()
             pointDataCount = len(resultPoint3dArrayList)
@@ -375,23 +305,10 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
         if len(self.aixm.pointDataBorder) > 0 and self.selectedItem != None and self.selectedItem.text() == Captions.GEOGRAPHICAL_BORDER:
             resultPoint3dArrayList = self.method_51()
             if resultPoint3dArrayList == None or len(resultPoint3dArrayList) == 0:
-#                 constructionLayer.commitChanges()
                 self.vectorLayer = None
-#                 self.progress.setValue(pointDataCount)
-                define._messagBar.hide() 
+                define._messagBar.hide()
                 return
             constructionLayer = QgsVectorLayer("linestring?crs=EPSG:4326", Captions.GEOGRAPHICAL_BORDER, "memory")
-
-            # shpPath = ""
-            # if define.obstaclePath != None:
-            #     shpPath = define.obstaclePath
-            # elif define.xmlPath != None:
-            #     shpPath = define.xmlPath
-            # else:
-            #     shpPath = define.appPath
-            # er = QgsVectorFileWriter.writeAsVectorFormat(constructionLayer, shpPath + "/" + QString(Captions.GEOGRAPHICAL_BORDER).replace(" ", "") + ".shp", "utf-8", constructionLayer.crs())
-            # constructionLayer = QgsVectorLayer(shpPath + "/" + QString(Captions.GEOGRAPHICAL_BORDER).replace(" ", "") + ".shp", Captions.GEOGRAPHICAL_BORDER, "ogr")
-
 
             constructionLayer.startEditing()
             pointDataCount = len(resultPoint3dArrayList)
@@ -415,22 +332,8 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
                 pr.addFeatures([feature])
                 i += 1
                     
-#                     feature.setGeometry(QgsGeometry.fromPolyline(point3dArray[1]))
-#                     constructionLayer.addFeature(feature)
-#                     
-#                     feature.setGeometry(QgsGeometry.fromPolyline(point3dArray[2]))
-#                     constructionLayer.addFeature(feature)
-#         if len(self.aixm.pointDataRoutes) > 0:
-#             for route in self.aixm.pointDataRoutes:            
-#                 feature = QgsFeature()
-#                 feature.setGeometry( QgsGeometry.fromPoint(QgsPoint(float(route[1]),float(route[2]))) )
-# #                     if route[3] == None or route[3] == "":
-#                 feature.setAttributes([route[0], 0.0, route[3], "Routes"])
-# #                     else:
-# #                         feature.setAttributes([route[0], float(route[3]), route[4]])
-#                 pr.addFeatures([feature])
         constructionLayer.commitChanges()
-#             QgisHelper.appendToCanvas(define._canvas, [constructionLayer], SurfaceTypes.Obstacles)
+
         shpPath = ""
         if define.obstaclePath != None:
             shpPath = define.obstaclePath
@@ -438,10 +341,6 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
             shpPath = define.xmlPath
         else:
             shpPath = define.appPath
-        # er = QgsVectorFileWriter.writeAsVectorFormat(constructionLayer, shpPath + "/" + Captions.SYMBOLS + ".shp", "utf-8", define._canvas.mapSettings().destinationCrs())
-        # self.vectorLayer = QgsVectorLayer(shpPath + "/" + Captions.SYMBOLS + ".shp", Captions.SYMBOLS, "ogr")
-
-        # self.vectorLayer = constructionLayer
 
         self.dataImportCount += 1
         
@@ -461,7 +360,6 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
         fileInfo = QFileInfo(shpPath + "/" + QString(layerName).replace(" ", "") + ".shp")
         if fileInfo.exists():
             f = QFile.remove(shpPath + "/" + QString(layerName).replace(" ", "") + ".shp")
-            # f = file.remove()
 
         if self.vectorLayer != None and isinstance(self.vectorLayer, QgsVectorLayer) and self.vectorLayer.name() == layerName:
             QgisHelper.removeFromCanvas(define._canvas, [self.vectorLayer])
@@ -471,14 +369,6 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
 
 
     def btnConstruct_Click(self):
-        # dlg = QgsComposerView(self, "Composer")
-        # self.ui.horizontalLayout_3.addWidget(dlg)
-        # mD = dlg.composerWindow()
-        # mD.show()
-
-        # dlg._class_ = QDialog
-        # dlg.exec_()
-
         if self.xmlFlag:
             self.createLayer()
         try:
@@ -488,13 +378,11 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
         except:
             return
         
-#         if self.csvLayerSelect or self.parametersPanel.txtName.text() == Captions.SYMBOLS or self.parametersPanel.txtName.text() == Captions.OBSTACLES:
-        
+
         if self.selectedItem != None and (self.selectedItem.text() == Captions.OBSTACLES or self.selectedItem.text() == Captions.SYMBOLS):
             myTargetField = "Type"
             myRenderer = None
             if self.parametersPanel.cmbType.currentIndex() > 0:
-#                 if self.selectedItem.text() == Captions.SYMBOLS:
                 svgFileName = "Default"
                 if self.parametersPanel.cmbType.currentText() == SymbolType.Arp:
                     svgFileName = "Arp.svg"
@@ -534,7 +422,6 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
                 myRange2 = QgsRendererCategoryV2(self.parametersPanel.cmbType.currentText(),
                                             symbol,
                                             self.parametersPanel.cmbType.currentText())
-#                 myRangeList.append(myRange2)
                 myRenderer = QgsCategorizedSymbolRendererV2("", [myRange2])
             else:
                 myRangeList = []
@@ -581,31 +468,15 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
                     myRangeList.append(myRange2)
                 myRenderer = QgsCategorizedSymbolRendererV2("", myRangeList)
                 
-        #         myRenderer.setMode(QgsGraduatedSymbolRendererV2.EqualInterval)
             myRenderer.setClassAttribute(myTargetField)
-#             layer.setRendererV2(myRenderer)
             self.vectorLayer.setRendererV2(myRenderer)
-
 
             QgisHelper.appendToCanvas(define._canvas, [self.vectorLayer], "AIXM")
             self.vectorLayer.triggerRepaint()
             return
-        
-        
-        
-        
+
         if not self.xmlFlag:
             csvVectorLayer = QgsVectorLayer("point?crs=EPSG:" + self.csvCrsDescription, self.csvLayerName, "memory")
-            # shpPath = ""
-            # if define.obstaclePath != None:
-            #     shpPath = define.obstaclePath
-            # elif define.xmlPath != None:
-            #     shpPath = define.xmlPath
-            # else:
-            #     shpPath = define.appPath
-            # er = QgsVectorFileWriter.writeAsVectorFormat(csvVectorLayer, shpPath + "/" + self.csvLayerName + ".shp", "utf-8", csvVectorLayer.crs())
-            # csvVectorLayer = QgsVectorLayer(shpPath + "/" + self.csvLayerName + ".shp", self.csvLayerName, "ogr")
-
 
             csvVectorLayer.startEditing()
             pr = csvVectorLayer.dataProvider()
@@ -641,7 +512,6 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
                 for j in range(self.standardItemModel.columnCount()):
                     columnName = self.standardItemModel.headerData(j, Qt.Horizontal).toString()
                     if self.standardItemModel.item(i, j) != None:
-#                         pointData.append(self.standardItemModel.item(i, j).text())
                         value = self.standardItemModel.item(i, j).text()
                         if columnName == self.yFieldName:
                             if self.csvCrsDescription == "4326":
@@ -652,7 +522,6 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
                             else:
                                 lat = value.toDouble()[0]
                             pointData.append(self.standardItemModel.item(i, j).text())
-#                             break
                         elif columnName == self.xFieldName:
                             if self.csvCrsDescription == "4326":
                                 if value.toDouble()[0] > 180 or value.toDouble()[0] < -180:
@@ -662,18 +531,14 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
                             else:
                                 lon = value.toDouble()[0]
                             pointData.append(self.standardItemModel.item(i, j).text())
-#                             break
                         elif columnName == altitudeFieldName:
                             if self.parametersPanel.cmbAlUnit.currentText() == "Meter":
                                 altitude = value.toDouble()[0]
                                 pointData.append(str(altitude))
-#                                 break
                             else:
                                 altitudeFeet = value.toDouble()[0]
                                 altitude = Unit.ConvertFeetToMeter(altitudeFeet)
                                 pointData.append(str(altitude))
-#                                 break
-#                             break
                         else:
                             pointData.append(self.standardItemModel.item(i, j).text())
                             
@@ -721,14 +586,6 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
             er = QgsVectorFileWriter.writeAsVectorFormat(csvVectorLayer, shpPath + "/" + self.csvLayerName + ".shp", "utf-8", define._canvas.mapSettings().destinationCrs())
             csvVectorLayer = QgsVectorLayer(shpPath + "/" + self.csvLayerName + ".shp", self.csvLayerName, "ogr")
 
-    #         QgisHelper.appendToCanvas(define._canvas, [csvVectorLayer], "AIXM")      
-    #         pr.addAttributes([QgsField("Name", QVariant.String),
-    #                            QgsField("Altitude", QVariant.Double),
-    #                             QgsField("Attributes", QVariant.String),
-    #                             QgsField("Type", QVariant.String)])
-                
-            
-            
             dlg = QDialog(self)
             dlg.setObjectName("dlg")
             dlg.setWindowTitle("Select Symbol")
@@ -751,41 +608,10 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
             resultAccept = dlg.exec_()
             if resultAccept:
                 self.mRendererDialog.apply()
-    #             if self.dataImportCount != self.symbolImportCount:
                 QgisHelper.appendToCanvas(define._canvas, [csvVectorLayer], "AIXM")
-                     
-    #                 self.symbolImportCount += 1
                 csvVectorLayer.triggerRepaint()
             return    
             
-            
-
-            
-        # dlg = QDialog(self)
-        # dlg.setObjectName("dlg")
-        # dlg.setWindowTitle("Select Symbol")
-        # vLayout = QVBoxLayout(dlg)
-        # vLayout.setObjectName("vLayout")
-        #
-        # self.mRendererDialog = QgsRendererV2PropertiesDialog( self.vectorLayer, QgsStyleV2.defaultStyle(), True )
-        # vLayout.addWidget(self.mRendererDialog)
-        #
-        # buttonBox = QDialogButtonBox(dlg)
-        # buttonBox.setOrientation(Qt.Horizontal)
-        # buttonBox.setStandardButtons(QDialogButtonBox.Cancel|QDialogButtonBox.Ok)
-        # buttonBox.setObjectName("buttonBox")
-        #
-        # buttonBox.accepted.connect(dlg.accept)
-        # buttonBox.rejected.connect(dlg.reject)
-        #
-        # vLayout.addWidget(buttonBox)
-        # dlg.setLayout(vLayout)
-        # resultAccept = dlg.exec_()
-        # if resultAccept:
-        #     self.mRendererDialog.apply()
-
-
-
         myTargetField = "Type_Name"
         myRangeList = []
         myOpacity = 1
@@ -796,15 +622,7 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
         blueValue = 0
 
         for i in range(1, self.parametersPanel.cmbType.count()):
-
             myLabel = self.parametersPanel.cmbType.itemText(i)
-            # if i < count:
-            #     redValue = i * int(255 / count)
-            # elif i < 2 * count:
-            #     greenValue = (i - count) * int(255 / count)
-            # elif i < 3 * count:
-            #     blueValue = (i -2 *  count) * int(255 / count)
-
             redValue = random.randint(0, 255)
             greenValue = random.randint(0, 255)
             blueValue = random.randint(0, 255)
@@ -812,7 +630,6 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
             myColour = QColor(redValue, greenValue, blueValue)
             mySymbol1 = QgsSymbolV2.defaultSymbol(self.vectorLayer.geometryType())
             mySymbol1.setColor(myColour)
-            # mySymbol1.setAlpha(myOpacity)
             myRange1 = QgsRendererCategoryV2(myLabel,
                                         mySymbol1,
                                         myLabel)
@@ -839,8 +656,7 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
             self.standardItemModel_tree.clear()
             item = QStandardItem("Item:")
             self.standardItemModel_tree.setHorizontalHeaderItem(0, item)
-#             if len(self.aixm.pointDataAirspace) >0:
-#                 self.parametersPanel.cmbType.addItem(Captions.AIRSPACE)
+
             n = 0
             if len(self.aixm.pointDataAirspace) > 0:
                 self.standardItemModel_tree.setItem(n, 0, QStandardItem(Captions.AIRSPACE))
@@ -857,8 +673,7 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
             if len(self.aixm.pointData) > 0:
                 self.standardItemModel_tree.setItem(n, 0, QStandardItem(Captions.SYMBOLS))
                 n += 1
-#             self.loadTable(self.aixm)
-#             self.createLayer()
+
             self.ui.btnConstruct.setEnabled(True)
             self.xmlFlag = True
             self.csvLayerSelect = False
@@ -916,8 +731,7 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
             self.standardItemModel.setHorizontalHeaderItem(1, item1)
             item2 = QStandardItem("Longitude")
             self.standardItemModel.setHorizontalHeaderItem(2, item2)
-#             item3 = QStandardItem("Altitude")
-#             self.standardItemModel.setHorizontalHeaderItem(3, item3)
+
             item4 = QStandardItem("Attributes")
             self.standardItemModel.setHorizontalHeaderItem(3, item4)
             i = 0
@@ -933,10 +747,7 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
                 
                 item = QStandardItem(sym[5])
                 self.standardItemModel.setItem(i, 3, item)
-                
-#                 item = QStandardItem(sym[6])
-#                 self.standardItemModel.setItem(i, 4, item)
-                
+
                 i += 1
         if self.parametersPanel.cmbType.currentText() == Captions.ROUTES:            
             item0 = QStandardItem("Name")
@@ -946,8 +757,7 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
             self.standardItemModel.setHorizontalHeaderItem(1, item1)
             item2 = QStandardItem("Longitude")
             self.standardItemModel.setHorizontalHeaderItem(2, item2)
-#             item3 = QStandardItem("Altitude")
-#             self.standardItemModel.setHorizontalHeaderItem(3, item3)
+
             item4 = QStandardItem("Attributes")
             self.standardItemModel.setHorizontalHeaderItem(3, item4)
             i = 0
@@ -963,10 +773,7 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
                 
                 item = QStandardItem(sym[3])
                 self.standardItemModel.setItem(i, 3, item)
-                
-#                 item = QStandardItem(sym[6])
-#                 self.standardItemModel.setItem(i, 4, item)
-                
+
                 i += 1
             
         
@@ -976,7 +783,6 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
         else:
             self.csvCrsDescription = "4326"
         self.parametersPanel.cmbAlFieldName.clear()
-#         self.dataImportCount = 0
         self.vectorLayer = None
         self.csvLayerName = layerName
         s = uri
@@ -1006,7 +812,6 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
                 self.yFieldName = fieldName
             item = QStandardItem(fieldName)
             self.standardItemModel.setHorizontalHeaderItem(i, item)
-#         self.parametersPanel.tableView.setModel(self.standardItemModel)
 
         iterFeat = self.vectorLayer.getFeatures()
         i = 0
@@ -1019,18 +824,17 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
         self.dataImportCount += 1
         self.ui.btnConstruct.setEnabled(True)
         self.csvLayerSelect = True
-#         QgisHelper.appendToCanvas(define._canvas, [self.vectorLayer], "New")
+
     def initParametersPan(self):
         ui = Ui_DataImport()
         self.parametersPanel = ui
         
         FlightPlanBaseSimpleDlg.initParametersPan(self)
-#         self.parametersPanel.txtName.setEnabled(False)
         self.parametersPanel.groupBox.setVisible(False)
         self.parametersPanel.tableView.setSelectionBehavior(1)
         
         self.parametersPanel.cmbAlUnit.addItems(["Meter", "Feet"])
-#         self.parametersPanel.frame.hide()
+
         self.parametersPanel.btnFile.clicked.connect(self.btnFile_Click)
         self.parametersPanel.cmbType.currentIndexChanged.connect(self.cmbTypeIndexChanged)
         self.parametersPanel.tree.clicked.connect(self.treeClicked)
@@ -1045,13 +849,13 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
         self.parametersPanel.btnDetailEdit.clicked.connect(self.btnDetailEdit_clicked)
         self.parametersPanel.btnProcRemove.clicked.connect(self.btnProcRemove_clicked)
         self.parametersPanel.btnDetailRemove.clicked.connect(self.btnDetailRemove_clicked)
+
     def btnProcRemove_clicked(self):
         if self.selectedRow == None:
             return
         self.sortFilterProxyModel.removeRow(self.selectedRowSortModel)
         self.standardItemModel.removeRow(self.selectedRow)
         self.standardItemModelDetail.clear()
-
 
         if self.selectedItem != None and self.selectedItem.text() == Captions.AIRSPACE:
             self.aixm.pointDataAirspace.pop(self.selectedRow)
@@ -1131,7 +935,6 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
             return
         if self.selectedItem != None and self.selectedItem.text() == Captions.AIRSPACE and self.selectedRow != None:
             newDataBaseCoordinate = self.aixm.pointDataAirspace[self.selectedRow][6][self.selectedDetailRow]
-            # newDataBaseCoordinate = DataBaseCoordinate()
             newDataBaseCoordinate.x = float(self.addDataDlg.x)
             newDataBaseCoordinate.y = float(self.addDataDlg.y)
             newDataBaseCoordinate.latitude = Degrees(float(self.addDataDlg.latitude), None, None, DegreesType.Latitude)
@@ -1144,7 +947,6 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
             if self.addDataDlg.cenLatitude != "":
                 newDataBaseCoordinate.centerLatitude = Degrees(float(self.addDataDlg.cenLatitude), None, None, DegreesType.Latitude)
                 newDataBaseCoordinate.centerLongitude = Degrees(float(self.addDataDlg.cenLongitude), None, None, DegreesType.Longitude)
-            # dataBaseCoordinates.append(newDataBaseCoordinate)
 
             self.standardItemModelDetail.setItem(self.selectedDetailRow, 0, QStandardItem(self.addDataDlg.x))
             self.standardItemModelDetail.setItem(self.selectedDetailRow, 1, QStandardItem(self.addDataDlg.y))
@@ -1154,13 +956,9 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
             self.standardItemModelDetail.setItem(self.selectedDetailRow, 5, QStandardItem(self.addDataDlg.type))
             self.standardItemModelDetail.setItem(self.selectedDetailRow, 6, QStandardItem(self.addDataDlg.cenLatitude))
             self.standardItemModelDetail.setItem(self.selectedDetailRow, 7, QStandardItem(self.addDataDlg.cenLongitude))
-            # changedVerticsCount = int(self.standardItemModel.item(self.selectedRow, 4).text()) + 1
-            # self.standardItemModel.setItem(self.selectedRow, 4, QStandardItem(str(changedVerticsCount)))
 
-            # self.aixm.pointDataAirspace.append([dlg.name, dlg.lowerLimit, dlg.upperLimit, dlg.radius, "False", "False", DataBaseCoordinates("Vertices"), "", None])
         elif self.selectedItem != None and self.selectedItem.text() == Captions.GEOGRAPHICAL_BORDER and self.selectedRow != None:
             newDataBaseCoordinate = self.aixm.pointDataBorder[self.selectedRow][2][self.selectedDetailRow]
-            # newDataBaseCoordinate = DataBaseCoordinate()
             newDataBaseCoordinate.x = float(self.addDataDlg.x)
             newDataBaseCoordinate.y = float(self.addDataDlg.y)
             newDataBaseCoordinate.latitude = Degrees(float(self.addDataDlg.latitude), None, None, DegreesType.Latitude)
@@ -1170,7 +968,6 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
             else:
                 newDataBaseCoordinate.altitude = Altitude(float(self.addDataDlg.altitude))
             newDataBaseCoordinate.type = self.addDataDlg.type
-            # dataBaseCoordinates.append(newDataBaseCoordinate)
 
             count = self.standardItemModelDetail.rowCount()
             self.standardItemModelDetail.setItem(self.selectedDetailRow, 0, QStandardItem(self.addDataDlg.x))
@@ -1179,11 +976,8 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
             self.standardItemModelDetail.setItem(self.selectedDetailRow, 3, QStandardItem(self.addDataDlg.longitude))
             self.standardItemModelDetail.setItem(self.selectedDetailRow, 4, QStandardItem(self.addDataDlg.altitude))
             self.standardItemModelDetail.setItem(self.selectedDetailRow, 5, QStandardItem(self.addDataDlg.type))
-            # changedVerticsCount = int(self.standardItemModel.item(self.selectedRow, 2).text()) + 1
-            # self.standardItemModel.setItem(self.selectedRow, 2, QStandardItem(str(changedVerticsCount)))
         elif self.selectedItem != None and self.selectedItem.text() == Captions.ROUTES and self.selectedRow != None:
             newDataBaseCoordinate = self.aixm.pointDataRoutes[self.selectedRow][1][self.selectedDetailRow]
-            # newDataBaseCoordinate = DataBaseCoordinate()
             newDataBaseCoordinate.x = float(self.addDataDlg.x)
             newDataBaseCoordinate.y = float(self.addDataDlg.y)
             newDataBaseCoordinate.latitude = Degrees(float(self.addDataDlg.latitude), None, None, DegreesType.Latitude)
@@ -1195,7 +989,6 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
             newDataBaseCoordinate.type = self.addDataDlg.type
             if self.addDataDlg.magVariation != "":
                 newDataBaseCoordinate.variation = float(self.addDataDlg.magVariation)
-            # dataBaseCoordinates.append(newDataBaseCoordinate)
 
             count = self.standardItemModelDetail.rowCount()
             self.standardItemModelDetail.setItem(self.selectedDetailRow, 0, QStandardItem(self.addDataDlg.x))
@@ -1205,9 +998,6 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
             self.standardItemModelDetail.setItem(self.selectedDetailRow, 4, QStandardItem(self.addDataDlg.altitude))
             self.standardItemModelDetail.setItem(self.selectedDetailRow, 5, QStandardItem(self.addDataDlg.type))
             self.standardItemModelDetail.setItem(self.selectedDetailRow, 6, QStandardItem(self.addDataDlg.magVariation))
-            # changedVerticsCount = int(self.standardItemModel.item(self.selectedRow, 1).text()) + 1
-            # self.standardItemModel.setItem(self.selectedRow, 1, QStandardItem(str(changedVerticsCount)))
-
 
     def btnDetailAdd_clicked(self):
         if self.selectedItem != None and self.selectedItem.text() == Captions.AIRSPACE and self.selectedRow != None:
@@ -1222,6 +1012,7 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
             self.addDataDlg = DlgDetailDataEdit(self, "Add Detail Routes")
             self.addDataDlg.accepted.connect(self.addDetailData)
             self.addDataDlg.show()
+
     def addDetailData(self):
         if self.addDataDlg.latitude == "":
             return
@@ -1253,8 +1044,6 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
             self.standardItemModelDetail.setItem(count, 7, QStandardItem(self.addDataDlg.cenLongitude))
             changedVerticsCount = int(self.standardItemModel.item(self.selectedRow, 4).text()) + 1
             self.standardItemModel.setItem(self.selectedRow, 4, QStandardItem(str(changedVerticsCount)))
-
-            # self.aixm.pointDataAirspace.append([dlg.name, dlg.lowerLimit, dlg.upperLimit, dlg.radius, "False", "False", DataBaseCoordinates("Vertices"), "", None])
         elif self.selectedItem != None and self.selectedItem.text() == Captions.GEOGRAPHICAL_BORDER and self.selectedRow != None:
             dataBaseCoordinates = self.aixm.pointDataBorder[self.selectedRow][2]
             newDataBaseCoordinate = DataBaseCoordinate()
@@ -1304,6 +1093,7 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
             self.standardItemModelDetail.setItem(count, 6, QStandardItem(self.addDataDlg.magVariation))
             changedVerticsCount = int(self.standardItemModel.item(self.selectedRow, 1).text()) + 1
             self.standardItemModel.setItem(self.selectedRow, 1, QStandardItem(str(changedVerticsCount)))
+
     def btnProcEdit_clicked(self):
         if self.selectedItem != None and self.selectedItem.text() == Captions.OBSTACLES:
             dataList = [self.standardItemModel.item(self.selectedRow, 0).text() if self.standardItemModel.item(self.selectedRow, 0) != None else "",
@@ -1366,6 +1156,7 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
                 count = self.standardItemModel.rowCount()
                 self.standardItemModel.setItem(self.selectedRow, 0, QStandardItem(dlg.name))
             pass
+
     def btnProcAdd_clicked(self):
         if self.selectedItem != None and self.selectedItem.text() == Captions.AIRSPACE:
             dlg = DlgAirspaceDataEdit(self, "Add Airspace")
@@ -1378,7 +1169,6 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
                 self.standardItemModel.setItem(count, 4, QStandardItem("0"))
                 self.standardItemModel.setItem(count, 5, QStandardItem(str(count)))
                 self.aixm.pointDataAirspace.append([dlg.name, dlg.lowerLimit, dlg.upperLimit, dlg.radius, "False", "False", DataBaseCoordinates("Vertices"), "", None])
-
 
         elif self.selectedItem != None and self.selectedItem.text() == Captions.OBSTACLES:
             self.addDataDlg = DlgPointDataEdit(self, "Add Obstacle")
@@ -1416,6 +1206,7 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
                 self.standardItemModel.setItem(count, 2, QStandardItem(str(count)))
                 self.aixm.pointDataRoutes.append([dlg.name, DataBaseCoordinates("Segments"), "", None])
             pass
+
     def addPointData(self):
         row = None
         if not self.addDataDlg.editingFlag:
@@ -1454,39 +1245,16 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
             else:
                 self.aixm.pointDataObstacles.pop(self.selectedRow)
                 self.aixm.pointDataObstacles.insert(self.selectedRow, [self.addDataDlg.name, "", "", float(self.addDataDlg.latitude), float(self.addDataDlg.longitude), self.addDataDlg.altitude, self.addDataDlg.remarks, self.addDataDlg.type, "", None])
+
     def tableViewHeaderClick(self):
         self.setVerticalHeader()
+
     def txtNameChaned(self):
         textStr = self.parametersPanel.txtName.text()
-#         if textStr == "":
-#             return
-#         if not self.parametersPanel.cmbType.currentIndex() > 0:
-#             rowCount0 = self.standardItemModel.rowCount()
-#             colCount = self.standardItemModel.columnCount()
-#             if rowCount0 > 0:
-#                 for i in range(rowCount0):
-#                     itemStr = self.standardItemModel.item(i).text() 
-#                     
-#                     if itemStr.count(textStr) > 0:                    
-#                         item = self.standardItemModel.setItem(i, colCount - 1, QStandardItem(textStr)) 
-#                     else:
-#                         item = self.standardItemModel.setItem(i, colCount - 1, QStandardItem(itemStr))
-#                 self.sortFilterProxyModel.setFilterKeyColumn(colCount - 1)
-#                 self.setFilterFixedString(self.parametersPanel.txtName.text())
-#         else:
-#             rowCount0 = self.abstructModel.rowCount()
-#             colCount = self.abstructModel.columnCount()
-#             if rowCount0 > 0:
-#                 for i in range(rowCount0):
-#                     itemStr = self.abstructModel.item(i).text() 
-#                     
-#                     if itemStr.count(textStr) > 0:                    
-#                         item = self.abstructModel.setItem(i, colCount - 1, QStandardItem(textStr)) 
-#                     else:
-#                         item = self.abstructModel.setItem(i, colCount - 1, QStandardItem(itemStr))
         self.sortFilterProxyModel.setFilterKeyColumn(0)
         self.setFilterFixedString(self.parametersPanel.txtName.text())
         self.setVerticalHeader()
+
     def tableViewDetailClicked(self, modelIndex):
         if self.standardItemModelDetail.rowCount() > 0 and self.selectedItem != None and self.selectedRow != None:
             self.selectedDetailRow = modelIndex.row()
@@ -1498,12 +1266,7 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
         self.progress.setAlignment(Qt.AlignLeft|Qt.AlignVCenter)
         progressMessageBar.layout().addWidget(self.progress)
         define._messagBar.pushWidget(progressMessageBar, define._messagBar.INFO)
-        # pointDataCount = self.standardItemModel.rowCount()
 
-        # self.progress.setMaximum(self.standardItemModel.rowCount())
-
-#         self.parametersPanel.tableView.setSortingEnabled(True)
-#         modelIndex = self.parametersPanel.tableView.rootIndex()
         if self.standardItemModel.rowCount() > 0 and self.selectedItem != None and self.selectedItem.text() == Captions.AIRSPACE:
             data = self.sortFilterProxyModel.data(self.sortFilterProxyModel.index(modelIndex.row(), 5)).toInt()
             rowIndex = data[0]
@@ -1513,7 +1276,7 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
             self.standardItemModelDetail.setHorizontalHeaderLabels(self.airspaceDetailColumnLabels)
             i = 0
             self.progress.setMaximum(len(dataBaseCoordinates))
-#             print rowIndex, len(dataBaseCoordinates)
+
             for dataBaseCoordinate in dataBaseCoordinates:
                 if dataBaseCoordinate.x == None:
                     self.standardItemModelDetail.setItem(i, 0, QStandardItem(""))
@@ -1563,18 +1326,16 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
                 QApplication.processEvents()
                 
         if self.standardItemModel.rowCount() > 0 and self.selectedItem != None and self.selectedItem.text() == Captions.GEOGRAPHICAL_BORDER:
-#             rowIndex = int(self.standardItemModel.item(modelIndex.row(), 5).text())
             data = self.sortFilterProxyModel.data(self.sortFilterProxyModel.index(modelIndex.row(), 3)).toInt()
             rowIndex = data[0]
             self.selectedRow = rowIndex
             dataBaseCoordinates = self.aixm.pointDataBorder[rowIndex][2]
             
-#             dataBaseCoordinates = self.aixm.pointDataBorder[modelIndex.row()][2]
             self.standardItemModelDetail.clear()
             self.standardItemModelDetail.setHorizontalHeaderLabels(self.borderDetailColumnLabels)
             i = 0
             self.progress.setMaximum(len(dataBaseCoordinates))
-#             print rowIndex, len(dataBaseCoordinates)
+
             for dataBaseCoordinate in dataBaseCoordinates:
                 if dataBaseCoordinate.x == None:
                     self.standardItemModelDetail.setItem(i, 0, QStandardItem(""))
@@ -1617,18 +1378,16 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
                 self.progress.setValue(i)
                 QApplication.processEvents()
         if self.standardItemModel.rowCount() > 0 and self.selectedItem != None and self.selectedItem.text() == Captions.ROUTES:
-#             rowIndex = int(self.standardItemModel.item(modelIndex.row(), 5).text())
             data = self.sortFilterProxyModel.data(self.sortFilterProxyModel.index(modelIndex.row(), 2)).toInt()
             rowIndex = data[0]
             self.selectedRow = rowIndex
             dataBaseCoordinates = self.aixm.pointDataRoutes[rowIndex][1]
             
-#             dataBaseCoordinates = self.aixm.pointDataRoutes[modelIndex.row()][1]
             self.standardItemModelDetail.clear()
             self.standardItemModelDetail.setHorizontalHeaderLabels(self.routesDetailColumnLabels)
             i = 0
             self.progress.setMaximum(len(dataBaseCoordinates))
-#             print rowIndex, len(dataBaseCoordinates)
+
             for dataBaseCoordinate in dataBaseCoordinates:
                 if dataBaseCoordinate.x == None:
                     self.standardItemModelDetail.setItem(i, 0, QStandardItem(""))
@@ -1718,7 +1477,6 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
             for sub in subList:
                 self.parametersPanel.cmbType.addItem(sub)
 
-
             for dataRow in self.aixm.pointDataAirspace:
                 self.standardItemModel.setItem(i, 0, QStandardItem(dataRow[0]))
                 if dataRow[1] == None or dataRow[1] == "":
@@ -1736,8 +1494,6 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
                 self.standardItemModel.setItem(i, 4, QStandardItem(str(len(dataRow[6]))))
                 self.standardItemModel.setItem(i, 5, QStandardItem(str(i)))
                 
-#                 self.standardItemModel.setItem(i, 5, QStandardItem(dataRow[5]))
-#                 self.standardItemModel.setItem(i, 6, QStandardItem("DataBaseCoordinates(" + str(len(dataRow[6])) + ")"))
                 i += 1
                 
         if item.text() == Captions.ROUTES:
@@ -1771,8 +1527,8 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
             for sub in subList:
                 self.parametersPanel.cmbType.addItem(sub)
 
-
             i = 0
+
             for dataRow in self.aixm.pointDataRoutes:
                 self.standardItemModel.setItem(i, 0, QStandardItem(dataRow[0]))
                 self.standardItemModel.setItem(i, 1, QStandardItem(str(len(dataRow[1]))))
@@ -1809,20 +1565,6 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
             for sub in subList:
                 self.parametersPanel.cmbType.addItem(sub)
 
-            # item0 = self.aixm.pointDataBorder[0]
-            # typeList = []
-            # typeList.append(item0[1])
-            # for dataRow in self.aixm.pointDataBorder:
-            #     n = 0
-            #     for typeStr in typeList:
-            #         if typeStr == dataRow[1]:
-            #             n += 1
-            #     if n == 0 :
-            #         typeList.append(dataRow[1])
-            #
-#             for typeStr in typeList:
-#                 self.parametersPanel.cmbType.addItem(typeStr)
-#             self.parametersPanel.txtName.setText(Captions.GEOGRAPHICAL_BORDER)
             i = 0
             for dataRow in self.aixm.pointDataBorder:
                 self.standardItemModel.setItem(i, 0, QStandardItem(dataRow[0]))
@@ -1850,8 +1592,7 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
             self.parametersPanel.cmbType.addItem("")
             for typeStr in typeList:
                 self.parametersPanel.cmbType.addItem(typeStr)
-#             self.parametersPanel.txtName.setText(Captions.OBSTACLES)
-            
+
             i = 0
             for dataRow in self.aixm.pointDataObstacles:
                 self.standardItemModel.setItem(i, 0, QStandardItem(dataRow[0]))
@@ -1867,7 +1608,7 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
         if item.text() == Captions.SYMBOLS:
             self.parametersPanel.groupBox.setVisible(False)
             self.standardItemModel.setHorizontalHeaderLabels(self.symbolsColumnLabels)
-#             self.parametersPanel.tableView.hideColumn(6)
+
             item0 = self.aixm.pointData[0]
             typeList = []
             typeList.append(item0[7])
@@ -1882,7 +1623,7 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
             self.parametersPanel.cmbType.addItem("")
             for typeStr in typeList:
                 self.parametersPanel.cmbType.addItem(typeStr)
-#             self.parametersPanel.txtName.setText(Captions.SYMBOLS)
+
             i = 0
             for dataRow in self.aixm.pointData:
                 self.standardItemModel.setItem(i, 0, QStandardItem(dataRow[0]))
@@ -1899,19 +1640,16 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
             self.setFilterFixedString(self.parametersPanel.cmbType.currentText())
         self.selectedRow = None
         self.selectedRowSortModel = None
-#         print "ok", modelIndex.row()
+
     def setFilterFixedString(self, filterString):
-        
         self.sortFilterProxyModel.setFilterFixedString(filterString)
-#         self.sortFilterProxyModel.setFilterFixedString(filterString)
-#         self.setVerticalHeader()
+
     def setVerticalHeader(self):
         for i in range(self.sortFilterProxyModel.rowCount()):
             self.sortFilterProxyModel.setHeaderData(i, Qt.Vertical, i+1, Qt.DisplayRole)
     
     def cmbTypeIndexChanged(self):
         self.parametersPanel.txtName.setText("")
-#         self.parametersPanel.tableView.setSortingEnabled(False)
         self.sortFilterProxyModel.setSourceModel(self.standardItemModel)
 
         if self.selectedItem.text() == Captions.AIRSPACE or self.selectedItem.text() == Captions.ROUTES or self.selectedItem.text() == Captions.GEOGRAPHICAL_BORDER:
@@ -1932,7 +1670,6 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
                             data = self.sortFilterProxyModel.data(self.sortFilterProxyModel.index(i, j)).toString()
                         else:
                             data = ""
-#                         itemTxt = self.sortFilterProxyModel.item(i, j).text()
                         self.abstructModel.setItem(i, j, QStandardItem(data))
 
                 self.sortFilterProxyModel.setSourceModel(self.abstructModel)
@@ -1950,34 +1687,20 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
                             data = self.sortFilterProxyModel.data(self.sortFilterProxyModel.index(i, j)).toString()
                         else:
                             data = ""
-#                         itemTxt = self.sortFilterProxyModel.item(i, j).text()
                         self.abstructModel.setItem(i, j, QStandardItem(data))
 
                 self.sortFilterProxyModel.setSourceModel(self.abstructModel)
-#                 self.sortFilterProxyModel.setFilterKeyColumn(0)
-#                 self.setFilterFixedString(self.parametersPanel.txtName.text())
-
 
         self.setVerticalHeader()        
-#         self.loadTable(self.aixm)
+
     def uiStateInit(self):
         self.ui.btnConstruct.setText("Insert")
         self.ui.btnConstruct.setEnabled(False)
         self.ui.btnOpenData.hide()
         self.ui.btnSaveData.hide()
-#         self.ui.btnOutput = QPushButton(self.ui.frame_Btns)
-# #         font = QtGui.QFont()
-# #         font.setFamily(_fromUtf8("Arial"))
-# #         font.setBold(False)
-# #         font.setWeight(50)
-# #         self.btnOpenData.setFont(font)
-#         self.ui.btnOutput.setObjectName("btnOutput")
-#         self.ui.btnOutput.setText("Output")
-#         self.ui.verticalLayout_Btns.insertWidget(3, self.ui.btnOutput)
-#         self.ui.btnOutput.setEnabled(False)
-#         self.ui.btnOutput.clicked.connect(self.btnOutputClicked)
-        
-        return FlightPlanBaseSimpleDlg.uiStateInit(self)    
+
+        return FlightPlanBaseSimpleDlg.uiStateInit(self)
+
     def method_49(self):
         resultPolylineAreaList = []
         
@@ -2031,7 +1754,6 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
                 polyline = PolylineArea.smethod_136(polylineArea, value2)
                 if (value1 == None or not value1.IsValid() or not flag1):
                     resultPolylineAreaList.append((polyline, current))
-#                     AcadHelper.smethod_18(transaction_0, blockTableRecord_0, polyline, string_0)
                 else:
                     count = len(dataBaseCoordinate) < 200
                     flag2 = count
@@ -2053,7 +1775,6 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
                 else:
                     point3d1 = Point3D(item1.longitude.value, item1.latitude.value, altitude.Metres)
                     degreeLength = self.getDegreeLength(point3d1, distance.Metres)
-#                     point3d1 = self.method_54(item1.x, item1.y, item1.latitude, item1.longitude, altitude)
                     point3dArray = MathHelper.constructCircle(point3d1.smethod_167(value1.Metres), degreeLength, 50)
                     resultPolylineAreaList.append((PolylineArea(point3dArray), current))
             self.progress.setValue(n)
@@ -2062,6 +1783,7 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
         self.progress.setValue(pointDataAirspaceCount)
         define._messagBar.hide() 
         return resultPolylineAreaList
+
     def getDegreeLength(self, point3d0_dgree, length_metre):
         llCrs = QgsCoordinateReferenceSystem(4326, QgsCoordinateReferenceSystem.EpsgCrsId)
         xyCrs = QgsCoordinateReferenceSystem(32633, QgsCoordinateReferenceSystem.EpsgCrsId)
@@ -2069,6 +1791,7 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
         point3d = Point3D(point3d0.get_X() + length_metre, point3d0.get_Y())
         point3d1 = QgisHelper.CrsTransformPoint(point3d.get_X(), point3d.get_Y(), xyCrs, llCrs)
         return math.fabs(point3d1.get_X() - point3d0_dgree.get_X())
+
     def method_51(self):
         flag = False
         dataList = []
@@ -2082,6 +1805,7 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
                 continue
             dataList.append((PolylineArea.smethod_131(polylineArea).method_14(), current))
         return dataList
+
     def method_53(self):
         flag = False
         dataList = []
@@ -2097,32 +1821,17 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
             else:
                 dataList.append((resultPoint3dArrayList, current))
         return dataList
-                
-            
+
     def method_54(self, double_0, double_1, degrees_0, degrees_1, altitude_0):
         metres = 0
         if (altitude_0 != None and altitude_0.IsValid()):
             metres = altitude_0.Metres
-#         if (double_0 == None or double_1 == None):
+
         llCrs = QgsCoordinateReferenceSystem(4326, QgsCoordinateReferenceSystem.EpsgCrsId)
         xyCrs = QgsCoordinateReferenceSystem(32633, QgsCoordinateReferenceSystem.EpsgCrsId)
         point3d0 = QgisHelper.CrsTransformPoint(degrees_1.value, degrees_0.value, llCrs, xyCrs, metres)
         return point3d0
-#             if (!Geo.smethod_3(degrees_0, degrees_1, out double_0, out double_1))
-#             {
-#                 throw new Exception(Geo.LastError)
-#             }
-#             return new Point3d(double_0, double_1, metres)
-#         }
-#         if (!self.transformXY)
-#         {
-#             return new Point3d(double_0, double_1, metres)
-#         }
-#         point3d = Point3D(0, 0, metres)
-#         point3d1 = Point3D(double_0, double_1, metres)
-#         num = MathHelper.getBearing(point3d, point3d1)
-#         num1 = MathHelper.calcDistance(point3d, point3d1)
-#         return MathHelper.distanceBearingPoint(self.ptThr, self.trThrEndP90 + num, num1).smethod_167(metres)
+
     def method_55(self, dataBaseCoordinates_0):
         num = None
         num1 = None
@@ -2143,7 +1852,7 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
                 point3d1 = Point3D(current.longitude.value, current.latitude.value, current.altitude.Metres)
             else:
                 point3d1 = Point3D(current.longitude.value, current.latitude.value, 0.0)
-#             point3d1 = self.method_54(current.x, current.y, current.latitude, current.longitude, current.altitude)
+
             if current.type == DataBaseCoordinateType.FNT or current.type == DataBaseCoordinateType.GRC or current.type == DataBaseCoordinateType.Point or current.type == DataBaseCoordinateType.ArcPoint:
                 if (flag):
                     polylineArea1[polylineArea1.Count - 1].set_Bulge(MathHelper.smethod_60(origin, point3d, point3d1))
@@ -2164,14 +1873,10 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
                     polylineArea1[polylineArea1.Count - 1].set_Bulge(MathHelper.smethod_57(turnDirection, origin, point3d1, origin1))
                 polylineArea1.method_1(point3d1)
                 origin = point3d1
-#                 if (!Geo.smethod_3(current.CenterLatitude, current.CenterLongitude, out num, out num1))
-#                 {
-#                     throw new Exception(Geo.LastError)
-#                 }
+
                 if current.centerLongitude == None or current.centerLatitude == None:
                     origin1 = Point3D.get_Origin()
                 else:
-#                     origin1 = self.method_54(None, None, current.centerLatitude, current.centerLongitude, Altitude(0))
                     origin1 = Point3D(current.centerLongitude.value, current.centerLatitude.value, 0)
                 turnDirection = TurnDirection.Right if(current.type != DataBaseCoordinateType.CCA) else TurnDirection.Left
                 flag = False
@@ -2200,27 +1905,16 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
         resultPoint3dArrayList = []
         while (num2 < len(dataBaseCoordinates_0)):
             item = dataBaseCoordinates_0[num2]
-#             if (AcadHelper.Cancelled)
-#             {
-#                 flag = false
-#                 return flag
-#             }
-#             else
-#             {
             latitude = item.latitude
             longitude = item.longitude
-#             if ((!latitude.IsValid || !longitude.IsValid) && !Geo.smethod_2(item.X, item.Y, out latitude, out longitude))
-#             {
-#                 throw new Exception(Geo.LastError)
-#             }
+
             point3d2 = Point3D(item.longitude.value, item.latitude.value, item.altitude)
-#             point3d2 = self.method_54(item.X, item.Y, item.Latitude, item.Longitude, item.Altitude)
+
             if (num2 > 0):
                 result, distance, num, num1 = QgisHelper.smethod_4(GeoCalculationType.Ellipsoid, naN, degree, latitude, longitude)
                 if (not result):
                     return (False, None)
-#                     throw new Exception(Geo.LastError)
-#                 }
+
                 value = None
                 try:
                     value = dataBaseCoordinates_0[num2 - 1].variation.value
@@ -2266,27 +1960,15 @@ class DataImportDlg(FlightPlanBaseSimpleDlg):
                 resultPoint3dArrayList.append(polyline.method_14_closed())
                 resultPoint3dArrayList.append([point3d5, point3d2])
                 resultPoint3dArrayList.append([point3d9, origin])
-#                 polyline.set_Closed(true)
-#                 AcadHelper.smethod_18(transaction_0, blockTableRecord_0, polyline, string_0)
-#                 AcadHelper.smethod_18(transaction_0, blockTableRecord_0, new Line(point3d5.smethod_167(0), point3d2.smethod_167(0)), string_0)
-#                 AcadHelper.smethod_18(transaction_0, blockTableRecord_0, new Line(point3d9.smethod_167(0), origin.smethod_167(0)), string_0)
-#                 DBText dBText = AcadHelper.smethod_138(str3, point3d3, self.textHeight, 4)
-#                 dBText.set_Rotation(7.85398163397448 - Units.ConvertDegToRad(num12))
-#                 AcadHelper.smethod_18(transaction_0, blockTableRecord_0, dBText, string_0)
-#                 DBText dBText1 = AcadHelper.smethod_138(str, point3d1, self.textHeight, 4)
-#                 dBText1.set_Rotation(7.85398163397448 - Units.ConvertDegToRad(num12))
-#                 AcadHelper.smethod_18(transaction_0, blockTableRecord_0, dBText1, string_0)
-#             }
+
             naN = latitude
             degree = longitude
             origin = point3d2
-#             progressMeter.MeterProgress()
+
             num2 += 1
-#             }
-#         }
-#         progressMeter.Stop()
+
         return (True, resultPoint3dArrayList)
-#         return 
+
 class DataBaseLoaderAixm:
     def __init__(self, fileName, bool_0):
         dateTime = None
@@ -2370,15 +2052,12 @@ class DataBaseLoaderAixm:
                                                                             pass
         self.progress.setValue(100)
         define._messagBar.hide()  
-        
-#         print element.text()
-#         print "sdfadsgad"
+
     def method_3(self, xmlNodeList_0):
         flag = None
         resultPoint = []
         altitude_metre = None
         if (xmlNodeList_0 != None and xmlNodeList_0.count() > 0):
-#             IEnumerator enumerator = xmlNodeList_0.GetEnumerator()
             count = xmlNodeList_0.count()
             for i in range(count):
                 current = xmlNodeList_0.item(i)
@@ -2411,15 +2090,11 @@ class DataBaseLoaderAixm:
                 if innerText != None and innerText != "":
                     if str0 == "FT":
                         altitude_metre = str(Altitude(float(innerText), AltitudeUnits.FT).Metres)
-#                         symbolAttribute.append(Altitude(float(innerText), AltitudeUnits.FT).Metres)
                     elif str0 == "M":
                         altitude_metre = innerText
-#                         symbolAttribute.append(Altitude(float(innerText)).Metres)
                 else:
                     altitude_metre = "0.0"
-#                     symbolAttribute.append(0)
-                
-                
+
                 xmlNodes = current.namedItem("valMagVar")
                 if (xmlNodes != None):
                     symbolAttribute.append(xmlNodes.toElement().text() + " (" + Captions.MAGN_VAR + ")")
@@ -2429,8 +2104,7 @@ class DataBaseLoaderAixm:
                 xmlNodes = current.namedItem("dateMagVarChg")
                 if (xmlNodes != None):
                     symbolAttribute.append(xmlNodes.toElement().text() + " (" + Captions.MAGN_VAR_ANNUAL_CHANGE + ")")
-#                 self.dataBase.method_1(symbolAttribute[0], Degrees.smethod_15(symbolAttribute[1], DegreesType.Latitude, self.formatProvider), Degrees.smethod_15(symbolAttribute[2], DegreesType.Longitude, self.formatProvider), Altitude.smethod_4(innerText, str, self.formatProvider), new Symbol(SymbolType.Arp), symbolAttribute)
-                
+
                 attr = ""
                 for j in range(3, len(symbolAttribute)):
                     if len(attr) > 0:
@@ -2438,14 +2112,14 @@ class DataBaseLoaderAixm:
                     attr += symbolAttribute[j]
 
                 self.pointData.append([symbolAttribute[0], "", "", symbolAttribute[1], symbolAttribute[2], altitude_metre, attr, SymbolType.Arp, "Ahp", current])
-#             print self.pointData
             return True
         return True
+
     def method_4(self, xmlNodeList_0):
         flag = False
         if (xmlNodeList_0 != None and  xmlNodeList_0.count() > 0):
             count =  xmlNodeList_0.count()
-#             try:
+
             for i in range(count):
                 current = xmlNodeList_0.item(i)
                 symbolAttribute = []
@@ -2458,8 +2132,6 @@ class DataBaseLoaderAixm:
                 symbolAttribute.append(Captions.RWY_BIG + " " + xmlNodes1.namedItem("txtDesig").toElement().text())
                 symbolAttribute.append(str(Degrees.smethod_15(xmlNodes.namedItem("geoLat").toElement().text(), DegreesType.Latitude).value))
                 symbolAttribute.append(str(Degrees.smethod_15(xmlNodes.namedItem("geoLong").toElement().text(), DegreesType.Longitude).value))
-#                     symbolAttribute.append(xmlNodes.namedItem("geoLat").toElement().text())
-#                     symbolAttribute.append(xmlNodes.namedItem("geoLong").toElement().text())
                 symbolAttribute.append(xmlNodes2.namedItem("codeId").toElement().text())
                 xmlNodes3 = current.namedItem("valElev")
                 if (xmlNodes3 != None):
@@ -2482,17 +2154,14 @@ class DataBaseLoaderAixm:
                 if attr == "ESNY":
                     pass
                 self.pointData.append([symbolAttribute[0], "", "", symbolAttribute[1], symbolAttribute[2], altitude_metre, attr, SymbolType.Default, "Rcp", current])
-#                 print self.pointData
             return True
-#             except:
-#                 return False
         return True
     
     def method_5(self, xmlNodeList_0):
         flag = False
         if (xmlNodeList_0 != None and  xmlNodeList_0.count() > 0):
             count =  xmlNodeList_0.count()
-#             try:
+
             for i in range(count):
                 current = xmlNodeList_0.item(i)
                 symbolAttribute = []
@@ -2509,8 +2178,6 @@ class DataBaseLoaderAixm:
                 if current.namedItem("geoLong").toElement().text() == "":
                     continue
                 symbolAttribute.append(str(Degrees.smethod_15(current.namedItem("geoLong").toElement().text(), DegreesType.Longitude).value))
-#                     symbolAttribute.append(xmlNodes.namedItem("geoLat").toElement().text())
-#                     symbolAttribute.append(xmlNodes.namedItem("geoLong").toElement().text())
                 symbolAttribute.append(xmlNodes1.namedItem("codeId").toElement().text())
                 xmlNodes3 = current.namedItem("valElevTdz")
                 if (xmlNodes3 != None):
@@ -2547,29 +2214,14 @@ class DataBaseLoaderAixm:
                         continue
                     else:
                         self.pointData[n][5] = altitude_metre
-                    # symbolAttribute = item[8] as SymbolAttributes
-                    # if (symbolAttribute == null)
-                    # {
-                    #     continue
-                    # }
-                    # symbolAttribute[0] = item[0] as string
-                    # if (!altitude.IsValid)
-                    # {
-                    #     continue
-                    # }
-                    # symbolAttribute[4] = string.Format("{0} {1}", Captions.TOUCH_DOWN_ZONE_ELEVATION, altitude.method_0(":u"))
-
-#                 print self.pointData
             return True
-#             except:
-#                 return False
         return True
     
     def method_6(self, xmlNodeList_0):
         flag = False
         if (xmlNodeList_0 != None and  xmlNodeList_0.count() > 0):
             count =  xmlNodeList_0.count()
-#             try:
+
             for i in range(count):
                 current = xmlNodeList_0.item(i)
                 symbolAttribute = []
@@ -2581,8 +2233,7 @@ class DataBaseLoaderAixm:
                 symbolAttribute.append(str(Degrees.smethod_15(xmlNodes.namedItem("geoLat").toElement().text(), DegreesType.Latitude).value))
                 symbolAttribute.append(str(Degrees.smethod_15(xmlNodes.namedItem("geoLong").toElement().text(), DegreesType.Longitude).value))
                 symbolAttribute.append(current.namedItem("codeType").toElement().text())
-#                     symbolAttribute.append(xmlNodes.namedItem("geoLong").toElement().text())
-                
+
                 xmlNodes1 = current.namedItem("txtName")
                 if (xmlNodes1 != None):
                     symbolAttribute.append(xmlNodes1.toElement().text())
@@ -2601,10 +2252,7 @@ class DataBaseLoaderAixm:
                 if symbolAttribute[4].count("FAF") > 0:
                     symbolType = SymbolType.Faf
                 self.pointData.append([symbolAttribute[0], "", "", symbolAttribute[1], symbolAttribute[2], "", attr, symbolType, "Dpn", current])
-#                 print self.pointData
             return True
-#             except:
-#                 return False
         return True
     
     
@@ -2612,7 +2260,7 @@ class DataBaseLoaderAixm:
         flag = False
         if (xmlNodeList_0 != None and  xmlNodeList_0.count() > 0):
             count =  xmlNodeList_0.count()
-#             try:
+
             for i in range(count):
                 current = xmlNodeList_0.item(i)
                 symbolAttribute = []
@@ -2679,17 +2327,15 @@ class DataBaseLoaderAixm:
                 if xmlNodes2 != None and codeTypeStr.count("DVOR") > 0:
                     symbolType = SymbolType.Vord
                 self.pointData.append([symbolAttribute[0], "", "", symbolAttribute[1], symbolAttribute[2], altitude_metre, attr, symbolType, "Vor", current])
-#                 print self.pointData
+
             return True
-#             except:
-#                 return False
         return True
     
     def method_8(self, xmlNodeList_0):
         flag = False
         if (xmlNodeList_0 != None and  xmlNodeList_0.count() > 0):
             count =  xmlNodeList_0.count()
-#             try:
+
             for i in range(count):
                 current = xmlNodeList_0.item(i)
                 symbolAttribute = []
@@ -2734,8 +2380,7 @@ class DataBaseLoaderAixm:
 
                     degreeStr = symbolAttribute[1]
                     degree1Str = symbolAttribute[2]
-                    # DataBaseSymbols symbols = this.dataBase.Symbols
-                    # SymbolType[] symbolTypeArray = new SymbolType[] { SymbolType.Vor }
+
                     dataRow = None
                     for pointData0 in self.pointData:
                         symbolType = pointData0[7]
@@ -2743,15 +2388,12 @@ class DataBaseLoaderAixm:
                             if degreeStr == pointData0[3] and degree1Str == pointData0[4]:
                                 dataRow = pointData0
                                 break
-                    # DataRow dataRow = symbols.method_2(degree, degree1, symbolTypeArray)
+
                     if (dataRow != None):
                         dataRow[7] = SymbolType.Vortac
                         item = dataRow[6]
                         if (item == None):
                             continue
-                        # item[5] = sym5
-                        # item[6] = symbolAttribute[6]
-                        # item[7] = symbolAttribute[7]
                         continue
                 
                 xmlNodes3 = current.namedItem("txtName")
@@ -2790,17 +2432,15 @@ class DataBaseLoaderAixm:
                         attr += ", "
                     attr += symbolAttribute[j]
                 self.pointData.append([symbolAttribute[0], "", "", symbolAttribute[1], symbolAttribute[2], altitude_metre, attr, SymbolType.Tacan, "Tcn", current])
-#                 print self.pointData
+
             return True
-#             except:
-#                 return False
         return True
     
     def method_9(self, xmlNodeList_0):
         flag = False
         if (xmlNodeList_0 != None and  xmlNodeList_0.count() > 0):
             count =  xmlNodeList_0.count()
-#             try:
+
             for i in range(count):
                 current = xmlNodeList_0.item(i)
                 symbolAttribute = []
@@ -2878,11 +2518,9 @@ class DataBaseLoaderAixm:
                         attr += ", "
                     attr += symbolAttribute[j]
                 self.pointData.append([symbolAttribute[0], "", "", symbolAttribute[1], symbolAttribute[2], altitude_metre, attr, SymbolType.Dme, "Dme", current])
-#                 print self.pointData
             return True
-#             except:
-#                 return False
         return True
+
     def method_10(self, xmlNodeList_0):
         flag = False
         if (xmlNodeList_0 != None and  xmlNodeList_0.count() > 0):
@@ -2947,9 +2585,9 @@ class DataBaseLoaderAixm:
                         attr += ", "
                     attr += symbolAttribute[j]
                 self.pointData.append([symbolAttribute[0], "", "", symbolAttribute[1], symbolAttribute[2], altitude_metre, attr, SymbolType.Ndb, "Ndb", current])
-#                 print self.pointData
             return True
         return True
+
     def method_11(self, xmlNodeList_0):
         flag = False
         if (xmlNodeList_0 != None and  xmlNodeList_0.count() > 0):
@@ -3003,9 +2641,9 @@ class DataBaseLoaderAixm:
                         attr += ", "
                     attr += symbolAttribute[j]
                 self.pointData.append([symbolAttribute[0], "", "", symbolAttribute[1], symbolAttribute[2], altitude_metre, attr, SymbolType.Be1, "Mkr", current])
-#                 print self.pointData
             return True
         return True
+
     def method_12(self, xmlNodeList_0):
         flag = False
         if (xmlNodeList_0 != None and  xmlNodeList_0.count() > 0):
@@ -3062,9 +2700,9 @@ class DataBaseLoaderAixm:
                         attr += ", "
                     attr += symbolAttribute[j]
                 self.pointData.append([symbolAttribute[0], "", "", symbolAttribute[1], symbolAttribute[2], altitude_metre, attr, SymbolType.Gp, "Sns", current])
-#                 print self.pointData
             return True
         return True
+
     def method_13(self, xmlNodeList_0):
         flag = False
         if (xmlNodeList_0 != None and  xmlNodeList_0.count() > 0):
@@ -3148,7 +2786,8 @@ class DataBaseLoaderAixm:
                     attr += symbolAttribute[j]
                 self.pointData.append([symbolAttribute[0], "", "", symbolAttribute[1], symbolAttribute[2], altitude_metre, attr, SymbolType.Gp, "Ils", current])
             return True
-        return True   
+        return True
+
     def method_14(self, xmlNodeList_0):
         flag = False
         if (xmlNodeList_0 != None and  xmlNodeList_0.count() > 0):
@@ -3242,9 +2881,9 @@ class DataBaseLoaderAixm:
                             attr += ", "
                         attr += symbolAttribute[n]
                     self.pointData.append([symbolAttribute[0], "", "", symbolAttribute[1], symbolAttribute[2], altitude_metre, attr, SymbolType.Gp, "Mls", current])
-#                 return True
             return True
         return True
+
     def method_15(self, xmlNodeList_0):
         flag = False
         if (xmlNodeList_0 != None and  xmlNodeList_0.count() > 0):
@@ -3323,7 +2962,6 @@ class DataBaseLoaderAixm:
                 xmlNodes = current.namedItem("RsgUid")
                 xmlNodes1 = xmlNodes.namedItem("RteUid")
                 nodes = xmlNodes.childNodes()
-#                 n = nodes.count()
                 itemOf = nodes.item(1)
                 if (not self.listComp(itemOf.nodeName(), strArrays1)):
                     continue
@@ -3340,8 +2978,7 @@ class DataBaseLoaderAixm:
                 degree1 = Degrees.smethod_15(itemOf.namedItem("geoLong").toElement().text(), DegreesType.Longitude)
                 
                 symbolAttribute.append(itemOf.namedItem("codeId").toElement().text())
-#                 Degrees degree = Degrees.smethod_15(symbolAttribute[1], DegreesType.Latitude, self.formatProvider)
-#                 Degrees degree1 = Degrees.smethod_15(symbolAttribute[2], DegreesType.Longitude, self.formatProvider)
+
                 innerText = []
                 innerText.append(str0)
                 innerText.append(str(Degrees.smethod_15(itemOf1.namedItem("geoLat").toElement().text(), DegreesType.Latitude).value))
@@ -3355,11 +2992,11 @@ class DataBaseLoaderAixm:
                 dataBaseCoordinate = DataBaseCoordinates("Segments")
                 dataBaseCoordinate.method_0(degree, degree1, Altitude.NaN(), DataBaseCoordinateType.Point, symbolAttribute)
                 dataBaseCoordinate.method_0(degree2, degree3, Altitude.NaN(), DataBaseCoordinateType.Point, innerText)
-#                 routList.append([symbolAttribute[1], symbolAttribute[2], symbolAttribute[3]])
-#                 routList.append([innerText[1], innerText[2], innerText[3]])
+
                 self.pointDataRoutes.append([str0, dataBaseCoordinate, "Rsg", current])
             return True
         return True
+
     def method_17(self, xmlNodeList_0):
         flag = False
         if (xmlNodeList_0 != None and  xmlNodeList_0.count() > 0):
@@ -3384,19 +3021,15 @@ class DataBaseLoaderAixm:
                     if altitude == None:
                         altitude = Altitude(0)
                     self.pointDataAirspace.append([str0, str(naN.Metres), str(altitude.Metres), None, "True", "True", [], "Ase", current])
-#                     self.dataBase.method_6(str, naN, altitude, Distance.NaN, true, true, null)
                 else:
                     if (naN.IsValid()):
                         dataRow.pop(1)
                         dataRow.insert(1, str(naN.Metres))
-#                         dataRow["LowerLimit"] = naN
-#                     }
+
                     if (altitude.IsValid()):
                         dataRow.pop(2)
                         dataRow.insert(2, str(altitude.Metres))
-#                         dataRow["UpperLimit"] = altitude
-#                     }
-                    
+
                     dataRow.pop(4)
                     dataRow.insert(4, "True")
                     item = dataRow[6]
@@ -3412,8 +3045,7 @@ class DataBaseLoaderAixm:
                         if (not altitude.IsValid()):
                             continue
                         dataBaseCoordinate.set_attribute(5, Captions.UPPER_LIMIT_BIG + " " + str(altitude.Metres))
-#                     dataRow.pop(6)
-#                     self.pointDataAirspace.insert(rowIndex, dataRow)
+
                     self.pointDataAirspace.pop(rowIndex)
                     self.pointDataAirspace.insert(rowIndex, dataRow)
             return True
@@ -3463,17 +3095,12 @@ class DataBaseLoaderAixm:
                                 symbolAttribute.insert(1, current1.namedItem("geoLat").toElement().text())
                                 symbolAttribute.pop(2)
                                 symbolAttribute.insert(2, current1.namedItem("geoLong").toElement().text())
-#                 
-#                                 symbolAttribute.append(current1.namedItem("geoLat").toElement().text())
-#                                 symbolAttribute[2] = current1.SelectSingleNode("geoLong").toElement().text()
                             else:
                                 symbolAttribute.pop(1)
                                 symbolAttribute.insert(1, xmlNodes2.toElement().text())
                                 symbolAttribute.pop(2)
                                 symbolAttribute.insert(2, xmlNodes3.toElement().text())
-# #                 
-#                                 symbolAttribute[1] = xmlNodes2.InnerText
-#                                 symbolAttribute[2] = xmlNodes3.InnerText
+
                             degree = Degrees.smethod_15(symbolAttribute[1], DegreesType.Latitude)
                             degree1 = Degrees.smethod_15(symbolAttribute[2], DegreesType.Longitude)
                             xmlNodes2 = current1.namedItem("valRadiusArc")
@@ -3587,7 +3214,7 @@ class DataBaseLoaderAixm:
                     current1 = nodes.item(j)
                     if current1.nodeName() != "Gbv":
                         continue
-#                 for current1 in current.namedItem("Gbv"):
+
                     symbolAttribute = SymbolAttributes()
                     symbolAttribute.pop(0)
                     symbolAttribute.insert(0,innerText)
@@ -3603,6 +3230,7 @@ class DataBaseLoaderAixm:
                 self.pointDataBorder.append([innerText, dataBaseGeoBorderType, dataBaseCoordinate, "Gbr", current])
             return True
         return True
+
     def method_20(self, domNodeList):
         pass
         
@@ -3615,6 +3243,7 @@ class DataBaseLoaderAixm:
             if name.contains(findedStr):
                 resultIndex.append(i)
         return resultIndex
+
     def listComp(self, str0, strArray):
         for str1 in strArray:
             if str0 == str1:
@@ -3647,22 +3276,7 @@ class DataBaseLoaderAixm:
                     self.pointDataAirspace.pop(i)
                     continue
                 i += 1
-#             for item in self.pointDataAirspace:
-#                 dataBaseCoordinate = item[6]
-#                 if dataBaseCoordinate == None or len(dataBaseCoordinate) == 0:
-# #                     numList.append(num)
-# #                     num += 1
-#                     self.pointDataAirspace.pop(self.pointDataAirspace.index(item))
-#                     self.pointDataAirspace.remove(item)
-#             for i in numList:
-#                 self.pointDataAirspace.pop(i)
-            
-#         return None
-                 
-#         XmlDocument xmlDocument = new XmlDocument()
-#         xmlDocument.Load(self.dataBase.FileName)
-#         XmlNode xmlNodes = xmlDocument.namedItem("AIXM-Snapshot")
-    
+
 class Degrees:
     def __init__(self, double_0, double_1 = None, double_2 = None, degreesType_0 = None):
         self.value = None
@@ -3705,23 +3319,19 @@ class Degrees:
         pass
     
     def method_0(self):
-#         switch (self.type)
-#     {
         if self.type == DegreesType.Latitude:
             if (self.value >= -90 and self.value <= 90):
                 return
             raise ValueError("ERR_LATITUDE_OUT_OF_BOUNDS")
-#             throw new Exception(string.Format(Messages.ERR_LATITUDE_OUT_OF_BOUNDS, self.value))
         elif self.type == DegreesType.Longitude:
             if (self.value >= -180 and self.value <= 180):
                 return
             raise ValueError("ERR_LONGITUDE_OUT_OF_BOUNDS")
-#             throw new Exception(string.Format(Messages.ERR_LONGITUDE_OUT_OF_BOUNDS, self.value))
         elif self.type == DegreesType.Variation:
             if (self.value >= -180 and self.value <= 180):
                 return
             raise ValueError("ERR_VARIATION_OUT_OF_BOUNDS")
-#             throw new Exception(string.Format(Messages.ERR_VARIATION_OUT_OF_BOUNDS, self.value))
+
     @staticmethod
     def String2Degree(qStr):
         qStr = String.Str2QString(qStr)
@@ -3759,14 +3369,13 @@ class Degrees:
              degreeFormat == "n" or degreeFormat == "s":
             return Degrees(decimaldegree, None, None, DegreesType.Latitude)
         return Degrees(decimaldegree)
+
     @staticmethod
     def smethod_12(degreesStyle_0, degreesStyle_1):
         return (degreesStyle_0 & degreesStyle_1) == degreesStyle_1
+
     @staticmethod
     def smethod_15(string_0, degreesType_0):
-#         string_0 = "11223"  
-#         s = "fsafs"
-#         s.      
         num = string_0.indexOf('.')
         if (num == -1):
             num = string_0.indexOf("N")
@@ -3784,11 +3393,9 @@ class Degrees:
             num = string_0.indexOf("e")
         if (num == -1):
             num = string_0.indexOf("w")
-#         try
-#         {
         str0 = string_0[:num]
         degreesStyle = None
-#         DegreesStyle degreesStyle = DegreesStyle.Degrees
+
         if (degreesType_0 == DegreesType.Latitude):
             if (str0.size() == 6):
                 degreesStyle = DegreesStyle.DegreesMinutesSeconds
@@ -3796,47 +3403,15 @@ class Degrees:
                 degreesStyle = DegreesStyle.DegreesMinutes
             elif (str0.size() != 2):
                 raise ValueError("NOT_VALID_LATITUDE_VALUE")
-#                 throw new Exception(string.Format(Validations.NOT_VALID_LATITUDE_VALUE, string_0))
         elif (str0.size() == 7):
             degreesStyle = DegreesStyle.DegreesMinutesSeconds
         elif (str0.size() == 5):
             degreesStyle = DegreesStyle.DegreesMinutes
         elif (str0.size() != 3):
             raise ValueError("NOT_VALID_LONGITUDE_VALUE")
-#             throw new Exception(string.Format(Validations.NOT_VALID_LONGITUDE_VALUE, string_0))
         degree = Degrees.smethod_17(string_0, degreesType_0, degreesStyle)
-#         if (degree == None):
-#             switch (degreesType_0)
-#             {
-#                 case DegreesType.Degrees:
-#                 {
-#                     throw new Exception(string.Format(Validations.NOT_VALID_DEGREES_VALUE, string_0))
-#                 }
-#                 case DegreesType.Latitude:
-#                 {
-#                     throw new Exception(string.Format(Validations.NOT_VALID_LATITUDE_VALUE, string_0))
-#                 }
-#                 case DegreesType.Longitude:
-#                 {
-#                     throw new Exception(string.Format(Validations.NOT_VALID_LONGITUDE_VALUE, string_0))
-#                 }
-#                 case DegreesType.Variation:
-#                 {
-#                     throw new Exception(string.Format(Validations.NOT_VALID_MAGNETIC_VARIATION_VALUE, string_0))
-#                 }
-#                 default:
-#                 {
-#                     throw new Exception(Messages.ERR_INVALID_DEGREES_TYPE)
-#                 }
-#             }
-#         }
-#     }
-#         catch
-#         {
-#             throw
-#         }
         return degree
-#         pass
+
     @staticmethod
     def smethod_17(string_0, degreesType_0, degreesStyle_0):
         num = None
@@ -3845,7 +3420,6 @@ class Degrees:
         num3 = None
         num4 = None
         flag = False
-#         numberStyle = NumberStyles.Float
         degrees_0 = Degrees(None, None, None, degreesType_0)
         try:
             string_0 = string_0.toUpper()
@@ -3871,8 +3445,6 @@ class Degrees:
             if (Degrees.smethod_12(degreesStyle_0, DegreesStyle.Degrees)):
                 try:
                     num, result = string_0.toDouble()
-#                 if (double.TryParse(string_0, numberStyle, iformatProvider_0, out num)):
-#                     degrees_0 = math.fabs(num) * num5
                     degrees_0 =  Degrees(math.fabs(num) * num5, None, None, degreesType_0)
                     flag = degrees_0
                     return flag
@@ -3884,27 +3456,15 @@ class Degrees:
                     if (string_0.size() < 2):
                         flag = None
                         return flag
-#                     elif (!double.TryParse(strArrays[0], numberStyle, iformatProvider_0, out num))
-# #                     {
-# #                         flag = false
-# #                         return flag
-# #                     }
                     else:
                         try:
                             degrees_0 = Degrees(math.fabs(num) * num5, math.fabs(num1) * num5, None, degreesType_0)
                         except:
                             flag = None
                             return False
-#                     else
-#                     {
-#                         flag = false
-#                         return flag
-#                     }
-#                 }
                 else:
                     try:
                         num3, result = string_0.toDouble()
-        #                 {
                         num3 = math.fabs(num3) / 100
                         num1 = (num3 - math.trunc(num3)) * 100
                         num = math.trunc(num3)
@@ -3914,42 +3474,13 @@ class Degrees:
                         return flag
                 flag = degrees_0
                 return flag
-#                 }
-#                 else
-#                 {
-#                     flag = false
-#                     return flag
-#                 }
-#                 flag = true
-#                 return flag
-#             }
             elif (Degrees.smethod_12(degreesStyle_0, DegreesStyle.DegreesMinutesSeconds)):
                 if (Degrees.smethod_12(degreesStyle_0, DegreesStyle.DelimitedBySpace)):
-#                     string[] strArrays1 = string_0.Split(" ".ToCharArray())
-#                     if ((int)strArrays1.Length < 3)
-#                     {
-#                         flag = false
-#                         return flag
-#                     }
-#                     else if (!double.TryParse(strArrays1[0], numberStyle, iformatProvider_0, out num))
-#                     {
-#                         flag = false
-#                         return flag
-#                     }
-#                     else if (!double.TryParse(strArrays1[1], numberStyle, iformatProvider_0, out num1))
-#                     {
-#                         flag = false
-#                         return flag
-#                     }
-#                     else if (double.TryParse(strArrays1[2], numberStyle, iformatProvider_0, out num2))
-#                     {
                     try:
                         degrees_0 = Degrees(math.fabs(num) * num5, math.fabs(num1) * num5, math.fabs(num2) * num5, degreesType_0)
                     except:
                         flag = None
                         return flag
-#                     }
-#                 }
                 else:
                     try:
                         num4, result = string_0.toDouble()
@@ -3962,19 +3493,12 @@ class Degrees:
                     except:
                         flag = None
                         return flag
-#                 }
                 flag = degrees_0
                 return flag
-#             }
-#             return false
-#         }
-#         catch (Exception exception)
         except:
             return None
-#         {
-#             return false
-#         }
         return flag
+
 class DataBaseCoordinate:
     def __init__(self, double_0 = None, double_1 = None, degrees_0 = None, degrees_1 = None, altitude_0 = None, degrees_2 = None, degrees_3 = None, dataBaseCoordinateType_0 = None, symbolAttributes_0 = None):
         self.x = None
@@ -4039,51 +3563,66 @@ class DataBaseCoordinate:
         return self.type
     def get_variation(self):
         return self.variation
+
+
 class DataBaseCoordinates(list):
     def __init__(self, dataBaseCoordinatesType_0):
         self.type = dataBaseCoordinatesType_0
         pass
+
     def method_0(self, degrees_0, degrees_1, altitude_0, dataBaseCoordinateType_0, symbolAttributes_0):
         dataBaseCoordinate = DataBaseCoordinate(None, None, degrees_0, degrees_1, altitude_0, None, None, dataBaseCoordinateType_0, symbolAttributes_0)
         self.append(dataBaseCoordinate)
         return dataBaseCoordinate
+
     def method_1(self, double_0, double_1, degrees_0, degrees_1, altitude_0, dataBaseCoordinateType_0, symbolAttributes_0):
         dataBaseCoordinate = DataBaseCoordinate(double_0, double_1, degrees_0, degrees_1, altitude_0, None, None, dataBaseCoordinateType_0, symbolAttributes_0)
         self.append(dataBaseCoordinate)
         return dataBaseCoordinate
+
     def  method_2(self, double_0, double_1, degrees_0, degrees_1, altitude_0, degrees_2, dataBaseCoordinateType_0, symbolAttributes_0):
         dataBaseCoordinate = DataBaseCoordinate(double_0, double_1, degrees_0, degrees_1, altitude_0, degrees_2, None, dataBaseCoordinateType_0, symbolAttributes_0)
         self.append(dataBaseCoordinate)
         return dataBaseCoordinate
+
     def method_3(self, double_0, double_1, degrees_0, degrees_1, altitude_0, degrees_2, degrees_3, dataBaseCoordinateType_0, symbolAttributes_0):
         dataBaseCoordinate = DataBaseCoordinate(double_0, double_1, degrees_0, degrees_1, altitude_0, degrees_2, degrees_3, dataBaseCoordinateType_0, symbolAttributes_0)
         self.append(dataBaseCoordinate)
         return dataBaseCoordinate
+
     def method_4(self):
         self = []
+
     def method_5(self, dataBaseCoordinate_0):
         return self.index(dataBaseCoordinate_0)
+
     def method_6(self, dataBaseCoordinate_0):
         self.remove(dataBaseCoordinate_0)
+
     def method_7(self, int_0):
         self.pop(int_0)
 
     def get_Count(self):
         return len(self)
+
     Count = property(get_Count, None, None, None)
 
     def get_List(self):
         return self
+
     List = property(get_List, None, None, None)
 
     def get_Type(self):
         return self.type
+
     Type = property(get_Type, None, None, None)
 
     def __eq__(self, other):
         if (other == None):
             return 0
         return self.Count == other.Count
+
+
 class SymbolAttributes(list):
     def __init__(self, stringList = None):
         self.attributes = []
@@ -4095,6 +3634,7 @@ class SymbolAttributes(list):
             
     def get_attributes(self):
         return self.attributes
+
     Array = property(get_attributes, None, None, None)   
     
     def get_Remarks(self):
@@ -4108,5 +3648,6 @@ class SymbolAttributes(list):
                     strBuild += ", "
                 strBuild += str0  
         return self.strBuild
+
     Remarks = property(get_Remarks, None, None, None)      
     
