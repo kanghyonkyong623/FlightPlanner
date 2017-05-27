@@ -15,7 +15,6 @@ from Composer.Qgscomposerimageexportoptions import QgsComposerImageExportOptions
 from Composer.Qgssvgexportoptions import QgsSvgExportOptionsDialog
 from Composer.QgsCompositionWidget import QgsCompositionWidget
 from FlightPlanner.Panels.GroupBox import GroupBox
-from map.myLayerTreeView import MyLayerTreeView
 from Composer.QgsComposerLabelWidget import QgsComposerLabelWidget
 from Composer.QgsComposerMapWidget import QgsComposerMapWidget
 from Composer.QgsComposerArrowWidget import QgsComposerArrowWidget
