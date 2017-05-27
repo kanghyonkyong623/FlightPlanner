@@ -13,7 +13,6 @@ from qgis.core import QgsApplication
 from Type.String import String
 from AircraftOperation import AirCraftOperation
 import define
-import flightPlanner_rc   # resource
 
 appdatadir = None
 path = None
