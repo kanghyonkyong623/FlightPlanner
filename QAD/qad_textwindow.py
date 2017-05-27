@@ -307,8 +307,14 @@ class QadChronologyEdit(QTextEdit):
       self.set_Colors()
       self.setReadOnly(True)
       self.setMinimumSize(0, 1)
-   
-   
+      self.setContextMenuPolicy(Qt.CustomContextMenu)
+
+      self.contextMenu = self.createStandardContextMenu()
+      self.clearAllAction = self.contextMenu.addAction("Clear All");
+
+      self.customContextMenuRequested.connect(self.showContextMenu)
+      self.clearAllAction.triggered.connect(self.clearAll)
+
    #============================================================================
    # set_Colors
    #============================================================================
@@ -340,8 +346,13 @@ class QadChronologyEdit(QTextEdit):
       cursor.movePosition(QTextCursor.End, QTextCursor.MoveAnchor) # fine documento
       self.setTextCursor(cursor)
       self.ensureCursorVisible()
-  
-           
+
+   def showContextMenu(self):
+      self.contextMenu.exec_(QCursor.pos())
+
+   def clearAll(self):
+      self.clear()
+
 #===============================================================================
 # QadEdit
 #===============================================================================
